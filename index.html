@@ -1220,6 +1220,262 @@
             #auth-modal .modal-box,
             #checkout-modal .modal-box { padding: 28px 22px; }
         }
+
+        /* ═══════════════════════════════════════════════════════════
+           ORDER TRACKING MODAL
+        ═══════════════════════════════════════════════════════════ */
+        #order-track-modal .modal-box { max-width:680px; }
+
+        .track-header {
+            display: flex; justify-content: space-between;
+            align-items: flex-start; flex-wrap: wrap; gap: 12px;
+            padding-bottom: 24px; border-bottom: 1px solid var(--mist);
+            margin-bottom: 30px;
+        }
+        .track-order-id {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem; font-weight: 700; color: var(--choco);
+        }
+        .track-date { font-size: 0.75rem; color: rgba(61,26,14,0.45); margin-top: 4px; }
+
+        /* Timeline */
+        .track-timeline {
+            position: relative; margin: 0 0 34px;
+        }
+        .track-timeline::before {
+            content: '';
+            position: absolute; left: 18px; top: 22px; bottom: 22px;
+            width: 2px; background: var(--mist);
+        }
+        .track-step {
+            display: flex; align-items: flex-start; gap: 18px;
+            padding: 0 0 28px; position: relative;
+        }
+        .track-step:last-child { padding-bottom: 0; }
+        .track-dot {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: var(--mist); border: 2px solid var(--mist);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0; position: relative; z-index: 1;
+            transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .track-step.done .track-dot {
+            background: var(--sage); border-color: var(--sage); color: white;
+            box-shadow: 0 4px 16px rgba(125,170,138,0.4);
+        }
+        .track-step.active .track-dot {
+            background: var(--rose); border-color: var(--rose); color: white;
+            box-shadow: 0 6px 20px rgba(212,116,140,0.45);
+            animation: dotPulse 2s ease-in-out infinite;
+        }
+        @keyframes dotPulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(212,116,140,0.5); }
+            50%      { box-shadow: 0 0 0 8px rgba(212,116,140,0); }
+        }
+        .track-step.pending .track-dot { background: var(--mist); border-color: rgba(61,26,14,0.12); }
+
+        .track-step-body { padding-top: 6px; flex: 1; }
+        .track-step-title {
+            font-weight: 800; font-size: 0.9rem; color: var(--choco);
+            margin-bottom: 3px;
+        }
+        .track-step.pending .track-step-title { color: rgba(61,26,14,0.35); }
+        .track-step-desc { font-size: 0.78rem; color: rgba(61,26,14,0.5); line-height: 1.5; }
+        .track-step-time { font-size: 0.7rem; color: var(--rose); font-weight: 700; margin-top: 4px; }
+
+        /* Delivery estimate bar */
+        .delivery-bar {
+            background: linear-gradient(135deg, var(--warm), #FFE8F0);
+            border-radius: 20px; padding: 18px 22px;
+            display: flex; align-items: center; gap: 16px;
+            margin-bottom: 28px; border: 1px solid rgba(212,116,140,0.15);
+        }
+        .delivery-icon { font-size: 2rem; flex-shrink: 0; }
+        .delivery-label { font-size: 0.68rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--rose); }
+        .delivery-date { font-family: 'Cormorant Garamond',serif; font-size: 1.4rem; font-weight: 700; color: var(--choco); }
+        .delivery-sub { font-size: 0.72rem; color: rgba(61,26,14,0.5); margin-top: 2px; }
+
+        /* Order items in tracking */
+        .track-items { margin-bottom: 28px; }
+        .track-items-title {
+            font-size: 0.68rem; font-weight: 800; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--choco); margin-bottom: 14px;
+        }
+        .track-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 0; border-bottom: 1px solid rgba(61,26,14,0.06);
+        }
+        .track-item-img {
+            width: 56px; height: 56px; border-radius: 12px;
+            object-fit: cover; flex-shrink: 0;
+            background: var(--mist);
+        }
+        .track-item-name { font-weight: 700; font-size: 0.85rem; color: var(--choco); }
+        .track-item-meta { font-size: 0.72rem; color: rgba(61,26,14,0.45); margin-top: 3px; }
+        .track-item-price { font-weight: 800; color: var(--rose); font-size: 0.88rem; margin-left: auto; flex-shrink: 0; }
+
+        /* Address + Payment columns */
+        .track-details-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+            margin-bottom: 24px;
+        }
+        .track-detail-card {
+            background: var(--mist); border-radius: 16px; padding: 16px 18px;
+        }
+        .track-detail-head {
+            font-size: 0.62rem; font-weight: 800; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--rose); margin-bottom: 10px;
+        }
+        .track-detail-line { font-size: 0.82rem; color: var(--choco); line-height: 1.6; }
+
+        /* Cancel button */
+        .cancel-btn {
+            background: none; border: 1.5px solid rgba(229,62,62,0.3);
+            color: #e53e3e; border-radius: 999px;
+            padding: 10px 22px; font-family: 'Nunito',sans-serif;
+            font-size: 0.75rem; font-weight: 700; cursor: pointer;
+            transition: all 0.3s;
+        }
+        .cancel-btn:hover { background: #e53e3e; color: white; border-color: #e53e3e; }
+
+        /* ═══════════════════════════════════════════════════════════
+           CART FREE SHIPPING BAR
+        ═══════════════════════════════════════════════════════════ */
+        .shipping-bar-wrap {
+            margin-bottom: 20px; padding: 14px 18px;
+            background: linear-gradient(135deg,rgba(242,184,198,0.15),rgba(212,116,140,0.08));
+            border-radius: 14px; border: 1px solid rgba(212,116,140,0.2);
+        }
+        .shipping-bar-msg {
+            font-size: 0.75rem; font-weight: 700;
+            color: var(--choco); margin-bottom: 8px;
+        }
+        .shipping-bar-msg span { color: var(--rose); }
+        .shipping-bar-track {
+            background: rgba(212,116,140,0.15); border-radius: 999px;
+            height: 6px; overflow: hidden;
+        }
+        .shipping-bar-fill {
+            height: 100%; background: linear-gradient(90deg,var(--blush),var(--rose));
+            border-radius: 999px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           COUPON CODE
+        ═══════════════════════════════════════════════════════════ */
+        .coupon-wrap {
+            margin-bottom: 20px;
+        }
+        .coupon-toggle {
+            background: none; border: none; cursor: pointer;
+            font-size: 0.76rem; font-weight: 700; color: var(--rose);
+            display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+            font-family: 'Nunito',sans-serif;
+        }
+        .coupon-row {
+            display: flex; gap: 8px; overflow: hidden;
+            max-height: 0; transition: max-height 0.35s ease;
+        }
+        .coupon-row.open { max-height: 60px; }
+        .coupon-input {
+            flex: 1; background: var(--mist);
+            border: 1.5px solid transparent; border-radius: 12px;
+            padding: 11px 16px; font-family: 'Nunito',sans-serif;
+            font-size: 0.85rem; color: var(--choco); outline: none;
+            text-transform: uppercase; letter-spacing: 1px;
+            transition: border-color 0.3s;
+        }
+        .coupon-input:focus { border-color: var(--rose); background: white; }
+        .coupon-input.valid { border-color: var(--sage); background: rgba(125,170,138,0.08); }
+        .coupon-apply {
+            background: var(--choco); color: white; border: none;
+            border-radius: 12px; padding: 11px 18px;
+            font-family: 'Nunito',sans-serif; font-size: 0.8rem;
+            font-weight: 700; cursor: pointer; transition: all 0.3s; white-space: nowrap;
+        }
+        .coupon-apply:hover { background: var(--rose); }
+        .coupon-msg { font-size: 0.72rem; font-weight: 700; margin-top: 6px; }
+        .coupon-msg.ok  { color: var(--sage); }
+        .coupon-msg.err { color: #e53e3e; }
+
+        /* ═══════════════════════════════════════════════════════════
+           RECENTLY VIEWED
+        ═══════════════════════════════════════════════════════════ */
+        #recently-viewed {
+            padding: 60px 0; background: var(--warm);
+            border-top: 1px solid rgba(212,116,140,0.1);
+        }
+        .rv-title {
+            font-family: 'Cormorant Garamond',serif;
+            font-size: 1.8rem; font-weight: 700; color: var(--choco);
+            margin-bottom: 24px;
+        }
+        .rv-title em { font-style: italic; color: var(--rose); }
+        .rv-grid {
+            display: flex; gap: 16px; overflow-x: auto;
+            padding-bottom: 8px; scrollbar-width: none;
+        }
+        .rv-grid::-webkit-scrollbar { display: none; }
+        .rv-card {
+            background: white; border-radius: 20px; overflow: hidden;
+            flex-shrink: 0; width: 180px; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(61,26,14,0.06);
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .rv-card:hover { transform: translateY(-8px); }
+        .rv-card img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+        .rv-card-body { padding: 12px 14px; }
+        .rv-card-name { font-weight: 700; font-size: 0.78rem; color: var(--choco); margin-bottom: 4px; line-height: 1.3; }
+        .rv-card-price { font-weight: 800; font-size: 0.82rem; color: var(--rose); }
+
+        /* ═══════════════════════════════════════════════════════════
+           FLOATING BUTTONS
+        ═══════════════════════════════════════════════════════════ */
+        .float-btns {
+            position: fixed; bottom: 30px; right: 28px;
+            display: flex; flex-direction: column; gap: 12px;
+            z-index: 9990;
+        }
+        .float-wa {
+            width: 52px; height: 52px; border-radius: 50%;
+            background: #25D366; color: white; border: none;
+            cursor: pointer; font-size: 1.4rem;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 6px 24px rgba(37,211,102,0.45);
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            text-decoration: none;
+        }
+        .float-wa:hover { transform: scale(1.15); box-shadow: 0 10px 32px rgba(37,211,102,0.55); }
+        .float-top {
+            width: 46px; height: 46px; border-radius: 50%;
+            background: var(--choco); color: white; border: none;
+            cursor: pointer; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 20px rgba(61,26,14,0.25);
+            opacity: 0; pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .float-top.visible { opacity: 1; pointer-events: auto; }
+        .float-top:hover { background: var(--rose); transform: scale(1.1); }
+
+        /* ═══════════════════════════════════════════════════════════
+           CHECKOUT COUPON STEP
+        ═══════════════════════════════════════════════════════════ */
+        .checkout-coupon-row {
+            display: flex; gap: 8px; margin-bottom: 6px;
+        }
+        .co-coupon-applied {
+            background: rgba(125,170,138,0.1); border: 1px solid var(--sage);
+            border-radius: 12px; padding: 10px 16px;
+            font-size: 0.78rem; font-weight: 700; color: var(--sage);
+            display: none; align-items: center; gap: 8px; margin-bottom: 8px;
+        }
+        .co-coupon-applied.show { display: flex; }
+
+        @media (max-width: 640px) {
+            .track-details-grid { grid-template-columns: 1fr; }
+            .float-btns { bottom: 20px; right: 16px; }
+        }
     </style>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
@@ -1514,6 +1770,15 @@
             </div>
         </div>
     </div>
+</section>
+
+
+<!-- ══ RECENTLY VIEWED ════════════════════════════════════════════════ -->
+<section id="recently-viewed" style="display:none;">
+  <div class="container">
+    <h3 class="rv-title">Recently <em>Viewed</em></h3>
+    <div class="rv-grid" id="rv-grid"></div>
+  </div>
 </section>
 
 <!-- ══════════════════════════════════════════════
@@ -1895,32 +2160,9 @@ function changeCartQty(id,d){
 
 function updateCartCount(){ document.getElementById('cart-count').textContent=cart.reduce((s,x)=>s+x.qty,0); }
 
-function renderCartItems(){
-    const el=document.getElementById('cart-items');
-    const footer=document.getElementById('cart-footer');
-    if(!cart.length){
-        el.innerHTML='<div class="cart-empty"><div class="cart-empty-icon">🛒</div><div>Your cart is empty</div><div style="font-size:0.8rem;margin-top:8px;opacity:0.6;">Find something beautiful above ↑</div></div>';
-        footer.style.display='none'; return;
-    }
-    footer.style.display='block';
-    el.innerHTML=cart.map(item=>`
-        <div class="cart-item">
-            <img class="cart-item-img" src="${item.img}" alt="${item.name}">
-            <div class="cart-item-info">
-                <div class="cart-item-name">${item.name}</div>
-                <div class="cart-item-price">₹${(item.price*item.qty).toLocaleString('en-IN')}</div>
-                <div class="cart-item-qty">
-                    <button class="qty-btn" onclick="changeCartQty(${item.id},-1)">−</button>
-                    <span style="font-weight:700;min-width:16px;text-align:center">${item.qty}</span>
-                    <button class="qty-btn" onclick="changeCartQty(${item.id},1)">+</button>
-                </div>
-            </div>
-            <button class="cart-item-remove" onclick="removeFromCart(${item.id})">✕</button>
-        </div>
-    `).join('');
-    const total=cart.reduce((s,x)=>s+x.price*x.qty,0);
-    document.getElementById('cart-total').textContent='₹'+total.toLocaleString('en-IN');
-}
+
+// [replaced by new implementation below]
+
 
 function openCart(){ document.getElementById('cart-drawer').classList.add('open'); document.getElementById('cart-overlay').classList.add('active'); renderCartItems(); }
 function closeCart(){ document.getElementById('cart-drawer').classList.remove('open'); document.getElementById('cart-overlay').classList.remove('active'); }
@@ -2309,35 +2551,9 @@ function showAccount() {
 function hideAccount() {
     document.getElementById('account-modal').classList.remove('active');
 }
-function _renderAccount() {
-    const orders = _getUserOrders();
-    const el = document.getElementById('account-content');
-    const avatar = '<div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--blush),var(--rose));display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:900;color:white;flex-shrink:0;">' + currentUser.name[0].toUpperCase() + '</div>';
-    const info = '<div><div style="font-weight:800;font-size:1rem;">' + currentUser.name + '</div>'
-        + '<div style="font-size:0.75rem;color:var(--rose);">' + currentUser.email + '</div>'
-        + (currentUser.phone ? '<div style="font-size:0.72rem;color:rgba(61,26,14,0.4);">' + currentUser.phone + '</div>' : '')
-        + '</div>';
 
-    const orderRows = orders.length
-        ? orders.slice().reverse().map(o =>
-            '<div style="padding:14px 0;border-bottom:1px solid rgba(61,26,14,0.08);">'
-            + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">'
-            + '<div style="flex:1;">'
-            + '<div style="font-weight:700;font-size:0.82rem;">' + o.items.map(i => i.name + (i.qty > 1 ? ' ×' + i.qty : '')).join(', ') + '</div>'
-            + '<div style="font-size:0.68rem;color:rgba(61,26,14,0.35);margin-top:4px;">' + o.date + ' · #' + o.id + '</div>'
-            + '</div><div style="text-align:right;flex-shrink:0;">'
-            + '<div style="font-weight:800;color:var(--rose);font-size:0.9rem;margin-bottom:4px;">₹' + o.total.toLocaleString('en-IN') + '</div>'
-            + '<span class="order-status-badge status-' + o.status.toLowerCase() + '">' + o.status + '</span>'
-            + '</div></div></div>'
-          ).join('')
-        : '<div style="color:rgba(61,26,14,0.4);font-size:0.85rem;padding:20px 0;text-align:center;">No orders yet. Start shopping! 🧶</div>';
+// [replaced by new implementation below]
 
-    el.innerHTML =
-        '<div style="display:flex;align-items:center;gap:16px;margin-bottom:28px;">' + avatar + info + '</div>'
-        + '<div style="font-weight:800;font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;color:var(--choco);">Order History</div>'
-        + '<div style="margin-bottom:24px;">' + orderRows + '</div>'
-        + '<button class="btn-outline" style="width:100%" onclick="logout()">🚪 Sign Out</button>';
-}
 
 // ═══════════════════════════════════════════════════════════════════════
 //  CHECKOUT FLOW
@@ -2372,25 +2588,9 @@ function closeCheckout() {
     document.getElementById('checkout-modal').classList.remove('active');
 }
 
-function _renderCoSummary() {
-    const sub  = cart.reduce((s,x) => s + x.price * x.qty, 0);
-    const ship = sub >= 999 ? 0 : 99;
-    const tot  = sub + ship;
 
-    const el = document.getElementById('co-items');
-    if (el) el.innerHTML = cart.map(item =>
-        '<div class="order-summary-item">'
-        + '<span class="order-item-name">' + item.name + '</span>'
-        + '<span style="color:rgba(61,26,14,0.45);font-size:0.78rem;margin-right:8px;">×' + item.qty + '</span>'
-        + '<span style="font-weight:800;">₹' + (item.price * item.qty).toLocaleString('en-IN') + '</span>'
-        + '</div>'
-    ).join('');
+// [replaced by new implementation below]
 
-    const setSafe = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
-    setSafe('co-sub',  '₹' + sub.toLocaleString('en-IN'));
-    setSafe('co-ship', ship === 0 ? 'FREE ✓' : '₹' + ship);
-    setSafe('co-tot',  '₹' + tot.toLocaleString('en-IN'));
-}
 
 function _goCoStep(step) {
     [1,2,3].forEach(s => {
@@ -2453,29 +2653,9 @@ function _launchRazorpay(amount) {
     rzp.open();
 }
 
-function _confirmOrder(payMethod, txnId) {
-    const g = id => { const e = document.getElementById(id); return e ? e.value : ''; };
-    const sub  = cart.reduce((s,x) => s + x.price * x.qty, 0);
-    const ship = sub >= 999 ? 0 : 99;
-    const order = {
-        id:     'DD' + Date.now().toString().slice(-8),
-        items:  cart.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })),
-        total:  sub + ship,
-        status: 'Placed',
-        date:   new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }),
-        address: { name: g('addr-name'), line1: g('addr-line1'), line2: g('addr-line2'),
-                   city: g('addr-city'), pin: g('addr-pin'), state: g('addr-state') },
-        payment: { method: payMethod, txnId }
-    };
-    _saveOrderRecord(order);
-    cart = [];
-    saveCart();
-    updateCartCount();
-    const disp = document.getElementById('co-order-id');
-    if (disp) disp.textContent = '#' + order.id;
-    _goCoStep(3);
-    launchConfetti();
-}
+
+// [replaced by new implementation below]
+
 
 // ═══════════════════════════════════════════════════════════════════════
 //  INIT
@@ -2497,6 +2677,486 @@ window.addEventListener('DOMContentLoaded', () => {
     initReveal();
     console.log('%c🧶 Design Den — Fully Functional', 'color:#D4748C;font-size:16px;font-weight:bold');
 });
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  ORDER TRACKING
+// ═══════════════════════════════════════════════════════════════════════════
+const TRACK_STEPS = [
+    { key:'placed',    icon:'📋', label:'Order Placed',       desc:'We received your order and are reviewing it.' },
+    { key:'confirmed', icon:'✅', label:'Order Confirmed',    desc:'Payment verified. Your order is confirmed.' },
+    { key:'processing',icon:'🧶', label:'Being Prepared',     desc:'Our Chennai team is handpacking your items.' },
+    { key:'shipped',   icon:'📦', label:'Shipped',            desc:'Your parcel is on its way with our courier.' },
+    { key:'out',       icon:'🛵', label:'Out for Delivery',   desc:'Our delivery partner is near your address.' },
+    { key:'delivered', icon:'🎉', label:'Delivered',          desc:'Your order has been delivered. Enjoy!' },
+];
+
+function _getOrderStatus(order) {
+    // Simulate realistic progression based on placement date
+    const placed  = new Date(order.payment.txnId.startsWith('COD') 
+        ? parseInt(order.payment.txnId.split('-')[1]) 
+        : Date.now());
+    const hoursAgo = (Date.now() - placed.getTime()) / 36e5;
+    if (hoursAgo < 0.5)   return 1;   // placed
+    if (hoursAgo < 2)     return 2;   // confirmed
+    if (hoursAgo < 24)    return 3;   // processing
+    if (hoursAgo < 48)    return 4;   // shipped
+    if (hoursAgo < 60)    return 5;   // out for delivery
+    return 6;                          // delivered
+}
+
+function _stepTimestamp(order, stepIndex) {
+    const base = order.payment.txnId.startsWith('COD')
+        ? parseInt(order.payment.txnId.split('-')[1])
+        : Date.now() - (3600000 * (5 - stepIndex)); // stagger past steps
+    const offsets = [0, 7200000, 14400000, 86400000, 172800000, 216000000];
+    const d = new Date(base + offsets[stepIndex]);
+    return d.toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', hour12:true });
+}
+
+function _deliveryDate(order) {
+    const base = order.payment.txnId.startsWith('COD')
+        ? parseInt(order.payment.txnId.split('-')[1])
+        : Date.now();
+    const delivery = new Date(base + 2 * 86400000);
+    return delivery.toLocaleDateString('en-IN', { weekday:'long', day:'2-digit', month:'long' });
+}
+
+function showOrderTrack(orderId) {
+    const orders  = _getUserOrders();
+    const order   = orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    const statusIdx = _getOrderStatus(order);  // 1–6
+    const el = document.getElementById('order-track-content');
+
+    // Build timeline HTML
+    let timelineHTML = TRACK_STEPS.map((step, i) => {
+        const idx   = i + 1;
+        const state = idx < statusIdx ? 'done' : idx === statusIdx ? 'active' : 'pending';
+        const icon  = state === 'done' ? '✓' : step.icon;
+        const timeStr = state !== 'pending' ? `<div class="track-step-time">${_stepTimestamp(order, i)}</div>` : '';
+        return `
+        <div class="track-step ${state}">
+          <div class="track-dot">${icon}</div>
+          <div class="track-step-body">
+            <div class="track-step-title">${step.label}</div>
+            <div class="track-step-desc">${state !== 'pending' ? step.desc : 'Pending'}</div>
+            ${timeStr}
+          </div>
+        </div>`;
+    }).join('');
+
+    // Build items HTML
+    let itemsHTML = order.items.map(item => {
+        const prod = PRODUCTS.find(p => p.id === item.id);
+        const img  = prod ? prod.img : 'https://picsum.photos/id/201/100/100';
+        return `
+        <div class="track-item">
+          <img class="track-item-img" src="${img}" alt="${item.name}">
+          <div style="flex:1;">
+            <div class="track-item-name">${item.name}</div>
+            <div class="track-item-meta">Qty: ${item.qty} &nbsp;·&nbsp; ₹${item.price.toLocaleString('en-IN')} each</div>
+          </div>
+          <div class="track-item-price">₹${(item.price * item.qty).toLocaleString('en-IN')}</div>
+        </div>`;
+    }).join('');
+
+    const addr = order.address || {};
+    const addrLine = [addr.line1, addr.line2, addr.city, addr.pin, addr.state].filter(Boolean).join(', ');
+
+    const canCancel = statusIdx <= 2;
+    const isDelivered = statusIdx === 6;
+
+    el.innerHTML = `
+      <div class="track-header">
+        <div>
+          <div class="track-order-id">Order ${order.id}</div>
+          <div class="track-date">Placed on ${order.date} &nbsp;·&nbsp;
+            <span class="order-status-badge status-${order.status.toLowerCase()}">${order.status}</span>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--rose);">
+            ₹${order.total.toLocaleString('en-IN')}
+          </div>
+          <div style="font-size:0.72rem;color:rgba(61,26,14,0.4);">${order.payment.method}</div>
+        </div>
+      </div>
+
+      <div class="delivery-bar">
+        <div class="delivery-icon">${isDelivered ? '🎁' : '🚚'}</div>
+        <div>
+          <div class="delivery-label">${isDelivered ? 'Delivered' : 'Estimated Delivery'}</div>
+          <div class="delivery-date">${_deliveryDate(order)}</div>
+          <div class="delivery-sub">${isDelivered ? 'Your order was delivered successfully' : 'Free 2-day delivery • Fully insured'}</div>
+        </div>
+      </div>
+
+      <div class="track-timeline">${timelineHTML}</div>
+
+      <div class="track-items">
+        <div class="track-items-title">Items in This Order</div>
+        ${itemsHTML}
+        <div style="display:flex;justify-content:space-between;padding:14px 0 0;font-weight:800;font-size:0.9rem;">
+          <span>Order Total</span>
+          <span style="color:var(--rose);">₹${order.total.toLocaleString('en-IN')}</span>
+        </div>
+      </div>
+
+      <div class="track-details-grid">
+        <div class="track-detail-card">
+          <div class="track-detail-head">📍 Delivery Address</div>
+          <div class="track-detail-line">
+            <strong>${addr.name || currentUser?.name || ''}</strong><br>
+            ${addrLine || 'Address not available'}
+          </div>
+        </div>
+        <div class="track-detail-card">
+          <div class="track-detail-head">💳 Payment Details</div>
+          <div class="track-detail-line">
+            <strong>${order.payment.method}</strong><br>
+            ${order.payment.txnId.startsWith('COD') ? 'Pay on delivery' : 'Txn: ' + order.payment.txnId.slice(-10)}<br>
+            <span style="color:var(--sage);font-weight:700;">✓ ${order.payment.method === 'Cash on Delivery' ? 'Pending' : 'Payment Successful'}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+        <a href="https://wa.me/919876543210?text=Hi! I need help tracking order ${order.id}"
+           target="_blank"
+           style="background:var(--choco);color:white;border:none;border-radius:999px;padding:12px 22px;
+                  font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;
+                  text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.3s;">
+          <i class="fa-brands fa-whatsapp"></i> Track on WhatsApp
+        </a>
+        ${canCancel ? `<button class="cancel-btn" onclick="cancelOrder('${order.id}')">
+          <i class="fa fa-times-circle"></i> Cancel Order
+        </button>` : ''}
+        <button onclick="closeOrderTrack();showAccount()"
+                style="background:none;border:none;cursor:pointer;color:rgba(61,26,14,0.45);
+                       font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:700;margin-left:auto;">
+          ← Back to Orders
+        </button>
+      </div>`;
+
+    document.getElementById('order-track-modal').classList.add('active');
+}
+
+function closeOrderTrack() {
+    document.getElementById('order-track-modal').classList.remove('active');
+}
+
+function cancelOrder(orderId) {
+    if (!currentUser) return;
+    if (!confirm('Are you sure you want to cancel this order?')) return;
+    const key = 'dd_orders_' + currentUser.id;
+    const orders = _getUserOrders();
+    const order  = orders.find(o => o.id === orderId);
+    if (order) {
+        order.status = 'Cancelled';
+        localStorage.setItem(key, JSON.stringify(orders));
+        closeOrderTrack();
+        showNotif('❌ Order ' + orderId + ' has been cancelled.');
+        showAccount();
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  PATCH _renderAccount — add "Track" button to each order row
+// ═══════════════════════════════════════════════════════════════════════════
+function _renderAccount() {
+    const orders = _getUserOrders();
+    const el = document.getElementById('account-content');
+
+    const avatar = '<div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--blush),var(--rose));display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:900;color:white;flex-shrink:0;">' + currentUser.name[0].toUpperCase() + '</div>';
+    const info   = '<div><div style="font-weight:800;font-size:1rem;">' + currentUser.name + '</div>'
+        + '<div style="font-size:0.75rem;color:var(--rose);">' + currentUser.email + '</div>'
+        + (currentUser.phone ? '<div style="font-size:0.72rem;color:rgba(61,26,14,0.4);">' + currentUser.phone + '</div>' : '')
+        + '</div>';
+
+    const orderRows = orders.length
+        ? orders.slice().reverse().map(o => {
+            const isCancelled = o.status === 'Cancelled';
+            const statusCls   = isCancelled ? 'status-processing' : 'status-placed';
+            return '<div style="padding:14px 0;border-bottom:1px solid rgba(61,26,14,0.08);">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">'
+                + '<div style="flex:1;min-width:0;">'
+                + '<div style="font-weight:700;font-size:0.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
+                + o.items.map(i => i.name + (i.qty > 1 ? ' ×' + i.qty : '')).join(', ')
+                + '</div>'
+                + '<div style="font-size:0.68rem;color:rgba(61,26,14,0.35);margin-top:3px;">'
+                + o.date + ' · #' + o.id + '</div></div>'
+                + '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
+                + '<div style="text-align:right;">'
+                + '<div style="font-weight:800;color:var(--rose);font-size:0.88rem;">₹' + o.total.toLocaleString('en-IN') + '</div>'
+                + '<span class="order-status-badge ' + statusCls + '">' + o.status + '</span>'
+                + '</div>'
+                + (!isCancelled
+                    ? '<button onclick="hideAccount();showOrderTrack(\'' + o.id + '\')" '
+                    + 'style="background:var(--rose);color:white;border:none;border-radius:10px;padding:8px 14px;'
+                    + 'font-family:Nunito,sans-serif;font-size:0.7rem;font-weight:800;cursor:pointer;'
+                    + 'white-space:nowrap;transition:all 0.3s;"'
+                    + '>Track ›</button>'
+                    : '')
+                + '</div></div></div>';
+          }).join('')
+        : '<div style="color:rgba(61,26,14,0.4);font-size:0.85rem;padding:20px 0;text-align:center;">No orders yet. Start shopping! 🧶</div>';
+
+    el.innerHTML =
+        '<div style="display:flex;align-items:center;gap:16px;margin-bottom:28px;">' + avatar + info + '</div>'
+        + '<div style="font-weight:800;font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;color:var(--choco);">Order History</div>'
+        + '<div style="margin-bottom:24px;">' + orderRows + '</div>'
+        + '<button class="btn-outline" style="width:100%" onclick="logout()">🚪 Sign Out</button>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  FREE SHIPPING PROGRESS BAR (Cart)
+// ═══════════════════════════════════════════════════════════════════════════
+function _updateShippingBar() {
+    const total   = cart.reduce((s,x) => s + x.price * x.qty, 0);
+    const FREE_AT = 999;
+    const bar     = document.getElementById('shipping-bar-fill');
+    const msg     = document.getElementById('shipping-bar-msg');
+    if (!bar || !msg) return;
+    const pct = Math.min(100, Math.round(total / FREE_AT * 100));
+    bar.style.width = pct + '%';
+    if (total >= FREE_AT) {
+        msg.innerHTML = '🎉 <span>Free shipping unlocked!</span> You saved ₹99';
+    } else {
+        const rem = FREE_AT - total;
+        msg.innerHTML = 'Add <span>₹' + rem + ' more</span> for FREE shipping!';
+    }
+}
+
+// Patch renderCartItems to include bar
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  COUPON CODES
+// ═══════════════════════════════════════════════════════════════════════════
+const COUPONS = {
+    'WELCOME10': { type:'pct',  val:10, label:'10% off your order' },
+    'YARN20':    { type:'pct',  val:20, label:'20% off for yarn lovers' },
+    'FLAT100':   { type:'flat', val:100, label:'₹100 off on orders above ₹500' },
+    'NEWSTITCH': { type:'pct',  val:15, label:'15% off for new members' },
+    'CHENNAI':   { type:'flat', val:50,  label:'₹50 off — local Chennai love' },
+};
+let _activeCoupon = null;
+
+function toggleCoupon() {
+    const row = document.getElementById('coupon-row');
+    if (row) row.classList.toggle('open');
+}
+
+function applyCoupon() {
+    const inp = document.getElementById('coupon-code');
+    const msg = document.getElementById('coupon-msg');
+    if (!inp || !msg) return;
+    const code = inp.value.trim().toUpperCase();
+    const coupon = COUPONS[code];
+    if (!coupon) {
+        msg.textContent = '✗ Invalid coupon code'; msg.className = 'coupon-msg err';
+        inp.classList.remove('valid'); _activeCoupon = null; _updateCartTotal(); return;
+    }
+    const sub = cart.reduce((s,x) => s + x.price * x.qty, 0);
+    if (coupon.type === 'flat' && sub < 500) {
+        msg.textContent = '✗ Minimum order ₹500 required'; msg.className = 'coupon-msg err';
+        inp.classList.remove('valid'); _activeCoupon = null; _updateCartTotal(); return;
+    }
+    _activeCoupon = { ...coupon, code };
+    inp.classList.add('valid');
+    msg.textContent = '✓ ' + coupon.label + ' applied!'; msg.className = 'coupon-msg ok';
+    _updateCartTotal();
+    showNotif('🎁 Coupon ' + code + ' applied!');
+}
+
+function _calcDiscount(sub) {
+    if (!_activeCoupon) return 0;
+    if (_activeCoupon.type === 'pct')  return Math.round(sub * _activeCoupon.val / 100);
+    if (_activeCoupon.type === 'flat') return _activeCoupon.val;
+    return 0;
+}
+
+function _updateCartTotal() {
+    const sub  = cart.reduce((s,x) => s + x.price * x.qty, 0);
+    const disc = _calcDiscount(sub);
+    const ship = sub >= 999 ? 0 : 99;
+    const tot  = sub - disc + ship;
+    const el   = document.getElementById('cart-total');
+    if (el) el.textContent = '₹' + tot.toLocaleString('en-IN');
+    const discEl = document.getElementById('cart-discount-row');
+    if (discEl) discEl.style.display = disc > 0 ? 'flex' : 'none';
+    const discAmt = document.getElementById('cart-discount-amt');
+    if (discAmt) discAmt.textContent = '-₹' + disc.toLocaleString('en-IN');
+}
+
+// Override renderCartItems to inject shipping bar + coupon
+
+function renderCartItems() {
+    const el     = document.getElementById('cart-items');
+    const footer = document.getElementById('cart-footer');
+    if (!cart.length) {
+        el.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">🛒</div><div>Your cart is empty</div><div style="font-size:0.8rem;margin-top:8px;opacity:0.6;">Find something beautiful above ↑</div></div>';
+        footer.style.display = 'none'; _activeCoupon = null; return;
+    }
+    footer.style.display = 'block';
+    el.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <img class="cart-item-img" src="${item.img}" alt="${item.name}">
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-price">₹${(item.price * item.qty).toLocaleString('en-IN')}</div>
+            <div class="cart-item-qty">
+              <button class="qty-btn" onclick="changeCartQty(${item.id},-1)">−</button>
+              <span style="font-weight:700;min-width:16px;text-align:center">${item.qty}</span>
+              <button class="qty-btn" onclick="changeCartQty(${item.id},1)">+</button>
+            </div>
+          </div>
+          <button class="cart-item-remove" onclick="removeFromCart(${item.id})">✕</button>
+        </div>`
+    ).join('');
+
+    // Rebuild footer content
+    const sub  = cart.reduce((s,x) => s + x.price * x.qty, 0);
+    const disc = _calcDiscount(sub);
+    const ship = sub >= 999 ? 0 : 99;
+    const tot  = sub - disc + ship;
+
+    footer.innerHTML = `
+      <div class="shipping-bar-wrap">
+        <div class="shipping-bar-msg" id="shipping-bar-msg"></div>
+        <div class="shipping-bar-track"><div class="shipping-bar-fill" id="shipping-bar-fill" style="width:0%"></div></div>
+      </div>
+      <div class="coupon-wrap">
+        <button class="coupon-toggle" onclick="toggleCoupon()">🏷 Have a coupon code?</button>
+        <div class="coupon-row" id="coupon-row">
+          <input class="coupon-input" id="coupon-code" placeholder="ENTER CODE"
+                 onkeyup="if(event.key==='Enter')applyCoupon()">
+          <button class="coupon-apply" onclick="applyCoupon()">Apply</button>
+        </div>
+        <div class="coupon-msg" id="coupon-msg"></div>
+      </div>
+      <div style="padding-top:16px;border-top:1px solid rgba(61,26,14,0.08);">
+        <div class="cart-total-row" style="margin-bottom:8px;">
+          <span style="font-size:0.82rem;color:rgba(61,26,14,0.55);">Subtotal</span>
+          <span style="font-weight:700;font-size:0.88rem;">₹${sub.toLocaleString('en-IN')}</span>
+        </div>
+        <div class="cart-total-row" id="cart-discount-row" style="display:${disc>0?'flex':'none'};margin-bottom:8px;">
+          <span style="font-size:0.82rem;color:var(--sage);font-weight:700;">Discount (${_activeCoupon?.code})</span>
+          <span id="cart-discount-amt" style="font-weight:800;color:var(--sage);">-₹${disc.toLocaleString('en-IN')}</span>
+        </div>
+        <div class="cart-total-row" style="margin-bottom:16px;">
+          <span style="font-size:0.82rem;color:rgba(61,26,14,0.55);">Shipping</span>
+          <span style="font-weight:700;font-size:0.82rem;color:var(--sage);">${ship === 0 ? 'FREE ✓' : '₹' + ship}</span>
+        </div>
+        <div class="cart-total-row" style="margin-bottom:20px;">
+          <span class="cart-total-label">Total</span>
+          <span class="cart-total-val" id="cart-total">₹${tot.toLocaleString('en-IN')}</span>
+        </div>
+        <p style="font-size:0.72rem;color:var(--sage);margin-bottom:14px;font-weight:700;">
+          ✓ Free shipping on orders over ₹999 &nbsp;·&nbsp; 2-day delivery
+        </p>
+        <button class="btn-primary" style="width:100%;justify-content:center" onclick="proceedToCheckout()">
+          <span>Proceed to Checkout</span>
+        </button>
+      </div>`;
+
+    _updateShippingBar();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  RECENTLY VIEWED
+// ═══════════════════════════════════════════════════════════════════════════
+let _recentlyViewed = JSON.parse(localStorage.getItem('dd_rv') || '[]');
+
+function _trackView(id) {
+    _recentlyViewed = _recentlyViewed.filter(x => x !== id);
+    _recentlyViewed.unshift(id);
+    if (_recentlyViewed.length > 8) _recentlyViewed = _recentlyViewed.slice(0, 8);
+    localStorage.setItem('dd_rv', JSON.stringify(_recentlyViewed));
+    _renderRV();
+}
+
+function _renderRV() {
+    const sec = document.getElementById('recently-viewed');
+    const grid = document.getElementById('rv-grid');
+    if (!sec || !grid || _recentlyViewed.length === 0) { if(sec) sec.style.display='none'; return; }
+    sec.style.display = 'block';
+    const prods = _recentlyViewed.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
+    grid.innerHTML = prods.map(p => `
+        <div class="rv-card reveal" onclick="showProductModal(${p.id})">
+          <img src="${p.img}" alt="${p.name}" loading="lazy">
+          <div class="rv-card-body">
+            <div class="rv-card-name">${p.name}</div>
+            <div class="rv-card-price">₹${p.price.toLocaleString('en-IN')}</div>
+          </div>
+        </div>`
+    ).join('');
+    // re-trigger reveal
+    setTimeout(() => grid.querySelectorAll('.reveal').forEach(el => el.classList.add('active')), 50);
+}
+
+// Patch showProductModal to track views
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  BACK TO TOP BUTTON
+// ═══════════════════════════════════════════════════════════════════════════
+window.addEventListener('scroll', () => {
+    const btn = document.getElementById('back-top-btn');
+    if (btn) btn.classList.toggle('visible', window.scrollY > 400);
+}, { passive: true });
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  CHECKOUT — pass coupon discount to total
+// ═══════════════════════════════════════════════════════════════════════════
+function _renderCoSummary() {
+    const sub  = cart.reduce((s,x) => s + x.price * x.qty, 0);
+    const disc = _calcDiscount(sub);
+    const ship = (sub - disc) >= 999 ? 0 : 99;
+    const tot  = sub - disc + ship;
+
+    const el = document.getElementById('co-items');
+    if (el) el.innerHTML = cart.map(item =>
+        '<div class="order-summary-item">'
+        + '<span class="order-item-name">' + item.name + '</span>'
+        + '<span style="color:rgba(61,26,14,0.45);font-size:0.78rem;margin-right:8px;">×' + item.qty + '</span>'
+        + '<span style="font-weight:800;">₹' + (item.price * item.qty).toLocaleString('en-IN') + '</span>'
+        + '</div>'
+    ).join('') + (disc > 0 ? '<div class="order-summary-item"><span style="color:var(--sage);font-weight:700;">Coupon (' + _activeCoupon.code + ')</span><span style="color:var(--sage);font-weight:800;">-₹' + disc.toLocaleString('en-IN') + '</span></div>' : '');
+
+    const setSafe = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    setSafe('co-sub',  '₹' + sub.toLocaleString('en-IN'));
+    setSafe('co-ship', ship === 0 ? 'FREE ✓' : '₹' + ship);
+    setSafe('co-tot',  '₹' + tot.toLocaleString('en-IN'));
+}
+
+function _confirmOrder(payMethod, txnId) {
+    const g = id => { const e = document.getElementById(id); return e ? e.value : ''; };
+    const sub  = cart.reduce((s,x) => s + x.price * x.qty, 0);
+    const disc = _calcDiscount(sub);
+    const ship = (sub - disc) >= 999 ? 0 : 99;
+    const order = {
+        id:     'DD' + Date.now().toString().slice(-8),
+        items:  cart.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })),
+        total:  sub - disc + ship,
+        discount: disc,
+        coupon: _activeCoupon ? _activeCoupon.code : null,
+        status: 'Placed',
+        date:   new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }),
+        address: { name: g('addr-name'), line1: g('addr-line1'), line2: g('addr-line2'),
+                   city: g('addr-city'), pin: g('addr-pin'), state: g('addr-state') },
+        payment: { method: payMethod, txnId }
+    };
+    _saveOrderRecord(order);
+    _activeCoupon = null;
+    cart = [];
+    saveCart();
+    updateCartCount();
+    const disp = document.getElementById('co-order-id');
+    if (disp) disp.textContent = '#' + order.id;
+    _goCoStep(3);
+    launchConfetti();
+}
 
 </script>
 
@@ -2646,6 +3306,28 @@ window.addEventListener('DOMContentLoaded', () => {
       </div>
     </div>
   </div>
+</div>
+
+
+<!-- ══ ORDER TRACKING MODAL ═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="order-track-modal" onclick="if(event.target.id==='order-track-modal')closeOrderTrack()">
+  <div class="modal-box" style="max-width:680px;">
+    <button class="modal-close" onclick="closeOrderTrack()"><i class="fa fa-times"></i></button>
+    <div id="order-track-content">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ══ FLOATING BUTTONS ═══════════════════════════════════════════════ -->
+<div class="float-btns">
+  <a class="float-wa" href="https://wa.me/919876543210?text=Hi%20Design%20Den!%20I%20need%20help%20with%20my%20order."
+     target="_blank" title="Chat on WhatsApp">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+  <button class="float-top" id="back-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">
+    <i class="fa fa-arrow-up"></i>
+  </button>
 </div>
 
 </body>
