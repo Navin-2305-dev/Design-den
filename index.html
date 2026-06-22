@@ -44,8 +44,12 @@
             pointer-events: none;
             z-index: 99999;
             transform: translate(-50%,-50%);
-            transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+            transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1),
+                        width 0.3s ease, height 0.3s ease,
+                        background 0.25s ease, opacity 0.3s ease;
             mix-blend-mode: multiply;
+            opacity: 0;
+            will-change: left, top, transform;
         }
         #cursor-ring {
             position: fixed;
@@ -55,10 +59,12 @@
             pointer-events: none;
             z-index: 99998;
             transform: translate(-50%,-50%);
-            transition: transform 0.18s ease, width 0.3s, height 0.3s, opacity 0.3s;
-            opacity: 0.6;
+            transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+            will-change: left, top;
         }
-        body:hover #cursor { opacity: 1; }
+        /* Force cursor:none everywhere */
+        *, *::before, *::after { cursor: none !important; }
 
         /* ═══════════════════════════════════════
            BACKGROUND WEAVE PATTERN
@@ -514,6 +520,7 @@
             cursor: none; transition: all 0.3s;
         }
         .pact-btn:hover { background: var(--rose); }
+        .pact-btn.disabled, .pact-btn:disabled { background: rgba(61,26,14,0.12); color: rgba(61,26,14,0.35); cursor: not-allowed; pointer-events: none; }
         .pact-btn.wish { flex: 0; width: 40px; padding: 10px; background: white; color: var(--rose); border: 1.5px solid rgba(212,116,140,0.3); }
         .pact-btn.wish:hover { background: var(--rose); color: white; }
         .product-body { padding: 20px 22px 22px; }
@@ -592,6 +599,62 @@
         .pattern-body { padding: 16px 18px; }
         .pattern-name { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 700; color: white; }
         .pattern-meta { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; color: var(--blush); margin-top: 4px; }
+        .pattern-card { cursor: pointer; }
+        .pattern-badge { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; padding:3px 10px; border-radius:99px; margin-top:6px; }
+        .pattern-badge.free { background:rgba(125,170,138,0.22); color:#7DAA8A; }
+        .pattern-badge.paid { background:rgba(212,160,74,0.18); color:#D4A04A; }
+        .pattern-footer { padding:0 18px 16px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+        .pattern-dl-btn { background:var(--blush); color:var(--choco); border:none; border-radius:99px; padding:8px 18px; font-family:'Nunito',sans-serif; font-size:0.68rem; font-weight:800; letter-spacing:1px; cursor:pointer; transition:all 0.3s; white-space:nowrap; }
+        .pattern-dl-btn:hover { background:var(--rose); color:white; transform:translateY(-2px); }
+        .pat-modal-img { width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:18px; margin-bottom:20px; }
+        .pat-modal-level { font-size:0.6rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--rose); margin-bottom:8px; }
+        .pat-modal-name { font-family:'Cormorant Garamond',serif; font-size:1.8rem; font-weight:700; color:var(--choco); margin-bottom:12px; }
+        .pat-modal-meta { display:flex; gap:14px; margin-bottom:18px; flex-wrap:wrap; }
+        .pat-modal-chip { background:var(--mist); border-radius:10px; padding:7px 14px; font-size:0.72rem; font-weight:700; color:var(--choco); }
+        .pat-modal-price { font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:700; color:var(--rose); margin-bottom:20px; }
+        .pat-modal-desc { font-size:0.85rem; color:rgba(61,26,14,0.65); line-height:1.65; margin-bottom:22px; }
+        .comm-fl { display:block; font-size:0.58rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--choco); margin-bottom:7px; opacity:0.55; }
+        .comm-fi { width:100%; background:var(--mist); border:1.5px solid transparent; border-radius:12px; padding:11px 14px; font-family:'Nunito',sans-serif; font-size:0.85rem; color:var(--choco); outline:none; transition:all 0.22s; box-sizing:border-box; }
+        .comm-fi:focus { border-color:var(--rose); background:white; box-shadow:0 0 0 3px rgba(212,116,140,0.08); }
+        .comm-fi::placeholder { color:rgba(61,26,14,0.28); }
+        .comm-fta { width:100%; background:var(--mist); border:1.5px solid transparent; border-radius:12px; padding:11px 14px; font-family:'Nunito',sans-serif; font-size:0.85rem; color:var(--choco); outline:none; min-height:88px; resize:vertical; line-height:1.5; transition:all 0.22s; box-sizing:border-box; }
+        .comm-fta:focus { border-color:var(--rose); background:white; }
+        .comm-fta::placeholder { color:rgba(61,26,14,0.28); }
+        .comm-attach-area { border:2px dashed rgba(212,116,140,0.3); border-radius:16px; padding:24px; cursor:pointer; transition:all 0.25s; background:var(--mist); display:flex; align-items:center; justify-content:center; min-height:90px; text-align:center; }
+        .comm-attach-area:hover, .comm-attach-area.drag { border-color:var(--rose); background:rgba(212,116,140,0.05); }
+        .ct-result-card { background:var(--mist); border-radius:16px; padding:20px; margin-bottom:12px; border-left:4px solid var(--rose); }
+        .ct-status-new { border-color:var(--gold); }
+        .ct-status-inprogress { border-color:#3b5bdb; }
+        .ct-status-completed { border-color:#7DAA8A; }
+        .ct-status-cancelled { border-color:rgba(61,26,14,0.18); }
+        #testi-collector { padding:100px 0; background:var(--choco); text-align:center; }
+        .tc-inner { max-width:680px; margin:0 auto; padding:0 20px; }
+        .tc-h2 { font-family:'Cormorant Garamond',serif; font-size:3rem; font-weight:700; color:white; margin-bottom:16px; }
+        .tc-h2 em { font-style:italic; color:var(--blush); }
+        .tc-desc { color:rgba(255,255,255,0.6); margin-bottom:40px; font-size:0.95rem; line-height:1.6; }
+        .tc-card { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); border-radius:28px; padding:36px 40px; text-align:left; }
+        .tc-row2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+        .tc-field { display:flex; flex-direction:column; gap:7px; margin-bottom:16px; }
+        .tc-label { font-size:0.6rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.45); }
+        .tc-input { background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.12); border-radius:12px; padding:12px 16px; font-family:'Nunito',sans-serif; font-size:0.88rem; color:white; outline:none; transition:border-color 0.3s; width:100%; }
+        .tc-input::placeholder { color:rgba(255,255,255,0.25); }
+        .tc-input:focus { border-color:var(--blush); background:rgba(255,255,255,0.09); }
+        .tc-input[readonly] { cursor:default; }
+        .tc-input[readonly]:focus { border-color:rgba(255,255,255,0.12); background:rgba(255,255,255,0.07); }
+        #tc-name-input.logged-in { border-color:rgba(212,116,140,0.5); background:rgba(212,116,140,0.08); color:white; opacity:1; font-weight:700; }
+        .tc-textarea { background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.12); border-radius:12px; padding:13px 16px; font-family:'Nunito',sans-serif; font-size:0.88rem; color:white; outline:none; resize:vertical; min-height:100px; width:100%; line-height:1.6; transition:border-color 0.3s; }
+        .tc-textarea::placeholder { color:rgba(255,255,255,0.25); }
+        .tc-textarea:focus { border-color:var(--blush); }
+        .tc-stars-wrap { display:flex; gap:8px; margin-top:4px; }
+        .tc-star { font-size:1.6rem; cursor:pointer; transition:transform 0.15s; color:rgba(255,255,255,0.2); user-select:none; line-height:1; }
+        .tc-star.active { color:var(--gold); filter:drop-shadow(0 0 5px rgba(212,160,74,0.4)); }
+        .tc-star:hover { transform:scale(1.25); }
+        .tc-submit-row { display:flex; justify-content:flex-end; align-items:center; gap:12px; margin-top:6px; }
+        .tc-success { display:none; text-align:center; padding:20px 0 8px; animation:tcFade 0.5s ease; }
+        .tc-success-icon { font-size:3rem; margin-bottom:14px; }
+        .tc-success-title { font-family:'Cormorant Garamond',serif; font-size:1.7rem; font-weight:700; color:white; margin-bottom:10px; }
+        .tc-success-msg { color:rgba(255,255,255,0.55); font-size:0.88rem; line-height:1.7; }
+        @keyframes tcFade { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;} }
 
         /* ═══════════════════════════════════════
            TESTIMONIALS
@@ -736,39 +799,14 @@
         }
         .custom-desc { color: rgba(61,26,14,0.6); font-size: 0.9rem; line-height: 1.6; margin-bottom: 30px; }
         .custom-price {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--blush), var(--rose));
-            color: white; padding: 10px 28px;
+            display: inline-block; border:2px solid var(--rose);
+            color: var(--rose); padding: 10px 28px;
             border-radius: 999px; font-weight: 800; font-size: 0.85rem;
+            transition: all 0.3s;
         }
+        .custom-card:hover .custom-price { background: var(--rose); color: white; }
 
-        /* ═══════════════════════════════════════
-           NEWSLETTER
-        ═══════════════════════════════════════ */
-        #newsletter {
-            padding: 100px 0;
-            background: var(--choco);
-            text-align: center;
-        }
-        .newsletter-inner { max-width: 600px; margin: 0 auto; }
-        .newsletter-h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 3rem; font-weight: 700;
-            color: white; margin-bottom: 16px;
-        }
-        .newsletter-h2 em { font-style: italic; color: var(--blush); }
-        .newsletter-desc { color: rgba(255,255,255,0.6); margin-bottom: 36px; }
-        .newsletter-form { display: flex; gap: 10px; }
-        .newsletter-input {
-            flex: 1; background: rgba(255,255,255,0.08);
-            border: 1.5px solid rgba(255,255,255,0.15);
-            border-radius: 999px; padding: 16px 24px;
-            font-family: 'Nunito', sans-serif; font-size: 0.9rem;
-            color: white; outline: none;
-            transition: border-color 0.3s;
-        }
-        .newsletter-input::placeholder { color: rgba(255,255,255,0.35); }
-        .newsletter-input:focus { border-color: var(--blush); }
+        /* Testimonial Collector — see #testi-collector rules above */
 
         /* ═══════════════════════════════════════
            FOOTER
@@ -955,28 +993,187 @@
         .wishlist-item-price { color: var(--rose); font-weight: 800; }
 
         /* ═══════════════════════════════════════
-           RESPONSIVE
+           RESPONSIVE — Full device coverage
         ═══════════════════════════════════════ */
+
+        /* ── Tablet (≤1024px) ── */
         @media (max-width: 1024px) {
-            .footer-inner { grid-template-columns: 1fr 1fr; }
+            .footer-inner { grid-template-columns: 1fr 1fr; gap: 40px; }
             .testi-grid { grid-template-columns: 1fr 1fr; }
+            .products-grid { grid-template-columns: repeat(3, 1fr); }
+            .patterns-grid { grid-template-columns: 1fr 1fr; }
+            .hero-h1 { font-size: clamp(2.8rem, 5.5vw, 5rem); }
         }
+
+        /* ── Small tablet (≤860px) ── */
+        @media (max-width: 860px) {
+            .products-grid { grid-template-columns: repeat(2, 1fr); }
+            .why-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+            .custom-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* ── Mobile (≤768px) ── */
         @media (max-width: 768px) {
-            #hero { grid-template-columns: 1fr; }
-            .hero-right { display: none; }
-            .hero-left { padding: 100px 5vw 60px; }
+            /* General */
+            .container, .section-inner { padding-left: 18px !important; padding-right: 18px !important; }
+            .section-h2 { font-size: clamp(2rem, 8vw, 3rem) !important; }
+
+            /* Cursor — disable on touch devices */
+            #cursor, #cursor-ring { display: none !important; }
+            *, *::before, *::after { cursor: auto !important; }
+            button, a, [onclick], .product-card, .pattern-card, .float-card { cursor: pointer !important; }
+
+            /* Nav */
+            nav { padding: 0 18px; }
+            .nav-inner { height: 66px; }
             .nav-links { display: none; }
-            .hamburger { display: block; }
-            .patterns-inner { grid-template-columns: 1fr; }
-            .why-grid { grid-template-columns: 1fr; gap: 32px; }
-            .custom-grid { grid-template-columns: 1fr; }
+            .hamburger { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; cursor: pointer; }
+            .logo-text { font-size: 1.6rem; }
+            .logo-yarn { width: 38px; height: 38px; }
+            .logo { gap: 10px; }
+            .nav-actions { gap: 8px; }
+            .icon-btn { width: 36px; height: 36px; font-size: 1.1rem; }
+
+            /* Mobile menu */
+            #mobile-menu { top: 66px; padding: 20px 18px; }
+            #mobile-menu a { font-size: 0.95rem; padding: 12px 0; }
+
+            /* Marquee */
+            .marquee-inner span { font-size: 0.65rem; padding: 0 22px; }
+
+            /* Hero */
+            #hero { grid-template-columns: 1fr; min-height: auto; }
+            .hero-right { display: none; }
+            .hero-left { padding: 90px 18px 60px; }
+            .hero-h1 { font-size: clamp(2.8rem, 11vw, 4.5rem); letter-spacing: -1px; margin-bottom: 20px; }
+            .hero-sub { font-size: 0.95rem; margin-bottom: 32px; max-width: 100%; }
+            .hero-ctas { gap: 10px; }
+            .btn-primary, .btn-outline, .btn-rose { padding: 14px 26px; font-size: 0.75rem; letter-spacing: 1.5px; }
+            .hero-stats { gap: 20px; margin-top: 36px; flex-wrap: wrap; }
+            .stat-num { font-size: 1.8rem; }
+
+            /* Products */
+            #shop-section { padding: 80px 0; }
+            .products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .product-card { border-radius: 18px; }
+            .product-name { font-size: 1rem; }
+            .product-price { font-size: 1rem; }
+            .pact-btn { font-size: 0.65rem; padding: 8px 6px; }
+            .product-body { padding: 14px 14px 16px; }
+            .product-img-wrap img { border-radius: 18px 18px 0 0; }
+
+            /* Patterns */
+            #patterns { padding: 80px 0; }
+            .patterns-inner { grid-template-columns: 1fr; gap: 48px; }
+            .patterns-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .patterns-desc { max-width: 100%; }
+
+            /* Why Us */
+            #why-us { padding: 80px 0; }
+            .why-grid { grid-template-columns: 1fr; gap: 36px; }
+
+            /* Testimonials */
+            #testimonials { padding: 80px 0; }
             .testi-grid { grid-template-columns: 1fr; }
-            .gallery-grid { grid-template-columns: 1fr 1fr; }
+            .testi-card { padding: 28px 22px; }
+
+            /* Gallery */
+            #community { padding: 80px 0; }
+            .gallery-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 180px; gap: 10px; }
             .gallery-item:nth-child(3n+1) { grid-row: span 1; }
-            .footer-inner { grid-template-columns: 1fr 1fr; gap: 32px; }
-            .newsletter-form { flex-direction: column; }
+
+            /* Custom Orders */
+            #custom { padding: 80px 0; }
+            .custom-grid { grid-template-columns: 1fr; }
+            .custom-card { padding: 36px 24px; border-radius: 24px; }
+
+            /* Testimonial Collector */
+            #testi-collector { padding:70px 0; }
+            .tc-h2 { font-size:2.2rem; }
+            .tc-row2 { grid-template-columns:1fr; }
+            .tc-card { padding:26px 20px; }
+            #commission-modal .modal-box, #comm-track-modal .modal-box { padding:28px 20px !important; }
+
+            /* Footer */
+            footer { padding: 60px 18px 32px; }
+            .footer-inner { grid-template-columns: 1fr 1fr; gap: 28px; margin-bottom: 40px; }
+            .footer-brand { grid-column: 1 / -1; }
+            .footer-logo-text { font-size: 1.6rem; }
+            .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+
+            /* Modal */
+            .modal-box { padding: 28px 22px; border-radius: 24px; width: 95%; max-height: 88vh; }
+            .modal-title { font-size: 1.6rem; margin-bottom: 20px; }
+
+            /* Cart drawer */
+            #cart-drawer { width: 100%; padding: 28px 18px; }
+            .cart-header { margin-bottom: 24px; }
+            .cart-title { font-size: 1.5rem; }
+            .cart-item { gap: 12px; }
+            .cart-item-img { width: 60px; height: 60px; border-radius: 12px; }
+
+            /* Product modal */
             .pmodal-grid { grid-template-columns: 1fr; }
-            #cart-drawer { width: 100%; }
+            .pmodal-img { border-radius: 24px 24px 0 0; max-height: 280px; }
+            .pmodal-info { padding: 22px 20px 28px; }
+
+            /* Checkout modal */
+            #checkout-modal .modal-box { padding: 24px 18px; }
+            .co-steps { margin-bottom: 28px; }
+            .co-num { width: 36px; height: 36px; font-size: 0.85rem; }
+            .co-step-lbl { font-size: 0.58rem; }
+            .form-row { grid-template-columns: 1fr; gap: 12px; }
+            .pay-opts { grid-template-columns: 1fr; }
+
+            /* Floating buttons */
+            .float-btns { bottom: 20px; right: 14px; }
+            .float-wa { width: 48px; height: 48px; font-size: 1.25rem; }
+            .float-top { width: 40px; height: 40px; }
+
+            /* Section labels */
+            .section-label { font-size: 0.6rem; }
+
+            /* Auth modal */
+            #auth-modal .modal-box { padding: 28px 20px; }
+
+            /* Order tracking */
+            .track-details-grid { grid-template-columns: 1fr; gap: 12px; }
+
+            /* Account modal */
+            #account-modal .modal-box { padding: 24px 18px; }
+
+            /* Notif toast */
+            .notif { font-size: 0.78rem; padding: 13px 22px; white-space: normal; text-align: center; max-width: 85vw; }
+        }
+
+        /* ── Small mobile (≤480px) ── */
+        @media (max-width: 480px) {
+            .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .hero-h1 { font-size: clamp(2.4rem, 12vw, 3.5rem); }
+            .hero-ctas { flex-direction: column; }
+            .btn-primary, .btn-outline, .btn-rose { width: 100%; justify-content: center; text-align: center; }
+            .footer-inner { grid-template-columns: 1fr 1fr; gap: 24px; }
+            .gallery-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 150px; }
+            .patterns-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .testi-card { padding: 22px 18px; }
+            .hero-stats { gap: 14px; }
+            .stat-divider { display: none; }
+            .custom-grid { grid-template-columns: 1fr; }
+            .nav-inner { height: 62px; }
+            #mobile-menu { top: 62px; }
+            .logo-text { font-size: 1.4rem; }
+        }
+
+        /* ── Extra-small (≤360px) ── */
+        @media (max-width: 360px) {
+            .products-grid { grid-template-columns: 1fr; }
+            .gallery-grid { grid-template-columns: 1fr; }
+            .patterns-grid { grid-template-columns: 1fr; }
+            .hero-h1 { font-size: 2.2rem; }
+            nav { padding: 0 14px; }
+            .hero-left { padding: 80px 14px 50px; }
+            footer { padding: 50px 14px 28px; }
+            .modal-box { padding: 22px 16px; }
         }
 
         /* ═══════════════════════════════════════
@@ -1119,71 +1316,181 @@
         .co-steps {
             display: flex;
             align-items: center;
-            margin-bottom: 36px;
+            margin-bottom: 40px;
+            padding: 0 10px;
         }
         .co-step-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             flex: 1;
+            position: relative;
         }
         .co-num {
-            width: 36px; height: 36px;
+            width: 42px; height: 42px;
             border-radius: 50%;
             background: var(--mist);
             color: rgba(61,26,14,0.35);
             display: flex; align-items: center; justify-content: center;
             font-family: 'Nunito', sans-serif;
-            font-weight: 800; font-size: 0.85rem;
-            margin-bottom: 8px;
-            transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+            font-weight: 800; font-size: 0.95rem;
+            margin-bottom: 10px;
+            transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+            border: 3px solid transparent;
+            position: relative;
+            z-index: 2;
         }
         .co-num.active {
             background: var(--rose);
             color: white;
-            box-shadow: 0 6px 20px rgba(212,116,140,0.45);
-            transform: scale(1.1);
+            box-shadow: 0 8px 24px rgba(212,116,140,0.5);
+            transform: scale(1.15);
+            border-color: rgba(255,255,255,0.3);
         }
-        .co-num.done { background: var(--sage); color: white; }
+        .co-num.done {
+            background: var(--sage);
+            color: white;
+            box-shadow: 0 4px 12px rgba(125,170,138,0.3);
+            border-color: rgba(255,255,255,0.2);
+        }
         .co-step-lbl {
-            font-size: 0.6rem; font-weight: 800;
-            letter-spacing: 1.5px; text-transform: uppercase;
-            color: rgba(61,26,14,0.4);
+            font-size: 0.65rem; font-weight: 800;
+            letter-spacing: 1.8px; text-transform: uppercase;
+            color: rgba(61,26,14,0.45);
+            transition: color 0.3s;
+        }
+        .co-step-item:has(.co-num.active) .co-step-lbl,
+        .co-step-item:has(.co-num.done) .co-step-lbl {
+            color: var(--choco);
         }
         .co-conn {
-            height: 2px; background: var(--mist); flex: 1;
-            margin-bottom: 26px; transition: background 0.4s;
+            height: 3px;
+            background: var(--mist);
+            flex: 1;
+            margin-bottom: 30px;
+            transition: all 0.5s ease;
+            position: relative;
+            border-radius: 2px;
         }
-        .co-conn.done { background: var(--sage); }
+        .co-conn.done {
+            background: linear-gradient(90deg, var(--sage), var(--sage));
+            box-shadow: 0 2px 8px rgba(125,170,138,0.2);
+        }
 
         .co-page { display: none; }
         .co-page.active { display: block; }
 
         .order-summary-item {
-            display: flex; justify-content: space-between;
-            align-items: center; padding: 10px 0;
-            border-bottom: 1px solid rgba(61,26,14,0.06);
-            font-size: 0.84rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(61,26,14,0.08);
+            font-size: 0.88rem;
+            transition: background 0.2s;
         }
-        .order-item-name { font-weight: 700; flex: 1; margin-right: 10px; }
+        .order-summary-item:last-child {
+            border-bottom: none;
+        }
+        .order-summary-item:hover {
+            background: rgba(212,116,140,0.02);
+            margin: 0 -12px;
+            padding-left: 12px;
+            padding-right: 12px;
+            border-radius: 8px;
+        }
+        .order-item-name {
+            font-weight: 700;
+            flex: 1;
+            margin-right: 12px;
+            color: var(--choco);
+        }
+        .order-item-qty {
+            font-size: 0.8rem;
+            color: rgba(61,26,14,0.6);
+            margin-right: 12px;
+        }
+        .order-item-price {
+            font-weight: 800;
+            color: var(--rose);
+        }
 
         .pay-opts {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px; margin: 20px 0;
+            gap: 14px;
+            margin: 20px 0;
         }
         .pay-opt {
-            padding: 16px 14px;
-            border: 2px solid var(--mist);
-            border-radius: 18px; cursor: pointer;
-            display: flex; align-items: center; gap: 12px;
-            transition: all 0.3s;
+            padding: 18px 16px;
+            border: 2px solid rgba(212,116,140,0.15);
+            border-radius: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--cream);
+            position: relative;
+            overflow: hidden;
         }
-        .pay-opt:hover { border-color: rgba(212,116,140,0.5); background: rgba(212,116,140,0.03); }
-        .pay-opt.selected { border-color: var(--rose); background: rgba(212,116,140,0.06); }
-        .pay-icon { font-size: 1.8rem; flex-shrink: 0; }
-        .pay-label { font-weight: 800; font-size: 0.82rem; color: var(--choco); }
-        .pay-sub { font-size: 0.68rem; color: rgba(61,26,14,0.45); margin-top: 2px; }
+        .pay-opt::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(212,116,140,0.03), rgba(212,116,140,0.08));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .pay-opt:hover {
+            border-color: rgba(212,116,140,0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212,116,140,0.15);
+        }
+        .pay-opt:hover::before {
+            opacity: 1;
+        }
+        .pay-opt.selected {
+            border-color: var(--rose);
+            background: rgba(212,116,140,0.08);
+            box-shadow: 0 8px 24px rgba(212,116,140,0.25);
+            transform: translateY(-2px);
+        }
+        .pay-opt.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 8px; right: 8px;
+            width: 22px; height: 22px;
+            background: var(--rose);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 800;
+        }
+        .pay-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+        .pay-label {
+            font-weight: 800;
+            font-size: 0.88rem;
+            color: var(--choco);
+            position: relative;
+            z-index: 1;
+        }
+        .pay-sub {
+            font-size: 0.7rem;
+            color: rgba(61,26,14,0.5);
+            margin-top: 3px;
+            position: relative;
+            z-index: 1;
+        }
 
         .success-icon {
             width: 84px; height: 84px; border-radius: 50%;
@@ -1218,7 +1525,40 @@
             .form-row { grid-template-columns: 1fr; }
             .pay-opts { grid-template-columns: 1fr; }
             #auth-modal .modal-box,
-            #checkout-modal .modal-box { padding: 28px 22px; }
+            #checkout-modal .modal-box {
+                padding: 24px 20px;
+                max-width: 95vw !important;
+            }
+            .co-steps {
+                padding: 0 5px;
+                margin-bottom: 32px;
+            }
+            .co-num {
+                width: 38px;
+                height: 38px;
+                font-size: 0.85rem;
+            }
+            .co-step-lbl {
+                font-size: 0.58rem;
+                letter-spacing: 1.2px;
+            }
+            .modal-title {
+                font-size: 1.6rem !important;
+            }
+            .pay-opt {
+                padding: 16px 14px;
+            }
+            .pay-icon {
+                font-size: 1.6rem;
+            }
+            .pay-label {
+                font-size: 0.82rem;
+            }
+            .success-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 2rem;
+            }
         }
 
         /* ═══════════════════════════════════════════════════════════
@@ -1476,6 +1816,23 @@
             .track-details-grid { grid-template-columns: 1fr; }
             .float-btns { bottom: 20px; right: 16px; }
         }
+
+        /* Touch device improvements */
+        @media (hover: none) and (pointer: coarse) {
+            *, *::before, *::after { cursor: auto !important; }
+            #cursor, #cursor-ring { display: none !important; }
+            button, a, [onclick], .product-card, .pattern-card { cursor: pointer !important; }
+            .btn-primary, .btn-outline, .btn-rose, .icon-btn,
+            .pact-btn, .qty-btn, .cart-item-remove, .hamburger,
+            .modal-close, .coupon-apply, .coupon-toggle { cursor: pointer !important; }
+            /* Improve tap targets */
+            .icon-btn { min-width: 40px; min-height: 40px; }
+            .qty-btn { min-width: 32px; min-height: 32px; }
+            /* Remove hover-only product actions, show them always on mobile */
+            .product-actions { opacity: 1; transform: translateY(0); background: transparent; }
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
@@ -1750,23 +2107,23 @@
             <p style="max-width:480px;margin:20px auto 0;color:rgba(61,26,14,0.6);font-size:1rem;line-height:1.7;">Tell us your dream project. Our Chennai designers will create something uniquely yours.</p>
         </div>
         <div class="custom-grid">
-            <div class="custom-card reveal" onclick="requestCustom(1)">
+            <div class="custom-card reveal" onclick="openCommissionModal('Custom Pattern Only','📐')">
                 <span class="custom-icon">📐</span>
                 <h3 class="custom-title">Custom Pattern Only</h3>
-                <p class="custom-desc">PDF + video tutorial crafted just for you. 3–5 day turnaround from our studio.</p>
-                <div class="custom-price">From ₹1,499</div>
+                <p class="custom-desc">A PDF + video tutorial designed just for you. 3–5 day turnaround from our Chennai studio.</p>
+                <div class="custom-price">Get a Quote →</div>
             </div>
-            <div class="custom-card reveal reveal-d2" onclick="requestCustom(2)">
+            <div class="custom-card reveal reveal-d2" onclick="openCommissionModal('Fully Crocheted Piece','🧸')">
                 <span class="custom-icon">🧸</span>
                 <h3 class="custom-title">Fully Crocheted Piece</h3>
                 <p class="custom-desc">We make it for you — ready to gift. Perfect for weddings, baby showers &amp; birthdays.</p>
-                <div class="custom-price">From ₹2,999</div>
+                <div class="custom-price">Get a Quote →</div>
             </div>
-            <div class="custom-card reveal reveal-d3" onclick="requestCustom(3)">
+            <div class="custom-card reveal reveal-d3" onclick="openCommissionModal('1-on-1 Workshop','📅')">
                 <span class="custom-icon">📅</span>
                 <h3 class="custom-title">1-on-1 Workshop</h3>
                 <p class="custom-desc">Zoom or in-person at our Chennai studio. Learn at your own pace with personal guidance.</p>
-                <div class="custom-price">From ₹999</div>
+                <div class="custom-price">Get a Quote →</div>
             </div>
         </div>
     </div>
@@ -1781,19 +2138,165 @@
   </div>
 </section>
 
-<!-- ══════════════════════════════════════════════
-     NEWSLETTER
-══════════════════════════════════════════════ -->
-<section id="newsletter">
-    <div class="newsletter-inner reveal">
-        <h2 class="newsletter-h2">Get <em>Cozy</em> Updates</h2>
-        <p class="newsletter-desc">New patterns, exclusive drops &amp; Chennai workshop dates. Unsubscribe anytime.</p>
-        <div class="newsletter-form">
-            <input class="newsletter-input" placeholder="your@email.com" id="nl-email">
-            <button class="btn-blush" onclick="subscribeNewsletter()">Subscribe →</button>
+<!-- ══ TESTIMONIAL COLLECTOR ════════════════════════════════════════════════ -->
+<section id="testi-collector">
+  <div class="tc-inner reveal">
+    <h2 class="tc-h2">Share Your <em>Story</em></h2>
+    <p class="tc-desc">Loved something from Design Den? We'd be honoured to hear from you.<br>Your review helps our Chennai community grow. ♡</p>
+    <div class="tc-card" id="tc-form-wrap">
+      <div class="tc-field">
+        <span class="tc-label">Your Rating *</span>
+        <div class="tc-stars-wrap" id="tc-stars">
+          <span class="tc-star active" data-v="1" onclick="setTcRating(1)">★</span>
+          <span class="tc-star active" data-v="2" onclick="setTcRating(2)">★</span>
+          <span class="tc-star active" data-v="3" onclick="setTcRating(3)">★</span>
+          <span class="tc-star active" data-v="4" onclick="setTcRating(4)">★</span>
+          <span class="tc-star active" data-v="5" onclick="setTcRating(5)">★</span>
         </div>
+      </div>
+      <div class="tc-row2">
+        <div class="tc-field" style="margin-bottom:0">
+          <span class="tc-label">Your Name</span>
+          <input class="tc-input" id="tc-name-input" type="text" placeholder="Please log in to leave a review" autocomplete="name" readonly>
+          <input type="hidden" id="tc-name" value="">
+        </div>
+        <div class="tc-field" style="margin-bottom:0"><span class="tc-label">City / Location</span><input class="tc-input" id="tc-loc" placeholder="e.g. Chennai" autocomplete="address-level2"></div>
+      </div>
+      <div class="tc-field">
+        <span class="tc-label">Your Review *</span>
+        <textarea class="tc-textarea" id="tc-text" placeholder="Tell us about your experience — the yarn, the kit, the delivery, anything! 🧶"></textarea>
+      </div>
+      <div class="tc-submit-row">
+        <div id="tc-login-hint" style="display:none;font-size:0.75rem;color:rgba(255,255,255,0.45);margin-right:auto;align-self:center;">
+          <a href="#" onclick="showAuth('login');return false;" style="color:var(--blush);font-weight:700;text-decoration:underline;">Log in</a> to leave a review
+        </div>
+        <button class="btn-blush" id="tc-submit-btn" onclick="submitTestimonial()">Submit Review ✦</button>
+      </div>
     </div>
+    <div class="tc-success" id="tc-success">
+      <div class="tc-success-icon">🎉</div>
+      <div class="tc-success-title">Thank you so much!</div>
+      <p class="tc-success-msg">Your review is awaiting our approval.<br>Once approved it'll appear on the homepage for everyone to see. ♡</p>
+    </div>
+  </div>
 </section>
+
+<!-- ══ COMMISSION MODAL ══════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="commission-modal" onclick="if(event.target.id==='commission-modal')closeCommissionModal()">
+  <div class="modal-box" style="max-width:600px;padding:40px 44px;">
+    <button class="modal-close" onclick="closeCommissionModal()"><i class="fa fa-times"></i></button>
+    <div id="comm-s1">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px;">
+        <span id="comm-icon-big" style="font-size:2.4rem;line-height:1;">📐</span>
+        <div>
+          <h2 class="modal-title" style="margin:0 0 4px;">Commission a Custom Design ✦</h2>
+          <div id="comm-type-label" style="font-size:0.78rem;color:var(--rose);font-weight:800;letter-spacing:1px;text-transform:uppercase;">Custom Pattern Only</div>
+        </div>
+      </div>
+      <p style="font-size:0.82rem;color:rgba(61,26,14,0.5);margin:0 0 24px;line-height:1.6;">Every design is unique — pricing is quoted after we understand your project. We'll get back within 24 hours.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+        <div><label class="comm-fl">Your Name *</label><input class="comm-fi" id="comm-name" placeholder="Full name" autocomplete="name"></div>
+        <div><label class="comm-fl">Phone / WhatsApp *</label><input class="comm-fi" id="comm-phone" type="tel" placeholder="+91 98765 43210" autocomplete="tel"></div>
+      </div>
+      <div style="margin-bottom:14px;"><label class="comm-fl">Email Address *</label><input class="comm-fi" id="comm-email" type="email" placeholder="you@email.com" autocomplete="email"></div>
+      <div style="margin-bottom:14px;"><label class="comm-fl">Project Description *</label><textarea class="comm-fta" id="comm-desc" placeholder="Tell us your vision — colours, dimensions, occasion, style, special requirements…"></textarea></div>
+      <div style="margin-bottom:20px;"><label class="comm-fl">Budget Range (Optional)</label><input class="comm-fi" id="comm-budget" placeholder="e.g. ₹2,000–₹5,000 or flexible"></div>
+      <div style="margin-bottom:26px;">
+        <label class="comm-fl">Reference Image / File (Optional)</label>
+        <div class="comm-attach-area" id="comm-attach-area"
+          onclick="document.getElementById('comm-file').click()"
+          ondragover="event.preventDefault();this.classList.add('drag')"
+          ondragleave="this.classList.remove('drag')"
+          ondrop="commHandleDrop(event)">
+          <input type="file" id="comm-file" accept="image/*,.pdf" style="display:none" onchange="commHandleFile(this.files[0])">
+          <div id="comm-attach-ph" style="text-align:center;">
+            <div style="font-size:2rem;margin-bottom:8px;">📎</div>
+            <div style="font-size:0.82rem;font-weight:700;color:rgba(61,26,14,0.45)">Click or drag a reference image / PDF</div>
+            <div style="font-size:0.7rem;color:rgba(61,26,14,0.3);margin-top:4px">JPG, PNG, GIF, PDF · max 5 MB</div>
+          </div>
+          <div id="comm-attach-prev" style="display:none;align-items:center;gap:12px;width:100%;">
+            <img id="comm-attach-img" style="width:56px;height:56px;object-fit:cover;border-radius:10px;display:none;" alt="">
+            <div style="flex:1;min-width:0;"><div id="comm-attach-name" style="font-weight:700;font-size:0.82rem;color:var(--choco);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div><div id="comm-attach-size" style="font-size:0.7rem;color:rgba(61,26,14,0.4)"></div></div>
+            <button onclick="event.stopPropagation();commClearFile()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:rgba(61,26,14,0.35);padding:4px;flex-shrink:0;">✕</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <button class="btn-outline" style="flex:0 0 auto;" onclick="closeCommissionModal()">Cancel</button>
+        <button class="btn-rose" id="comm-submit-btn" style="flex:1;justify-content:center;display:flex;align-items:center;gap:8px;" onclick="submitCommission()">
+          <span id="comm-submit-label">Send Request ✦</span>
+        </button>
+      </div>
+    </div>
+    <div id="comm-s2" style="display:none;text-align:center;padding:20px 0 12px;">
+      <div style="font-size:3.5rem;margin-bottom:18px;">🎉</div>
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--choco);margin-bottom:12px;">Request Received!</h3>
+      <p style="color:rgba(61,26,14,0.55);line-height:1.75;margin-bottom:8px;font-size:0.9rem;">We'll get back within <strong style="color:var(--rose);">24 hours</strong> to discuss pricing &amp; timeline. ♡</p>
+      <div style="background:var(--mist);border-radius:16px;padding:18px 24px;margin-bottom:18px;display:inline-block;min-width:260px;">
+        <div style="font-size:0.6rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--rose);margin-bottom:6px;">Your Commission ID</div>
+        <div id="comm-s2-id" style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--choco);letter-spacing:2px;"></div>
+        <div style="font-size:0.68rem;color:rgba(61,26,14,0.38);margin-top:4px;">A confirmation email has been sent to you ✓</div>
+      </div>
+      <p style="font-size:0.78rem;color:rgba(61,26,14,0.38);margin-bottom:20px;">Use your Commission ID or email to track status anytime.</p>
+      <div id="comm-s2-btns" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn-rose" style="justify-content:center;display:inline-flex;" onclick="closeCommissionModal();setTimeout(openCommissionTracker,200)">Track My Commission →</button>
+        <button class="btn-outline" style="display:inline-flex;justify-content:center;" onclick="closeCommissionModal()">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ COMMISSION TRACKER MODAL ══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="comm-track-modal" onclick="if(event.target.id==='comm-track-modal')closeCommissionTracker()">
+  <div class="modal-box" style="max-width:560px;">
+    <button class="modal-close" onclick="closeCommissionTracker()"><i class="fa fa-times"></i></button>
+    <h2 class="modal-title" style="margin-bottom:6px;">Track Your Commission ✦</h2>
+    <p style="font-size:0.82rem;color:rgba(61,26,14,0.5);margin:0 0 20px;line-height:1.6;">Use your Commission ID (e.g. <strong>COMM-20260609-ABCD</strong>) for instant tracking, or enter your email to see all commissions.</p>
+    <!-- Tab switcher -->
+    <div style="display:flex;gap:0;background:var(--mist);border-radius:12px;padding:4px;margin-bottom:20px;">
+      <button id="ct-tab-id" onclick="switchCommTab('id')" style="flex:1;background:white;border:none;border-radius:9px;padding:9px;font-family:'Nunito',sans-serif;font-size:0.75rem;font-weight:800;color:var(--choco);cursor:pointer;box-shadow:0 2px 8px rgba(61,26,14,0.1);transition:all 0.2s;">🆔 By Commission ID</button>
+      <button id="ct-tab-email" onclick="switchCommTab('email')" style="flex:1;background:transparent;border:none;border-radius:9px;padding:9px;font-family:'Nunito',sans-serif;font-size:0.75rem;font-weight:700;color:rgba(61,26,14,0.45);cursor:pointer;transition:all 0.2s;">📧 By Email</button>
+    </div>
+    <!-- ID lookup -->
+    <div id="ct-panel-id">
+      <div style="display:flex;gap:10px;margin-bottom:22px;">
+        <input class="comm-fi" id="ct-comm-id" type="text" placeholder="COMM-20260609-ABCD" style="flex:1;text-transform:uppercase;letter-spacing:1px;" onkeydown="if(event.key==='Enter')trackByCommId()">
+        <button class="btn-rose" style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap;" id="ct-id-btn" onclick="trackByCommId()"><span id="ct-id-label">Track →</span></button>
+      </div>
+      <div id="ct-id-results"></div>
+    </div>
+    <!-- Email lookup -->
+    <div id="ct-panel-email" style="display:none;">
+      <div style="display:flex;gap:10px;margin-bottom:22px;">
+        <input class="comm-fi" id="ct-email" type="email" placeholder="your@email.com" style="flex:1;" onkeydown="if(event.key==='Enter')trackCommission()">
+        <button class="btn-rose" style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap;" id="ct-btn" onclick="trackCommission()"><span id="ct-label">Track →</span></button>
+      </div>
+      <div id="ct-results"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PATTERN DETAIL MODAL ══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="pat-modal" onclick="if(event.target.id==='pat-modal')closePatternModal()">
+  <div class="modal-box" style="max-width:520px;">
+    <button class="modal-close" onclick="closePatternModal()"><i class="fa fa-times"></i></button>
+    <img id="pat-modal-img" class="pat-modal-img" src="" alt="Pattern">
+    <div id="pat-modal-level" class="pat-modal-level">Beginner</div>
+    <div id="pat-modal-name" class="pat-modal-name">Pattern Name</div>
+    <div class="pat-modal-meta">
+      <div class="pat-modal-chip" id="pat-modal-time">⏱ 2 hrs</div>
+      <div class="pat-modal-chip" id="pat-modal-dl">📥 0 downloads</div>
+    </div>
+    <div id="pat-modal-desc" class="pat-modal-desc"></div>
+    <div id="pat-modal-price" class="pat-modal-price">FREE</div>
+    <!-- Email input for delivery -->
+    <div id="pat-email-wrap" style="margin-bottom:14px;">
+      <input class="comm-fi" id="pat-email-input" type="email" placeholder="Enter your email to receive the pattern 📧" style="width:100%;margin-bottom:0;" autocomplete="email">
+      <div style="font-size:0.68rem;color:rgba(61,26,14,0.38);margin-top:5px;text-align:center;" id="pat-email-hint">We'll email you the pattern file directly.</div>
+    </div>
+    <button class="btn-rose" id="pat-modal-btn" style="width:100%;justify-content:center;display:flex;">Download Free Pattern ↓</button>
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════════════
      FOOTER
@@ -1804,8 +2307,8 @@
             <div class="footer-logo-text">Design Den</div>
             <p class="footer-tagline">Chennai's favourite crochet studio. Turning your ideas into heirlooms, one stitch at a time. Since 2026.</p>
             <div class="footer-social">
-                <a class="social-btn" href="https://instagram.com/designden.in" target="_blank"><i class="fa-brands fa-instagram"></i></a>
-                <a class="social-btn" href="#"><i class="fa-brands fa-whatsapp"></i></a>
+                <a class="social-btn" href="https://www.instagram.com/design_den_studio/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                <a class="social-btn" href="https://wa.me/918072489076?text=Hi%20Design%20Den!%20I%20need%20help%20with%20my%20order."><i class="fa-brands fa-whatsapp"></i></a>
                 <a class="social-btn" href="#"><i class="fa-brands fa-youtube"></i></a>
                 <a class="social-btn" href="#"><i class="fa-brands fa-pinterest"></i></a>
             </div>
@@ -1916,22 +2419,11 @@
 
 <!-- ACCOUNT MODAL -->
 <div class="modal-overlay" id="account-modal" onclick="if(event.target.id==='account-modal')hideAccount()">
-    <div class="modal-box">
+    <div class="modal-box" style="max-height:90vh;overflow-y:auto;">
         <button class="modal-close" onclick="hideAccount()"><i class="fa fa-times"></i></button>
         <h2 class="modal-title">My Account</h2>
         <div id="account-content">
-            <div style="display:flex;align-items:center;gap:16px;margin-bottom:28px;">
-                <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--blush),var(--rose));display:flex;align-items:center;justify-content:center;font-size:1.5rem;">👩‍🎤</div>
-                <div>
-                    <div style="font-weight:800;font-size:1rem;">Navin B</div>
-                    <div style="font-size:0.75rem;color:var(--rose);">Chennai, Tamil Nadu</div>
-                </div>
-            </div>
-            <div style="margin-bottom:24px;">
-                <div style="font-weight:800;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;color:var(--choco);">Recent Orders</div>
-                <div id="orders-list"></div>
-            </div>
-            <button class="btn-outline" style="width:100%" onclick="hideAccount()">Log Out</button>
+            <!-- dynamically rendered by _renderAccount() -->
         </div>
     </div>
 </div>
@@ -1949,39 +2441,21 @@
 // ═══════════════════════════════════════
 // DATA
 // ═══════════════════════════════════════
-const PRODUCTS = [
-    { id:1, name:"Cotton Candy Dream", price:399, category:"yarn", stock:34, rating:5, img:"https://picsum.photos/id/201/600/600", desc:"100% premium Merino wool from Tamil Nadu farms. Buttery soft, perfect for baby blankets.", badge:"bestseller" },
-    { id:2, name:"Rainbow Haze Variegated", price:549, category:"yarn", stock:12, rating:4.8, img:"https://picsum.photos/id/29/600/600", desc:"Hand-dyed 100% cotton. Vibrant colour changes. Great for shawls & scarves.", badge:"hot" },
-    { id:3, name:"Bunny Hug Amigurumi Kit", price:899, category:"kit", stock:8, rating:5, img:"https://picsum.photos/id/160/600/600", desc:"Complete kit: yarn, eyes, stuffing, pattern. Make your own adorable bunny!", badge:"hot" },
-    { id:4, name:"Ergonomic Hook Set (12 pcs)", price:699, category:"hook", stock:45, rating:4.9, img:"https://picsum.photos/id/180/600/600", desc:"Aluminium hooks with soft grip. Perfect tension every stitch." },
-    { id:5, name:"Golden Sunset Bundle", price:1299, category:"bundle", stock:19, rating:5, img:"https://picsum.photos/id/1015/600/600", desc:"4 skeins + pattern + hook. Limited edition sunset tones.", badge:"new" },
-    { id:6, name:"Cozy Cactus Kit", price:799, category:"kit", stock:22, rating:4.7, img:"https://picsum.photos/id/201/600/600", desc:"Make your own rainbow cactus family. Beginner friendly.", badge:"new" },
-    { id:7, name:"Silky Bamboo Yarn (100g)", price:449, category:"yarn", stock:51, rating:4.9, img:"https://picsum.photos/id/129/600/600", desc:"Sustainably sourced bamboo fibre. Lightweight with gorgeous drape." },
-    { id:8, name:"Cloud Baby Blanket Kit", price:1599, category:"bundle", stock:6, rating:5, img:"https://picsum.photos/id/402/600/600", desc:"Everything you need for a dreamy baby blanket. Includes pattern video." },
-];
+// ═══════════════════════════════════════
+// DB-DRIVEN DATA (populated on load)
+// ═══════════════════════════════════════
+let PRODUCTS     = [];
+let PATTERNS     = [];
+let TESTIMONIALS = [];
 
-const PATTERNS = [
-    { name:"Granny Square Classic", level:"Beginner", time:"2 hrs", img:"https://picsum.photos/id/70/400/300" },
-    { name:"Bobble Stitch Cushion", level:"Intermediate", time:"4 hrs", img:"https://picsum.photos/id/96/400/300" },
-    { name:"Starfish Amigurumi", level:"Beginner", time:"3 hrs", img:"https://picsum.photos/id/146/400/300" },
-    { name:"Lacy Shawl Pattern", level:"Advanced", time:"8 hrs", img:"https://picsum.photos/id/167/400/300" },
-];
+// Shipping config — populated from DB via /settings/public (see _applyPublicSettings).
+// Defaults here only act as a fallback before the API responds / if it fails.
+let SHIPPING = {
+    fee:       99,
+    freeAbove: 999
+};
 
-const TESTIMONIALS = [
-    { name:"Priya Menon", loc:"Chennai", rating:5, text:"Design Den completely transformed my crochet journey. The Cotton Candy yarn is absolutely divine — I've gifted three blankets made from it already!", emoji:"🌸" },
-    { name:"Lakshmi Rajan", loc:"Coimbatore", rating:5, text:"The Amigurumi kits are insanely good. My daughter's bunny is so cute everyone thinks it's from abroad! The quality is just outstanding.", emoji:"🐰" },
-    { name:"Ananya Krishnan", loc:"Bangalore", rating:5, text:"Ordered the custom workshop and Navin was so patient with me! I went from zero to crocheting my first cardigan in two months.", emoji:"✨" },
-    { name:"Meera Iyer", loc:"Mumbai", rating:5, text:"Fast shipping, gorgeous yarns, and the patterns are so well-written. I've tried other brands but always come back to Design Den.", emoji:"🧶" },
-    { name:"Divya Suresh", loc:"Hyderabad", rating:5, text:"The ergonomic hook set saved my wrists! Seriously life-changing for someone who crochets 3–4 hours a day. Cannot recommend enough.", emoji:"💝" },
-    { name:"Nithya Pillai", loc:"Kochi", rating:5, text:"The bundles are such incredible value. Got the Golden Sunset set and it's breathtaking. Already planning my next order!", emoji:"🌅" },
-];
 
-const GALLERY_IMGS = [
-    "https://picsum.photos/id/1003/400/400","https://picsum.photos/id/1011/400/600",
-    "https://picsum.photos/id/1015/400/400","https://picsum.photos/id/1016/400/400",
-    "https://picsum.photos/id/1018/400/600","https://picsum.photos/id/1019/400/400",
-    "https://picsum.photos/id/1021/400/400","https://picsum.photos/id/1022/400/400",
-];
 
 // ═══════════════════════════════════════
 // STATE
@@ -1992,20 +2466,89 @@ let currentProduct = null;
 let modalQty = 1;
 
 // ═══════════════════════════════════════
-// CURSOR
+// CURSOR — Fixed with event delegation
 // ═══════════════════════════════════════
-const cur = document.getElementById('cursor');
+const cur  = document.getElementById('cursor');
 const ring = document.getElementById('cursor-ring');
-let rx=0,ry=0,cx=0,cy=0;
-document.addEventListener('mousemove', e => { cx=e.clientX; cy=e.clientY; cur.style.left=cx+'px'; cur.style.top=cy+'px'; });
-(function animRing(){
-    rx += (cx-rx)*0.12; ry += (cy-ry)*0.12;
-    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+let rx=0, ry=0, cx=window.innerWidth/2, cy=window.innerHeight/2;
+let cursorVisible = false;
+
+// Hide cursors initially until mouse enters the page
+if (cur)  cur.style.opacity  = '0';
+if (ring) ring.style.opacity = '0';
+
+document.addEventListener('mousemove', e => {
+    cx = e.clientX;
+    cy = e.clientY;
+    if (!cursorVisible) {
+        cursorVisible = true;
+        if (cur)  cur.style.opacity  = '1';
+        if (ring) ring.style.opacity = '0.6';
+    }
+    if (cur) { cur.style.left = cx + 'px'; cur.style.top = cy + 'px'; }
+});
+
+document.addEventListener('mouseleave', () => {
+    cursorVisible = false;
+    if (cur)  cur.style.opacity  = '0';
+    if (ring) ring.style.opacity = '0';
+});
+
+// Smooth ring follow via rAF
+(function animRing() {
+    rx += (cx - rx) * 0.12;
+    ry += (cy - ry) * 0.12;
+    if (ring) { ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; }
     requestAnimationFrame(animRing);
 })();
-document.querySelectorAll('a,button,[onclick]').forEach(el=>{
-    el.addEventListener('mouseenter',()=>{ cur.style.transform='translate(-50%,-50%) scale(2.5)'; cur.style.background='var(--deep)'; ring.style.opacity='0'; });
-    el.addEventListener('mouseleave',()=>{ cur.style.transform='translate(-50%,-50%) scale(1)'; cur.style.background='var(--rose)'; ring.style.opacity='0.6'; });
+
+// ── Event delegation: covers ALL elements including dynamically rendered ones ──
+function _isCursorTarget(el) {
+    // Walk up DOM to find if element or any ancestor is interactive
+    let node = el;
+    while (node && node !== document.body) {
+        if (
+            node.tagName === 'A'       ||
+            node.tagName === 'BUTTON'  ||
+            node.tagName === 'SELECT'  ||
+            node.tagName === 'INPUT'   ||
+            node.tagName === 'TEXTAREA'||
+            node.hasAttribute('onclick') ||
+            node.classList.contains('product-card')  ||
+            node.classList.contains('pattern-card')  ||
+            node.classList.contains('float-card')    ||
+            node.classList.contains('pact-btn')      ||
+            node.classList.contains('filter-btn')    ||
+            node.classList.contains('filter-select') ||
+            node.classList.contains('icon-btn')      ||
+            node.classList.contains('rv-card')       ||
+            node.classList.contains('pay-opt')       ||
+            node.classList.contains('float-wa')      ||
+            node.classList.contains('float-top')     ||
+            node.style.cursor === 'pointer'          ||
+            window.getComputedStyle(node).cursor === 'pointer'
+        ) { return true; }
+        node = node.parentElement;
+    }
+    return false;
+}
+
+document.addEventListener('mouseover', e => {
+    if (!cur || !ring) return;
+    if (_isCursorTarget(e.target)) {
+        cur.style.transform  = 'translate(-50%,-50%) scale(2.5)';
+        cur.style.background = 'var(--deep)';
+        if (cursorVisible) ring.style.opacity = '0';
+    }
+});
+
+document.addEventListener('mouseout', e => {
+    if (!cur || !ring) return;
+    if (_isCursorTarget(e.target)) {
+        cur.style.transform  = 'translate(-50%,-50%) scale(1)';
+        cur.style.background = 'var(--rose)';
+        if (cursorVisible) ring.style.opacity = '0.6';
+    }
 });
 
 // ═══════════════════════════════════════
@@ -2061,7 +2604,7 @@ function renderHeroCards(){
     if(!wrap) return;
     const items = PRODUCTS.slice(0,4);
     wrap.innerHTML = items.map(p=>`
-        <div class="float-card" onclick="showProductModal(${p.id})">
+        <div class="float-card" onclick="showProductModal('${p._id}')">
             <img src="${p.img}" alt="${p.name}" loading="lazy">
             <div class="float-card-body">
                 <div class="float-card-name">${p.name}</div>
@@ -2085,13 +2628,13 @@ function renderProducts(list){
         return;
     }
     grid.innerHTML = list.map(p=>`
-        <div class="product-card reveal" onclick="showProductModal(${p.id})">
+        <div class="product-card reveal" onclick="showProductModal('${p._id}')">
             <div class="product-img-wrap">
                 <img src="${p.img}" alt="${p.name}" loading="lazy">
                 ${p.badge?`<div class="product-badge ${BADGE_CLASS[p.badge]||''}">${BADGE_TEXT[p.badge]||''}</div>`:''}
                 <div class="product-actions">
-                    <button class="pact-btn" onclick="event.stopPropagation();addToCart(${p.id});return false;">Add to Cart</button>
-                    <button class="pact-btn wish" onclick="event.stopPropagation();toggleWishlistItem(${p.id});return false;"><i class="fa${wishlist.find(w=>w.id===p.id)?'-solid':'-regular'} fa-heart"></i></button>
+                    <button class="pact-btn${p.stock<1?' disabled':''}" ${p.stock<1?'disabled':'onclick="event.stopPropagation();addToCart(\''+p._id+'\');return false;"'}>${p.stock<1?'Out of Stock':'Add to Cart'}</button>
+                    <button class="pact-btn wish" onclick="event.stopPropagation();toggleWishlistItem('${p._id}');return false;"><i class="${wishlist.find(w=>w._id===p._id)?'fa-solid':'fa-regular'} fa-heart"></i></button>
                 </div>
             </div>
             <div class="product-body">
@@ -2099,9 +2642,9 @@ function renderProducts(list){
                 <div class="product-name">${p.name}</div>
                 <div class="product-meta">
                     <div class="product-price">₹${p.price.toLocaleString('en-IN')}</div>
-                    <div class="product-rating">★ ${p.rating} <span style="color:rgba(61,26,14,0.3);font-size:0.65rem;">(${(Math.random()*200+50|0)})</span></div>
+                    <div class="product-rating">★ ${p.rating} <span style="color:rgba(61,26,14,0.3);font-size:0.65rem;">(${p.reviewCount||0})</span></div>
                 </div>
-                <div class="product-stock">${p.stock<10?`⚠ Only ${p.stock} left`:p.stock<20?`✓ ${p.stock} in stock`:'✓ In stock'}</div>
+                <div class="product-stock">${p.stock<1?'✗ Out of stock':p.stock<10?`⚠ Only ${p.stock} left`:p.stock<20?`✓ ${p.stock} in stock`:'✓ In stock'}</div>
             </div>
         </div>
     `).join('');
@@ -2121,7 +2664,7 @@ function filterProducts(){
 // PRODUCT MODAL
 // ═══════════════════════════════════════
 function showProductModal(id){
-    currentProduct = PRODUCTS.find(p=>p.id===id);
+    currentProduct = PRODUCTS.find(p=>p._id===id);
     if(!currentProduct) return;
     modalQty = 1;
     document.getElementById('pmodal-img').src = currentProduct.img;
@@ -2130,12 +2673,17 @@ function showProductModal(id){
     document.getElementById('pmodal-price').textContent = '₹'+currentProduct.price.toLocaleString('en-IN');
     document.getElementById('pmodal-desc').textContent = currentProduct.desc;
     document.getElementById('modal-qty').textContent = 1;
-    document.getElementById('pmodal-stock').textContent = currentProduct.stock<10?`⚠ Only ${currentProduct.stock} left — order soon!`:`✓ ${currentProduct.stock} in stock`;
+    document.getElementById('pmodal-stock').textContent = currentProduct.stock<1?'✗ Out of stock — check back soon':currentProduct.stock<10?`⚠ Only ${currentProduct.stock} left — order soon!`:`✓ ${currentProduct.stock} in stock`;
+    // Disable Add to Cart and qty controls when out of stock
+    const outOfStock = currentProduct.stock < 1;
+    const addBtn = document.querySelector('#product-modal .btn-primary');
+    if(addBtn){ addBtn.disabled = outOfStock; addBtn.querySelector('span').textContent = outOfStock ? 'Out of Stock' : 'Add to Cart'; addBtn.style.opacity = outOfStock ? '0.5' : ''; }
+    document.querySelectorAll('#product-modal .qty-btn').forEach(btn=>{ btn.disabled = outOfStock; btn.style.opacity = outOfStock ? '0.4' : ''; });
     document.getElementById('product-modal').classList.add('active');
 }
 function hideProductModal(){ document.getElementById('product-modal').classList.remove('active'); currentProduct=null; }
 function changeModalQty(d){ modalQty=Math.max(1,Math.min(modalQty+d,currentProduct?currentProduct.stock:1)); document.getElementById('modal-qty').textContent=modalQty; }
-function addCurrentToCart(){ if(!currentProduct) return; addToCart(currentProduct.id,modalQty); hideProductModal(); }
+function addCurrentToCart(){ if(!currentProduct) return; addToCart(currentProduct._id,modalQty); hideProductModal(); }
 
 // ═══════════════════════════════════════
 // CART
@@ -2143,18 +2691,21 @@ function addCurrentToCart(){ if(!currentProduct) return; addToCart(currentProduc
 
 
 function addToCart(id,qty=1){
-    const p=PRODUCTS.find(x=>x.id===id); if(!p) return;
-    const ex=cart.find(x=>x.id===id);
-    if(ex) ex.qty=Math.min(ex.qty+qty,p.stock); else cart.push({...p,qty});
+    const p=PRODUCTS.find(x=>x._id===id); if(!p) return;
+    if(p.stock < 1){ showNotif(`⚠ ${p.name} is out of stock`); return; }
+    const ex=cart.find(x=>x._id===id);
+    if(ex) ex.qty=Math.min(ex.qty+qty,p.stock); else cart.push({...p,qty:Math.min(qty,p.stock)});
     saveCart(); updateCartCount(); renderCartItems();
     showNotif(`🧶 ${p.name} added to cart!`); launchConfetti();
 }
 
-function removeFromCart(id){ cart=cart.filter(x=>x.id!==id); saveCart(); updateCartCount(); renderCartItems(); }
+function removeFromCart(id){ cart=cart.filter(x=>x._id!==id); saveCart(); updateCartCount(); renderCartItems(); }
 function changeCartQty(id,d){
-    const ex=cart.find(x=>x.id===id); if(!ex) return;
-    const p=PRODUCTS.find(x=>x.id===id);
-    ex.qty=Math.max(1,Math.min(ex.qty+d,p?p.stock:99));
+    const ex=cart.find(x=>x._id===id); if(!ex) return;
+    const p=PRODUCTS.find(x=>x._id===id);
+    const newQty = ex.qty + d;
+    if(newQty <= 0){ removeFromCart(id); return; }
+    ex.qty = Math.min(newQty, p ? p.stock : 99);
     saveCart(); updateCartCount(); renderCartItems();
 }
 
@@ -2174,15 +2725,15 @@ function closeCart(){ document.getElementById('cart-drawer').classList.remove('o
 
 
 function toggleWishlistItem(id){
-    const p=PRODUCTS.find(x=>x.id===id); if(!p) return;
-    const idx=wishlist.findIndex(x=>x.id===id);
+    const p=PRODUCTS.find(x=>x._id===id); if(!p) return;
+    const idx=wishlist.findIndex(x=>x._id===id);
     if(idx>=0){ wishlist.splice(idx,1); showNotif('Removed from wishlist'); }
     else { wishlist.push(p); showNotif(`♡ ${p.name} wishlisted!`); }
     saveWishlist(); updateWishlistCount(); renderProducts(PRODUCTS);
 }
 
 function toggleWishlistFromModal(){
-    if(currentProduct) toggleWishlistItem(currentProduct.id);
+    if(currentProduct) toggleWishlistItem(currentProduct._id);
 }
 
 function updateWishlistCount(){ document.getElementById('wishlist-count').textContent=wishlist.length; }
@@ -2199,7 +2750,7 @@ function toggleWishlist(){
                 <div class="wishlist-item-name">${p.name}</div>
                 <div class="wishlist-item-price">₹${p.price.toLocaleString('en-IN')}</div>
             </div>
-            <button class="btn-rose" style="padding:10px 18px;font-size:0.75rem" onclick="addToCart(${p.id});toggleWishlist()">Add to Cart</button>
+            <button class="btn-rose" style="padding:10px 18px;font-size:0.75rem" onclick="addToCart('${p._id}');toggleWishlist()">Add to Cart</button>
         </div>
     `).join('');
 }
@@ -2209,15 +2760,137 @@ function toggleWishlist(){
 // ═══════════════════════════════════════
 function renderPatterns(){
     const el=document.getElementById('patterns-container');
+    if(!PATTERNS.length){
+        el.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.3)">No patterns yet — check back soon! 🧶</div>';
+        return;
+    }
     el.innerHTML=PATTERNS.map(p=>`
-        <div class="pattern-card reveal">
-            <img src="${p.img}" alt="${p.name}" loading="lazy">
+        <div class="pattern-card reveal active" onclick="openPatternModal('${p._id}')">
+            <img src="${p.img||'https://picsum.photos/id/70/400/300'}" alt="${p.name}" loading="lazy">
             <div class="pattern-body">
                 <div class="pattern-name">${p.name}</div>
-                <div class="pattern-meta">${p.level} · ${p.time}</div>
+                <div class="pattern-meta">${p.level}${p.time?' · '+p.time:''}</div>
+                <span class="pattern-badge ${p.price>0?'paid':'free'}">${p.price>0?'₹'+p.price.toLocaleString('en-IN'):'FREE'}</span>
+            </div>
+            <div class="pattern-footer">
+                <span style="font-size:0.68rem;color:rgba(255,255,255,0.3);font-weight:700">${(p.downloads||0).toLocaleString()} downloads</span>
+                <button class="pattern-dl-btn" onclick="event.stopPropagation();openPatternModal('${p._id}')">
+                    ${p.price>0?'Get Pattern →':'Download Free →'}
+                </button>
             </div>
         </div>
     `).join('');
+    // Re-observe any new reveal elements for the IntersectionObserver
+    if(typeof revealObs !== 'undefined' && revealObs){
+        el.querySelectorAll('.pattern-card.reveal').forEach(card => revealObs.observe(card));
+    }
+}
+let _currentPatternId = null;
+function openPatternModal(id){
+    const p=PATTERNS.find(x=>x._id===id); if(!p) return;
+    _currentPatternId = id;
+    document.getElementById('pat-modal-img').src=p.img||'https://picsum.photos/id/70/400/300';
+    document.getElementById('pat-modal-level').textContent=p.level;
+    document.getElementById('pat-modal-name').textContent=p.name;
+    document.getElementById('pat-modal-time').textContent='⏱ '+(p.time||'Self-paced');
+    document.getElementById('pat-modal-dl').textContent='📥 '+(p.downloads||0).toLocaleString()+' downloads';
+    document.getElementById('pat-modal-desc').textContent=p.desc||'';
+    document.getElementById('pat-modal-price').textContent=p.price>0?'₹'+p.price.toLocaleString('en-IN'):'FREE';
+    const btn=document.getElementById('pat-modal-btn');
+    const hint=document.getElementById('pat-email-hint');
+    // Pre-fill email if user is logged in
+    const emailInput=document.getElementById('pat-email-input');
+    if(emailInput && currentUser && _currentUserEmail()) emailInput.value = _currentUserEmail();
+    if(p.price>0){
+        btn.textContent='Pay ₹'+p.price.toLocaleString('en-IN')+' & Get Pattern →';
+        if(hint) hint.textContent='After payment the pattern will be emailed to you instantly.';
+    } else {
+        btn.textContent='Send Free Pattern to My Email ↓';
+        if(hint) hint.textContent='We will email the pattern file to you — free, instantly!';
+    }
+    btn.onclick=()=>{ patternModalAction(p._id, p.name, p.price||0); };
+    document.getElementById('pat-modal').classList.add('active');
+}
+function closePatternModal(){ document.getElementById('pat-modal').classList.remove('active'); _currentPatternId=null; }
+
+async function patternModalAction(id, name, price){
+    const emailInput = document.getElementById('pat-email-input');
+    const email = (emailInput?.value||'').trim().toLowerCase();
+    if(!_isValidEmail(email)){ _fieldErr('pat-email-input','Enter a valid email address to receive the pattern'); return; }
+    _clearFieldErr('pat-email-input');
+    const btn = document.getElementById('pat-modal-btn');
+    btn.disabled = true;
+    const customerName = _currentUserName();
+    if(price > 0){
+        btn.textContent = 'Preparing payment…';
+        await downloadPatternPaid(id, name, price, email, customerName);
+    } else {
+        btn.textContent = 'Sending…';
+        await downloadPatternFree(id, name, email, customerName);
+    }
+    btn.disabled = false;
+}
+
+async function downloadPatternFree(id, name, email, customerName){
+    const r = await _api('POST', '/patterns/'+id+'/download', { email, name: customerName });
+    if(r.ok){
+        showNotif('📧 Pattern sent to '+email+'! Check your inbox. ✓'); launchConfetti();
+        closePatternModal();
+        const p=PATTERNS.find(x=>x._id===id);
+        if(p){ p.downloads=(p.downloads||0)+1; renderPatterns(); }
+    } else {
+        const btn=document.getElementById('pat-modal-btn');
+        if(btn){ btn.disabled=false; btn.textContent='Send Free Pattern to My Email ↓'; }
+        showNotif('⚠ '+(r.data?.message||'Could not send — please try again'));
+    }
+}
+
+async function downloadPatternPaid(id, name, price, email, customerName){
+    // Step 1: create Razorpay order
+    const orderR = await _api('POST', '/patterns/'+id+'/purchase-order', { email });
+    if(!orderR.ok){
+        const btn=document.getElementById('pat-modal-btn');
+        if(btn){ btn.disabled=false; btn.textContent='Pay ₹'+price.toLocaleString('en-IN')+' & Get Pattern →'; }
+        showNotif('⚠ '+(orderR.data?.message||'Payment setup failed'));
+        return;
+    }
+    const { orderId, amount, key } = orderR.data;
+    // Step 2: open Razorpay
+    return new Promise((resolve)=>{
+        const rzp = new Razorpay({
+            key, amount, currency:'INR',
+            name:'Design Den', description: name,
+            image:'', order_id: orderId,
+            prefill:{ email, name: customerName },
+            theme:{ color:'#D4748C' },
+            handler: async function(response){
+                const btn=document.getElementById('pat-modal-btn');
+                if(btn) btn.textContent = 'Verifying & sending…';
+                const vr = await _api('POST', '/patterns/'+id+'/verify-purchase', {
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                    email, name: customerName
+                });
+                if(vr.ok){
+                    showNotif('🎉 Payment successful! Pattern sent to '+email+' ✓'); launchConfetti();
+                    closePatternModal();
+                    const p=PATTERNS.find(x=>x._id===id);
+                    if(p){ p.downloads=(p.downloads||0)+1; renderPatterns(); }
+                } else {
+                    showNotif('⚠ Payment done but delivery failed — contact support with your payment ID: '+response.razorpay_payment_id);
+                }
+                if(btn){ btn.disabled=false; btn.textContent='Pay ₹'+price.toLocaleString('en-IN')+' & Get Pattern →'; }
+                resolve();
+            },
+            modal:{ ondismiss:function(){
+                const btn=document.getElementById('pat-modal-btn');
+                if(btn){ btn.disabled=false; btn.textContent='Pay ₹'+price.toLocaleString('en-IN')+' & Get Pattern →'; }
+                resolve();
+            }}
+        });
+        rzp.open();
+    });
 }
 
 // ═══════════════════════════════════════
@@ -2244,41 +2917,344 @@ function renderTestimonials(){
 // ═══════════════════════════════════════
 // GALLERY
 // ═══════════════════════════════════════
-function renderGallery(){
+async function renderGallery(){
     const el=document.getElementById('gallery-grid');
-    el.innerHTML=GALLERY_IMGS.map(src=>`
-        <div class="gallery-item reveal" onclick="enlargeImage('${src}')">
-            <img src="${src}" loading="lazy" alt="Gallery">
-            <div class="gallery-overlay">
-                <div class="gallery-overlay-text">View Full ↗</div>
+    el.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(61,26,14,0.3);font-size:0.85rem">Loading gallery…</div>';
+    try{
+        const r=await _api('GET','/gallery');
+        if(!r.ok||!r.data.images||!r.data.images.length){
+            el.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(61,26,14,0.3)">Gallery coming soon ♡</div>';
+            return;
+        }
+        el.innerHTML=r.data.images.map(img=>`
+            <div class="gallery-item reveal" onclick="enlargeImage('${img.url}','${(img.caption||'').replace(/'/g,String.fromCharCode(92)+"'")}')">
+                <img src="${img.url}" loading="lazy" alt="${img.caption||'Gallery'}">
+                <div class="gallery-overlay"><div class="gallery-overlay-text">${img.caption||'View Full'} ↗</div></div>
             </div>
-        </div>
-    `).join('');
+        `).join('');
+        document.querySelectorAll('.gallery-item.reveal:not(.revealed)').forEach(el=>revealObs&&revealObs.observe(el));
+    }catch(e){
+        el.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(61,26,14,0.3)">Gallery coming soon ♡</div>';
+    }
 }
 
-function enlargeImage(src){
+function enlargeImage(src,caption){
     const div=document.createElement('div');
-    div.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:999999;display:flex;align-items:center;justify-content:center;cursor:none;';
+    div.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;cursor:none;';
     div.onclick=()=>div.remove();
-    div.innerHTML=`<img src="${src}" style="max-width:90vw;max-height:90vh;border-radius:24px;object-fit:contain;">`;
+    div.innerHTML=`<img src="${src}" style="max-width:90vw;max-height:82vh;border-radius:24px;object-fit:contain;">`+(caption?`<div style="color:rgba(255,255,255,0.65);font-size:0.85rem;font-weight:600;letter-spacing:0.5px">${caption}</div>`:'');
     document.body.appendChild(div);
 }
 
 // ═══════════════════════════════════════
 // MISC ACTIONS
 // ═══════════════════════════════════════
-function downloadFreePattern(){ showNotif('📥 Free Granny Square pattern downloading!'); launchConfetti(); }
-function requestCustom(type){
-    const msgs=['Custom Pattern request received! We\'ll reply in 24 hrs.','Commission request received! We\'ll start immediately.','Workshop request received! We\'ll contact you to schedule.'];
-    showNotif('🎉 '+msgs[type-1]); launchConfetti();
-}
-function subscribeNewsletter(){
-    const v=document.getElementById('nl-email').value;
-    if(!v.includes('@')){ showNotif('⚠ Please enter a valid email'); return; }
-    showNotif('🧶 You\'re subscribed! Welcome to the family ♡'); launchConfetti();
-    document.getElementById('nl-email').value='';
+function downloadFreePattern(){
+    const free=PATTERNS.find(p=>p.price===0);
+    if(free) openPatternModal(free._id); else showNotif('📥 Pattern coming soon!');
+    launchConfetti();
 }
 
+// ─── COMMISSION MODAL ────────────────────────────────────────────────────────
+let _commAttachData='', _commAttachName='', _commType='Custom Design';
+
+function openCommissionModal(type,icon){
+    _commType=type||'Custom Design'; _commAttachData=''; _commAttachName='';
+    document.getElementById('comm-s1').style.display='block';
+    document.getElementById('comm-s2').style.display='none';
+    document.getElementById('comm-icon-big').textContent=icon||'✦';
+    document.getElementById('comm-type-label').textContent=_commType;
+    ['comm-name','comm-phone','comm-email','comm-desc','comm-budget'].forEach(id=>{
+        const el=document.getElementById(id); if(el) el.value='';
+        _clearFieldErr(id);
+    });
+    // Remove any previously injected "View in My Account" button
+    const prevAcctBtn = document.getElementById('comm-s2-account-btn');
+    if (prevAcctBtn) prevAcctBtn.remove();
+    if(currentUser){
+        const n=document.getElementById('comm-name'); if(n) n.value=_currentUserName();
+        const e=document.getElementById('comm-email'); if(e) e.value=_currentUserEmail();
+        const p=document.getElementById('comm-phone'); if(p) p.value=_currentUserPhone();
+    }
+    commClearFile();
+    const btn=document.getElementById('comm-submit-btn'); if(btn) btn.disabled=false;
+    const lbl=document.getElementById('comm-submit-label'); if(lbl) lbl.textContent='Send Request ✦';
+    document.getElementById('commission-modal').classList.add('active');
+}
+function closeCommissionModal(){ document.getElementById('commission-modal').classList.remove('active'); }
+function commHandleFile(file){
+    if(!file) return;
+    if(file.size>5*1024*1024){ showNotif('⚠ File must be under 5 MB'); return; }
+    _commAttachName=file.name;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+        _commAttachData=ev.target.result;
+        const isImg=file.type.startsWith('image/');
+        document.getElementById('comm-attach-ph').style.display='none';
+        const prev=document.getElementById('comm-attach-prev'); prev.style.display='flex';
+        const img=document.getElementById('comm-attach-img');
+        if(isImg){ img.src=_commAttachData; img.style.display='block'; } else img.style.display='none';
+        document.getElementById('comm-attach-name').textContent=file.name;
+        document.getElementById('comm-attach-size').textContent=(file.size/1024).toFixed(0)+' KB';
+    };
+    reader.readAsDataURL(file);
+}
+function commHandleDrop(e){
+    e.preventDefault(); document.getElementById('comm-attach-area').classList.remove('drag');
+    const file=e.dataTransfer.files[0]; if(file) commHandleFile(file);
+}
+function commClearFile(){
+    _commAttachData=''; _commAttachName='';
+    const fi=document.getElementById('comm-file'); if(fi) fi.value='';
+    const ph=document.getElementById('comm-attach-ph'); if(ph) ph.style.display='';
+    const pr=document.getElementById('comm-attach-prev'); if(pr) pr.style.display='none';
+}
+async function submitCommission(){
+    const name  = (document.getElementById('comm-name')?.value||'').trim();
+    const phone = (document.getElementById('comm-phone')?.value||'').trim();
+    const email = (document.getElementById('comm-email')?.value||'').trim();
+    const desc  = (document.getElementById('comm-desc')?.value||'').trim();
+    const budget= (document.getElementById('comm-budget')?.value||'').trim();
+
+    _clearAllFieldErrs(['comm-name','comm-phone','comm-email','comm-desc']);
+
+    if (!_isValidName(name))       { _fieldErr('comm-name',  'Please enter your full name (at least 2 characters)'); return; }
+    if (!_isValidPhone(phone))     { _fieldErr('comm-phone', 'Enter a valid 10-digit Indian mobile number (e.g. 9876543210)'); return; }
+    if (!_isValidEmail(email))     { _fieldErr('comm-email', 'Enter a valid email address (e.g. name@gmail.com)'); return; }
+    if (desc.length < 10)          { _fieldErr('comm-desc',  'Please describe your project in at least 10 characters'); return; }
+
+    const btn  = document.getElementById('comm-submit-btn');
+    const lbl  = document.getElementById('comm-submit-label');
+    btn.disabled = true; if(lbl) lbl.textContent = 'Sending…';
+
+    const r = await _api('POST', '/commissions', {
+        type:_commType, name, phone:_cleanPhone(phone), email:email.toLowerCase(),
+        desc, budget, attachment:_commAttachData, attachName:_commAttachName
+    });
+
+    btn.disabled = false; if(lbl) lbl.textContent = 'Send Request ✦';
+    if(r.ok){
+        const commissionId = r.data.commissionId || '';
+        document.getElementById('comm-s1').style.display = 'none';
+        document.getElementById('comm-s2').style.display = 'block';
+        const idEl = document.getElementById('comm-s2-id');
+        if(idEl) idEl.textContent = commissionId;
+        launchConfetti();
+        // Commission tracking is now handled entirely by the database
+        // No localStorage persistence to avoid showing deleted commissions
+        // If user is logged in, inject a "View in My Account" button
+        const s2Btns = document.getElementById('comm-s2-btns');
+        if (s2Btns && currentUser && !document.getElementById('comm-s2-account-btn')) {
+            const acctBtn = document.createElement('button');
+            acctBtn.id = 'comm-s2-account-btn';
+            acctBtn.className = 'btn-outline';
+            acctBtn.style.cssText = 'display:inline-flex;justify-content:center;';
+            acctBtn.textContent = '📋 View in My Account';
+            acctBtn.onclick = () => {
+                closeCommissionModal();
+                setTimeout(() => { showAccount(); setTimeout(() => _renderAccount('commissions'), 350); }, 220);
+            };
+            s2Btns.insertBefore(acctBtn, s2Btns.firstChild);
+        }
+    } else {
+        showNotif('⚠ '+(r.data.message||'Could not submit — please try again'));
+    }
+}
+
+// ─── COMMISSION TRACKER ───────────────────────────────────────────────────────
+function switchCommTab(tab){
+    const isId = tab === 'id';
+    const activeStyle = 'flex:1;background:white;border:none;border-radius:9px;padding:9px;font-family:\'Nunito\',sans-serif;font-size:0.75rem;font-weight:800;color:var(--choco);cursor:pointer;box-shadow:0 2px 8px rgba(61,26,14,0.1);transition:all 0.2s;';
+    const inactiveStyle = 'flex:1;background:transparent;border:none;border-radius:9px;padding:9px;font-family:\'Nunito\',sans-serif;font-size:0.75rem;font-weight:700;color:rgba(61,26,14,0.45);cursor:pointer;transition:all 0.2s;';
+    const tabId = document.getElementById('ct-tab-id');
+    const tabEmail = document.getElementById('ct-tab-email');
+    if(tabId) tabId.style.cssText = isId ? activeStyle : inactiveStyle;
+    if(tabEmail) tabEmail.style.cssText = !isId ? activeStyle : inactiveStyle;
+    const panelId = document.getElementById('ct-panel-id');
+    const panelEmail = document.getElementById('ct-panel-email');
+    if(panelId) panelId.style.display = isId ? '' : 'none';
+    if(panelEmail) panelEmail.style.display = isId ? 'none' : '';
+}
+function openCommissionTracker(){
+    const el=document.getElementById('ct-comm-id'); if(el) el.value='';
+    const el2=document.getElementById('ct-email'); if(el2) el2.value='';
+    const r1=document.getElementById('ct-id-results'); if(r1) r1.innerHTML='';
+    const r2=document.getElementById('ct-results'); if(r2) r2.innerHTML='';
+    // Auto-fill email if logged in
+    if(currentUser && el2) el2.value = _currentUserEmail();
+    switchCommTab('id');
+    document.getElementById('comm-track-modal').classList.add('active');
+    setTimeout(()=>document.getElementById('ct-comm-id')?.focus(),200);
+}
+function closeCommissionTracker(){ document.getElementById('comm-track-modal').classList.remove('active'); }
+// Alias used when opening tracker pre-filled from My Account → My Commissions
+async function trackCommissionById(){
+    await trackByCommId();
+}
+async function trackByCommId(){
+    const commId=(document.getElementById('ct-comm-id')?.value||'').trim().toUpperCase();
+    if(!commId){ _fieldErr('ct-comm-id','Enter your Commission ID (e.g. COMM-20260609-ABCD)'); return; }
+    _clearFieldErr('ct-comm-id');
+    const btn=document.getElementById('ct-id-btn'); const lbl=document.getElementById('ct-id-label');
+    if(btn) btn.disabled=true; if(lbl) lbl.textContent='Searching…';
+    const r=await _api('GET','/commissions/track/'+commId);
+    if(btn) btn.disabled=false; if(lbl) lbl.textContent='Track →';
+    const el=document.getElementById('ct-id-results');
+    if(!r.ok){
+        el.innerHTML='<div style="background:var(--mist);border-radius:14px;padding:24px;text-align:center;color:rgba(61,26,14,0.5)"><div style="font-size:2rem;margin-bottom:10px">🔍</div><div style="font-weight:700;margin-bottom:6px">Commission Not Found</div><div style="font-size:0.8rem">Check your Commission ID and try again.</div></div>';
+        return;
+    }
+    el.innerHTML=_renderCommCard(r.data.commission);
+}
+async function trackCommission(){
+    const email=(document.getElementById('ct-email')?.value||'').trim().toLowerCase();
+    if(!_isValidEmail(email)){ _fieldErr('ct-email','Enter a valid email address (e.g. name@gmail.com)'); return; }
+    _clearFieldErr('ct-email');
+    const btn=document.getElementById('ct-btn'); const lbl=document.getElementById('ct-label');
+    if(btn) btn.disabled=true; if(lbl) lbl.textContent='Searching…';
+    const r=await _api('POST','/commissions/track',{email});
+    if(btn) btn.disabled=false; if(lbl) lbl.textContent='Track →';
+    const el=document.getElementById('ct-results');
+    if(!r.ok){ el.innerHTML='<div style="color:rgba(61,26,14,0.5);text-align:center;padding:20px">Something went wrong. Please try again.</div>'; return; }
+    const list=r.data.commissions||[];
+    if(!list.length){
+        el.innerHTML='<div style="background:var(--mist);border-radius:14px;padding:24px;text-align:center;color:rgba(61,26,14,0.5)"><div style="font-size:2rem;margin-bottom:10px">🔍</div><div style="font-weight:700;margin-bottom:6px">No Commissions Found</div><div style="font-size:0.8rem">We could not find any requests for this email.</div></div>';
+        return;
+    }
+    el.innerHTML='<div style="font-size:0.7rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(61,26,14,0.38);margin-bottom:12px">'+list.length+' Commission'+(list.length!==1?'s':'')+' Found</div>'+list.map(_renderCommCard).join('');
+}
+function _renderCommCard(c){
+    const icn={New:'⏳',Quoted:'💰','In Progress':'🔨',Completed:'🎉',Cancelled:'❌'};
+    const d=new Date(c.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+    return '<div style="background:var(--mist);border-radius:16px;padding:18px;margin-bottom:12px;border-left:3px solid var(--rose);">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;">'
+        +'<div>'
+        +(c.commissionId?'<div style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--rose);margin-bottom:3px;">'+c.commissionId+'</div>':'')
+        +'<div style="font-weight:800;font-size:0.9rem;color:var(--choco);margin-bottom:3px;">'+c.type+'</div>'
+        +'<div style="font-size:0.72rem;color:rgba(61,26,14,0.42)">Submitted on '+d+'</div>'
+        +'</div>'
+        +'<div style="display:inline-flex;align-items:center;gap:5px;background:rgba(212,116,140,0.12);border-radius:99px;padding:5px 12px;font-size:0.72rem;font-weight:800;color:var(--choco);flex-shrink:0;">'+(icn[c.status]||'🔔')+' '+c.status+'</div>'
+        +'</div>'
+        +(c.quotedPrice?'<div style="font-size:0.8rem;font-weight:800;color:var(--gold);background:rgba(212,160,74,0.1);border-radius:8px;padding:7px 12px;display:inline-block;margin-bottom:8px;">💰 Quoted: ₹'+c.quotedPrice.toLocaleString('en-IN')+'</div>':'')
+        +(c.budget&&!c.quotedPrice?'<div style="font-size:0.74rem;color:rgba(61,26,14,0.55);background:rgba(212,160,74,0.08);border-radius:8px;padding:6px 10px;display:inline-block;margin-bottom:8px;">💬 Budget: '+c.budget+'</div>':'')
+        +(c.adminNote?'<div style="background:white;border-radius:10px;padding:12px;margin-top:10px;font-size:0.8rem;color:var(--choco);line-height:1.65;border-left:3px solid var(--rose)"><strong style="font-size:0.62rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--rose);display:block;margin-bottom:5px">📌 Message from Design Den</strong>'+c.adminNote+'</div>':'')
+        +'</div>';
+}
+
+
+// ─── TESTIMONIAL COLLECTOR ────────────────────────────────────────────────────
+let _tcRating=5;
+function setTcRating(val){
+    _tcRating=val;
+    document.querySelectorAll('.tc-star').forEach(s=>{ s.classList.toggle('active',parseInt(s.dataset.v)<=val); });
+}
+async function submitTestimonial(){
+    // Must be logged in
+    if(!currentUser){
+        showNotif('⚠ Please log in to share your review');
+        showAuth('login');
+        return;
+    }
+
+    const name = _currentUserName();
+    const text = (document.getElementById('tc-text')?.value || '').trim();
+    const loc  = (document.getElementById('tc-loc')?.value  || '').trim();
+
+    if(!name){
+        showNotif('⚠ Could not read your name — please log out and log in again');
+        return;
+    }
+    if(text.length < 10){
+        showNotif('⚠ Your review must be at least 10 characters');
+        return;
+    }
+
+    const btn = document.getElementById('tc-submit-btn');
+    if(btn){
+        btn.disabled = true;
+        btn.textContent = 'Submitting…';
+        btn.style.opacity = '1';
+    }
+
+    const r = await _api('POST','/testimonials',{
+        name,
+        loc,
+        text,
+        rating: _tcRating
+    });
+
+    if(btn){
+        btn.disabled = false;
+        btn.textContent = 'Submit Review ✦';
+    }
+
+    if(r.ok){
+        const formWrap = document.getElementById('tc-form-wrap');
+        const success  = document.getElementById('tc-success');
+        if(formWrap) formWrap.style.display = 'none';
+        if(success)  success.style.display = 'block';
+        launchConfetti();
+    } else {
+        if(btn) btn.style.opacity = '1';
+        showNotif('⚠ ' + (r.data?.message || 'Could not submit — try again'));
+    }
+}
+
+// Sync "Share Your Story" form to current login state
+// Called after login, logout, and on page load
+function _syncTestiForm(){
+    const nameInput  = document.getElementById('tc-name-input');
+    const nameHidden = document.getElementById('tc-name');
+    const submitBtn  = document.getElementById('tc-submit-btn');
+    const loginHint  = document.getElementById('tc-login-hint');
+    const successEl  = document.getElementById('tc-success');
+
+    // Do not reset the form after a successful review submission.
+    // getComputedStyle is required because .tc-success is hidden by CSS, not always inline style.
+    if(successEl && getComputedStyle(successEl).display !== 'none') return;
+
+    const userName = _currentUserName();
+
+    if(currentUser && userName){
+        // ── Logged in ──────────────────────────────────────────────────────
+        if(nameInput){
+            nameInput.value       = userName;
+            nameInput.readOnly    = true;
+            nameInput.placeholder = userName;
+            nameInput.style.opacity    = '1';
+            nameInput.style.fontWeight = '700';
+            nameInput.style.fontStyle  = 'normal';
+            nameInput.style.cursor     = 'default';
+            nameInput.classList.add('logged-in');
+        }
+        if(nameHidden) nameHidden.value = userName;
+        if(submitBtn){
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.title = '';
+        }
+        if(loginHint) loginHint.style.display = 'none';
+    } else {
+        // ── Not logged in ──────────────────────────────────────────────────
+        if(nameInput){
+            nameInput.value       = '';
+            nameInput.readOnly    = true;
+            nameInput.placeholder = 'Please log in to leave a review';
+            nameInput.style.opacity    = '0.45';
+            nameInput.style.fontWeight = '400';
+            nameInput.style.fontStyle  = 'italic';
+            nameInput.style.cursor     = 'not-allowed';
+            nameInput.classList.remove('logged-in');
+        }
+        if(nameHidden) nameHidden.value = '';
+        if(submitBtn){
+            submitBtn.disabled = false; // allow click — redirects to login
+            submitBtn.style.opacity = '0.65';
+            submitBtn.title = 'Log in to submit a review';
+        }
+        if(loginHint) loginHint.style.display = 'flex';
+    }
+}
 
 
 
@@ -2351,11 +3327,12 @@ function toggleMobile(){ document.getElementById('mobile-menu').classList.toggle
 // ═══════════════════════════════════════
 // REVEAL ON SCROLL
 // ═══════════════════════════════════════
+let revealObs = null;
 function initReveal(){
-    const obs=new IntersectionObserver(entries=>{
+    revealObs=new IntersectionObserver(entries=>{
         entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('active'); });
     },{ threshold:0.12 });
-    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+    document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
 }
 
 // ═══════════════════════════════════════
@@ -2388,169 +3365,98 @@ document.addEventListener('keydown',e=>{
 // ═══════════════════════════════════════════════════════════════════════
 //  CART & WISHLIST — User-Aware Storage
 // ═══════════════════════════════════════════════════════════════════════
-function saveCart() {
-    const key = currentUser ? 'dd_cart_' + currentUser.id : 'dd_cart';
-    localStorage.setItem(key, JSON.stringify(cart));
-}
-function saveWishlist() {
-    const key = currentUser ? 'dd_wishlist_' + currentUser.id : 'dd_wishlist';
-    localStorage.setItem(key, JSON.stringify(wishlist));
-}
+
+
 
 // ═══════════════════════════════════════════════════════════════════════
 //  AUTH & SESSION SYSTEM
 // ═══════════════════════════════════════════════════════════════════════
-const SESSION_KEY = 'dd_session_v2';
-const USERS_KEY   = 'dd_users_v2';
+// NOTE: real auth/session state lives server-side (JWT via /api/auth/*, see
+// _getToken/_setToken/_clearToken further down). currentUser below holds the
+// in-memory profile for the active session only.
 let currentUser   = null;
 
-async function _hashPw(pw) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+
+// Normalize user objects returned by different backends so the UI can always read a name.
+// Supports: name, fullName, fullname, displayName, username, firstName/lastName, email.
+function _firstNonEmpty(...vals){
+    for (const v of vals) {
+        if (v === null || v === undefined) continue;
+        const s = String(v).trim();
+        if (s) return s;
+    }
+    return '';
 }
 
-function _getUsers()    { return JSON.parse(localStorage.getItem(USERS_KEY) || '[]'); }
-function _saveUsers(u)  { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+function _normaliseUser(raw){
+    if (!raw || typeof raw !== 'object') return null;
+    const first = _firstNonEmpty(raw.firstName, raw.firstname, raw.first_name);
+    const last  = _firstNonEmpty(raw.lastName,  raw.lastname,  raw.last_name);
+    const joined = [first, last].filter(Boolean).join(' ').trim();
 
-function _getUserOrders() {
-    if (!currentUser) return [];
-    return JSON.parse(localStorage.getItem('dd_orders_' + currentUser.id) || '[]');
+    const name = _firstNonEmpty(
+        raw.name,
+        raw.fullName,
+        raw.fullname,
+        raw.displayName,
+        raw.display_name,
+        raw.username,
+        raw.userName,
+        joined,
+        raw.email ? String(raw.email).split('@')[0] : ''
+    );
+
+    return {
+        ...raw,
+        name,
+        email: _firstNonEmpty(raw.email, raw.emailAddress, raw.email_address).toLowerCase(),
+        phone: _firstNonEmpty(raw.phone, raw.mobile, raw.phoneNumber, raw.phone_number)
+    };
 }
-function _saveOrderRecord(o) {
-    if (!currentUser) return;
-    const orders = _getUserOrders();
-    orders.push(o);
-    localStorage.setItem('dd_orders_' + currentUser.id, JSON.stringify(orders));
+
+function _extractAuthUser(data){
+    const raw = data?.user || data?.data?.user || data?.profile || data?.data?.profile || data?.data || data;
+    return _normaliseUser(raw);
 }
+
+function _extractAuthToken(data){
+    return data?.token || data?.accessToken || data?.access_token || data?.jwt || data?.data?.token || data?.data?.accessToken || '';
+}
+
+function _currentUserName(){ return _firstNonEmpty(currentUser?.name, currentUser?.fullName, currentUser?.displayName, currentUser?.username); }
+function _currentUserEmail(){ return _firstNonEmpty(currentUser?.email, currentUser?.emailAddress).toLowerCase(); }
+function _currentUserPhone(){ return _firstNonEmpty(currentUser?.phone, currentUser?.mobile, currentUser?.phoneNumber); }
+
+
+
 
 /* ── Session restore on load ── */
-function loadSession() {
-    const s = localStorage.getItem(SESSION_KEY);
-    if (s) { try { _applyLogin(JSON.parse(s), false); } catch(e) {} }
-}
+
 
 /* ── Sign Up ── */
-async function signUp() {
-    _clearAuthErr();
-    const name  = document.getElementById('su-name').value.trim();
-    const email = document.getElementById('su-email').value.trim().toLowerCase();
-    const phone = document.getElementById('su-phone').value.trim();
-    const pw    = document.getElementById('su-pw').value;
 
-    if (!name)                return _authErr('su-name-err',  'Please enter your name');
-    if (!email.includes('@')) return _authErr('su-email-err', 'Enter a valid email address');
-    if (pw.length < 6)        return _authErr('su-pw-err',    'Password must be 6+ characters');
-
-    const users = _getUsers();
-    if (users.find(u => u.email === email)) return _authErr('su-email-err', 'This email is already registered');
-
-    const hash = await _hashPw(pw);
-    const user = { id: Date.now(), name, email, phone, hash, joined: new Date().toISOString() };
-    users.push(user);
-    _saveUsers(users);
-    _applyLogin(user, true);
-    hideAuth();
-    showNotif('🎉 Welcome to Design Den, ' + name + '!');
-    launchConfetti();
-}
 
 /* ── Log In ── */
-async function login() {
-    _clearAuthErr();
-    const email = document.getElementById('li-email').value.trim().toLowerCase();
-    const pw    = document.getElementById('li-pw').value;
-    if (!email || !pw) return _authErr('li-err', 'Please fill in all fields');
-    const user = _getUsers().find(u => u.email === email);
-    if (!user)              return _authErr('li-err', 'No account found with this email');
-    if (await _hashPw(pw) !== user.hash) return _authErr('li-err', 'Incorrect password');
-    _applyLogin(user, true);
-    hideAuth();
-    showNotif('🧶 Welcome back, ' + user.name + '!');
-}
+
 
 /* ── Core login — sets state, merges guest cart ── */
-function _applyLogin(user, persist) {
-    currentUser = user;
-    if (persist) localStorage.setItem(SESSION_KEY, JSON.stringify(user));
 
-    // Merge any guest cart into user's cart
-    const guestCart = JSON.parse(localStorage.getItem('dd_cart') || '[]');
-    const uKey = 'dd_cart_' + user.id;
-    const uCart = JSON.parse(localStorage.getItem(uKey) || '[]');
-    if (guestCart.length) {
-        guestCart.forEach(item => {
-            const ex = uCart.find(x => x.id === item.id);
-            if (ex) ex.qty = Math.min(ex.qty + item.qty, 99);
-            else uCart.push(Object.assign({}, item));
-        });
-        localStorage.setItem(uKey, JSON.stringify(uCart));
-        localStorage.removeItem('dd_cart');
-    }
-    cart     = JSON.parse(localStorage.getItem('dd_cart_'    + user.id) || '[]');
-    wishlist = JSON.parse(localStorage.getItem('dd_wishlist_' + user.id) || '[]');
-    _updateAuthBtn();
-    updateCartCount();
-    updateWishlistCount();
-}
 
 /* ── Log Out ── */
-function logout() {
-    currentUser = null;
-    localStorage.removeItem(SESSION_KEY);
-    cart = []; wishlist = [];
-    _updateAuthBtn();
-    updateCartCount();
-    updateWishlistCount();
-    hideAccount();
-    showNotif('👋 Logged out. See you soon!');
-}
 
-function _updateAuthBtn() {
-    const btn = document.getElementById('account-btn');
-    if (!btn) return;
-    if (currentUser) {
-        btn.innerHTML = '<span style="font-size:0.72rem;font-weight:900;letter-spacing:0;">' + currentUser.name[0].toUpperCase() + '</span>';
-        btn.style.background = 'linear-gradient(135deg,var(--blush),var(--rose))';
-        btn.style.color = 'white';
-    } else {
-        btn.innerHTML = '<i class="fa-regular fa-user"></i>';
-        btn.style.background = '';
-        btn.style.color = '';
-    }
-}
+
+
 
 /* ── Auth Modal ── */
-function showAuth(tab) {
-    document.getElementById('auth-modal').classList.add('active');
-    switchAuthTab(tab || 'login');
-}
-function hideAuth() {
-    document.getElementById('auth-modal').classList.remove('active');
-}
-function switchAuthTab(tab) {
-    document.querySelectorAll('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-    document.getElementById('li-form').style.display  = tab === 'login'  ? 'block' : 'none';
-    document.getElementById('su-form').style.display  = tab === 'signup' ? 'block' : 'none';
-}
-function _authErr(id, msg) {
-    const el = document.getElementById(id);
-    if (el) { el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 3500); }
-}
-function _clearAuthErr() {
-    ['li-err','su-name-err','su-email-err','su-pw-err'].forEach(id => {
-        const el = document.getElementById(id); if (el) el.classList.remove('show');
-    });
-}
+
+
+
+
+
 
 /* ── Account Modal (override) ── */
-function showAccount() {
-    if (!currentUser) { showAuth('login'); return; }
-    _renderAccount();
-    document.getElementById('account-modal').classList.add('active');
-}
-function hideAccount() {
-    document.getElementById('account-modal').classList.remove('active');
-}
+
+
 
 // [replaced by new implementation below]
 
@@ -2579,8 +3485,8 @@ function _openCheckout() {
     if (currentUser) {
         const n = document.getElementById('addr-name');
         const p = document.getElementById('addr-phone');
-        if (n && currentUser.name)  n.value = currentUser.name;
-        if (p && currentUser.phone) p.value = currentUser.phone;
+        if (n && _currentUserName())  n.value = _currentUserName();
+        if (p && _currentUserPhone()) p.value = _currentUserPhone();
     }
     document.getElementById('checkout-modal').classList.add('active');
 }
@@ -2607,16 +3513,118 @@ function _goCoStep(step) {
     });
 }
 
-function submitAddress() {
-    const reqs = [['addr-name','Full Name'],['addr-phone','Phone'],
-                  ['addr-line1','Address'],['addr-city','City'],
-                  ['addr-pin','Pincode'],['addr-state','State']];
-    for (const [id, lbl] of reqs) {
-        if (!document.getElementById(id).value.trim()) { showNotif('⚠ Please enter ' + lbl); return; }
+// ═══════════════════════════════════════════════════════════════════════
+//  VALIDATION HELPERS — regex-based, reusable across all forms
+// ═══════════════════════════════════════════════════════════════════════
+const _RX = {
+    email:  /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+    phone:  /^[6-9]\d{9}$/,            // Indian 10-digit mobile
+    pin:    /^\d{6}$/,                  // 6-digit pincode
+    name:   /^[a-zA-Z\u0900-\u097F '.-]{2,60}$/,  // letters, spaces, dots, hyphens
+    pw:     /^.{6,}$/,                  // min 6 chars
+};
+
+function _cleanPhone(v){ return v.replace(/\D/g,'').replace(/^0+/,'').replace(/^91/,''); }
+function _isValidPhone(v){ return _RX.phone.test(_cleanPhone(v)); }
+function _isValidEmail(v){ return _RX.email.test(v.trim().toLowerCase()); }
+function _isValidPin(v){ return _RX.pin.test(v.trim()); }
+function _isValidName(v){ return v.trim().length >= 2; }
+
+// Inline field error — shows below the input
+function _fieldErr(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.borderColor = '#e53e3e';
+    el.style.boxShadow = '0 0 0 3px rgba(229,62,62,0.12)';
+    let hint = el.nextElementSibling;
+    if (!hint || !hint.classList.contains('_ferr')) {
+        hint = document.createElement('div');
+        hint.className = '_ferr';
+        hint.style.cssText = 'color:#e53e3e;font-size:0.68rem;font-weight:700;margin-top:4px;';
+        el.parentNode.insertBefore(hint, el.nextSibling);
     }
+    hint.textContent = '⚠ ' + msg;
+    el.focus();
+    setTimeout(()=>_clearFieldErr(id), 5000);
+    return false;
+}
+function _clearFieldErr(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.borderColor = '';
+    el.style.boxShadow = '';
+    const hint = el.nextElementSibling;
+    if (hint && hint.classList.contains('_ferr')) hint.remove();
+}
+function _clearAllFieldErrs(ids) {
+    ids.forEach(id => _clearFieldErr(id));
+}
+
+// Live validation listeners — attach once
+function _attachLiveValidation(id, validator, errMsg) {
+    const el = document.getElementById(id);
+    if (!el || el._liveValAttached) return;
+    el._liveValAttached = true;
+    el.addEventListener('blur', () => {
+        if (el.value.trim() && !validator(el.value)) _fieldErr(id, errMsg);
+        else _clearFieldErr(id);
+    });
+    el.addEventListener('input', () => { if (el.style.borderColor === 'rgb(229, 62, 62)') _clearFieldErr(id); });
+}
+
+function _initLiveValidation() {
+    // Auth forms
+    _attachLiveValidation('su-email', _isValidEmail, 'Enter a valid email (e.g. name@gmail.com)');
+    _attachLiveValidation('su-phone', _isValidPhone, 'Enter a valid 10-digit Indian mobile number');
+    _attachLiveValidation('su-pw', v=>_RX.pw.test(v), 'Password must be at least 6 characters');
+    _attachLiveValidation('li-email', _isValidEmail, 'Enter a valid email address');
+    // Checkout address
+    _attachLiveValidation('addr-phone', _isValidPhone, 'Enter a valid 10-digit mobile number');
+    _attachLiveValidation('addr-pin',   _isValidPin,   'Pincode must be exactly 6 digits');
+    // Commission form
+    _attachLiveValidation('comm-phone', _isValidPhone, 'Enter a valid 10-digit mobile number');
+    _attachLiveValidation('comm-email', _isValidEmail, 'Enter a valid email address');
+    // Track commission
+    _attachLiveValidation('ct-email', _isValidEmail, 'Enter a valid email address');
+}
+
+// Phone input — auto-strip non-digits while typing
+function _attachPhoneFilter(id) {
+    const el = document.getElementById(id);
+    if (!el || el._phoneFilterAttached) return;
+    el._phoneFilterAttached = true;
+    el.addEventListener('input', () => {
+        const pos = el.selectionStart;
+        const cleaned = el.value.replace(/[^0-9+\s\-()]/g, '');
+        if (cleaned !== el.value) { el.value = cleaned; el.setSelectionRange(pos-1,pos-1); }
+    });
+}
+
+function submitAddress() {
+    const ids = ['addr-name','addr-phone','addr-line1','addr-city','addr-pin','addr-state'];
+    _clearAllFieldErrs(ids);
+
+    const name  = (document.getElementById('addr-name')?.value||'').trim();
+    const phone = (document.getElementById('addr-phone')?.value||'').trim();
+    const line1 = (document.getElementById('addr-line1')?.value||'').trim();
+    const city  = (document.getElementById('addr-city')?.value||'').trim();
+    const pin   = (document.getElementById('addr-pin')?.value||'').trim();
+    const state = (document.getElementById('addr-state')?.value||'').trim();
+
+    if (!name)                          return _fieldErr('addr-name',  'Please enter your full name');
+    if (!name || name.length < 2)       return _fieldErr('addr-name',  'Name must be at least 2 characters');
+    if (!phone)                         return _fieldErr('addr-phone', 'Please enter your phone number');
+    if (!_isValidPhone(phone))          return _fieldErr('addr-phone', 'Enter a valid 10-digit Indian mobile number');
+    if (!line1)                         return _fieldErr('addr-line1', 'Please enter your address');
+    if (!city)                          return _fieldErr('addr-city',  'Please enter your city');
+    if (!pin)                           return _fieldErr('addr-pin',   'Please enter your pincode');
+    if (!_isValidPin(pin))              return _fieldErr('addr-pin',   'Pincode must be exactly 6 digits');
+    if (!state)                         return _fieldErr('addr-state', 'Please select your state');
+
     _renderCoSummary();
     _goCoStep(2);
 }
+
 
 function selectPayment(m) {
     _selPay = m;
@@ -2624,34 +3632,11 @@ function selectPayment(m) {
 }
 
 function placeOrder() {
-    const sub = cart.reduce((s,x) => s + x.price * x.qty, 0);
-    const tot = sub + (sub >= 999 ? 0 : 99);
     if (_selPay === 'cod') { _confirmOrder('Cash on Delivery', 'COD-' + Date.now()); }
-    else { _launchRazorpay(tot); }
+    else { _launchRazorpay(); }
 }
 
-function _launchRazorpay(amount) {
-    if (typeof Razorpay === 'undefined') {
-        showNotif('⚠ Razorpay unavailable — try COD or check network');
-        return;
-    }
-    const rzp = new Razorpay({
-        key: 'rzp_test_YOUR_KEY_HERE', // 🔑 Replace with your Razorpay key
-        amount: amount * 100,
-        currency: 'INR',
-        name: 'Design Den',
-        description: 'Crochet Studio — Chennai, Tamil Nadu',
-        handler: resp => _confirmOrder('Online', resp.razorpay_payment_id),
-        prefill: {
-            name:    currentUser ? currentUser.name  : '',
-            email:   currentUser ? currentUser.email : '',
-            contact: currentUser ? currentUser.phone : ''
-        },
-        theme: { color: '#D4748C' },
-        modal: { ondismiss: () => showNotif('Payment cancelled') }
-    });
-    rzp.open();
-}
+
 
 
 // [replaced by new implementation below]
@@ -2660,12 +3645,59 @@ function _launchRazorpay(amount) {
 // ═══════════════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', () => {
-    loadSession();
+// ═══════════════════════════════════════════════════════════════════════
+//  initStore — loads ALL content from DB then bootstraps the page
+// ═══════════════════════════════════════════════════════════════════════
+async function initStore() {
+    // Show skeleton loaders while fetching
+    const grid = document.getElementById('products-grid');
+    if (grid) grid.innerHTML = _spinner('Loading products…');
+
+    // --- Load all DB data in parallel ---
+    const [prodRes, patRes, testiRes, settingsRes] = await Promise.allSettled([
+        _api('GET', '/products'),
+        _api('GET', '/patterns'),
+        _api('GET', '/testimonials'),
+        _api('GET', '/settings/public')
+    ]);
+
+    // Products
+    if (prodRes.status === 'fulfilled' && prodRes.value.ok) {
+        PRODUCTS = prodRes.value.data.products || [];
+    } else {
+        console.warn('⚠ Products API failed, using empty array');
+        PRODUCTS = [];
+    }
+
+    // Patterns
+    if (patRes.status === 'fulfilled' && patRes.value.ok) {
+        PATTERNS = patRes.value.data.patterns || [];
+    } else {
+        PATTERNS = [];
+    }
+
+    // Testimonials
+    if (testiRes.status === 'fulfilled' && testiRes.value.ok) {
+        TESTIMONIALS = testiRes.value.data.testimonials || [];
+    } else {
+        TESTIMONIALS = [];
+    }
+
+    // Public settings (marquee, shipping, WhatsApp)
+    if (settingsRes.status === 'fulfilled' && settingsRes.value.ok) {
+        const s = settingsRes.value.data.settings || {};
+        _applyPublicSettings(s);
+    }
+
+    // --- Session (auth) ---
+    await loadSession();
     if (!currentUser) {
         cart     = JSON.parse(localStorage.getItem('dd_cart')     || '[]');
         wishlist = JSON.parse(localStorage.getItem('dd_wishlist') || '[]');
     }
+    _syncTestiForm();   // ← set name display based on session state
+
+    // --- Render everything ---
     renderHeroCards();
     renderProducts(PRODUCTS);
     renderPatterns();
@@ -2675,7 +3707,55 @@ window.addEventListener('DOMContentLoaded', () => {
     updateWishlistCount();
     animateCounter();
     initReveal();
-    console.log('%c🧶 Design Den — Fully Functional', 'color:#D4748C;font-size:16px;font-weight:bold');
+    console.log('%c🧶 Design Den — DB-Driven & Fully Functional', 'color:#D4748C;font-size:16px;font-weight:bold');
+}
+
+function _applyPublicSettings(s) {
+    // Marquee items
+    if (s['marquee.items']) {
+        const items = s['marquee.items'].split('\n').map(x => x.trim()).filter(Boolean);
+        const strip = document.querySelector('.marquee-inner');
+        if (strip && items.length) {
+            const doubled = [...items, ...items]; // duplicate for seamless loop
+            strip.innerHTML = doubled.map(t => `<span>${t}</span><span class="dot">✦</span>`).join('');
+        }
+    }
+    // WhatsApp link
+    if (s['store.whatsapp']) {
+        const wa = document.querySelector('.float-wa');
+        if (wa) wa.href = `https://wa.me/${s['store.whatsapp'].replace(/\D/g,'')}?text=Hi%20Design%20Den!%20I%20need%20help%20with%20my%20order.`;
+    }
+    // Shipping — this is the live source of truth used by every cart/checkout
+    // total calculation (_updateCartTotal, renderCartItems, _renderCoSummary,
+    // _confirmOrder, placeOrder, _updateShippingBar). Previously these all
+    // hardcoded 99 / 999, so admin changes never showed up on the storefront.
+    const fee  = parseFloat(s['shipping.fee']);
+    const free = parseFloat(s['shipping.freeAbove']);
+    if (!isNaN(fee))  SHIPPING.fee       = fee;
+    if (!isNaN(free)) SHIPPING.freeAbove = free;
+
+    // Re-render anything that may have already drawn with the old defaults
+    // (settings can arrive slightly after the first paint).
+    if (typeof renderCartItems === 'function' && document.getElementById('cart-items')) {
+        renderCartItems();
+    }
+}
+
+// Single shared shipping calculation — every screen (cart, checkout, order
+// confirmation) must call this instead of redoing the >= 999 ? 0 : 99 math.
+function _calcShipping(sub, disc) {
+    const netSub = sub - (disc || 0);
+    return netSub >= SHIPPING.freeAbove ? 0 : SHIPPING.fee;
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    initStore();
+    // Initialize live form validation once DOM is ready
+    setTimeout(() => {
+        _initLiveValidation();
+        // Attach phone-number filters (only digits + formatting chars)
+        ['addr-phone','su-phone','comm-phone'].forEach(_attachPhoneFilter);
+    }, 500);
 });
 
 
@@ -2692,17 +3772,17 @@ const TRACK_STEPS = [
 ];
 
 function _getOrderStatus(order) {
-    // Simulate realistic progression based on placement date
-    const placed  = new Date(order.payment.txnId.startsWith('COD') 
-        ? parseInt(order.payment.txnId.split('-')[1]) 
-        : Date.now());
-    const hoursAgo = (Date.now() - placed.getTime()) / 36e5;
-    if (hoursAgo < 0.5)   return 1;   // placed
-    if (hoursAgo < 2)     return 2;   // confirmed
-    if (hoursAgo < 24)    return 3;   // processing
-    if (hoursAgo < 48)    return 4;   // shipped
-    if (hoursAgo < 60)    return 5;   // out for delivery
-    return 6;                          // delivered
+    // Use the actual status from the DB (set by admin)
+    const statusMap = {
+        'Placed':           1,
+        'Confirmed':        2,
+        'Processing':       3,
+        'Shipped':          4,
+        'Out for Delivery': 5,
+        'Delivered':        6,
+        'Cancelled':        1,   // show as Placed step for cancelled
+    };
+    return statusMap[order.status] || 1;
 }
 
 function _stepTimestamp(order, stepIndex) {
@@ -2722,225 +3802,43 @@ function _deliveryDate(order) {
     return delivery.toLocaleDateString('en-IN', { weekday:'long', day:'2-digit', month:'long' });
 }
 
-function showOrderTrack(orderId) {
-    const orders  = _getUserOrders();
-    const order   = orders.find(o => o.id === orderId);
-    if (!order) return;
 
-    const statusIdx = _getOrderStatus(order);  // 1–6
-    const el = document.getElementById('order-track-content');
-
-    // Build timeline HTML
-    let timelineHTML = TRACK_STEPS.map((step, i) => {
-        const idx   = i + 1;
-        const state = idx < statusIdx ? 'done' : idx === statusIdx ? 'active' : 'pending';
-        const icon  = state === 'done' ? '✓' : step.icon;
-        const timeStr = state !== 'pending' ? `<div class="track-step-time">${_stepTimestamp(order, i)}</div>` : '';
-        return `
-        <div class="track-step ${state}">
-          <div class="track-dot">${icon}</div>
-          <div class="track-step-body">
-            <div class="track-step-title">${step.label}</div>
-            <div class="track-step-desc">${state !== 'pending' ? step.desc : 'Pending'}</div>
-            ${timeStr}
-          </div>
-        </div>`;
-    }).join('');
-
-    // Build items HTML
-    let itemsHTML = order.items.map(item => {
-        const prod = PRODUCTS.find(p => p.id === item.id);
-        const img  = prod ? prod.img : 'https://picsum.photos/id/201/100/100';
-        return `
-        <div class="track-item">
-          <img class="track-item-img" src="${img}" alt="${item.name}">
-          <div style="flex:1;">
-            <div class="track-item-name">${item.name}</div>
-            <div class="track-item-meta">Qty: ${item.qty} &nbsp;·&nbsp; ₹${item.price.toLocaleString('en-IN')} each</div>
-          </div>
-          <div class="track-item-price">₹${(item.price * item.qty).toLocaleString('en-IN')}</div>
-        </div>`;
-    }).join('');
-
-    const addr = order.address || {};
-    const addrLine = [addr.line1, addr.line2, addr.city, addr.pin, addr.state].filter(Boolean).join(', ');
-
-    const canCancel = statusIdx <= 2;
-    const isDelivered = statusIdx === 6;
-
-    el.innerHTML = `
-      <div class="track-header">
-        <div>
-          <div class="track-order-id">Order ${order.id}</div>
-          <div class="track-date">Placed on ${order.date} &nbsp;·&nbsp;
-            <span class="order-status-badge status-${order.status.toLowerCase()}">${order.status}</span>
-          </div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--rose);">
-            ₹${order.total.toLocaleString('en-IN')}
-          </div>
-          <div style="font-size:0.72rem;color:rgba(61,26,14,0.4);">${order.payment.method}</div>
-        </div>
-      </div>
-
-      <div class="delivery-bar">
-        <div class="delivery-icon">${isDelivered ? '🎁' : '🚚'}</div>
-        <div>
-          <div class="delivery-label">${isDelivered ? 'Delivered' : 'Estimated Delivery'}</div>
-          <div class="delivery-date">${_deliveryDate(order)}</div>
-          <div class="delivery-sub">${isDelivered ? 'Your order was delivered successfully' : 'Free 2-day delivery • Fully insured'}</div>
-        </div>
-      </div>
-
-      <div class="track-timeline">${timelineHTML}</div>
-
-      <div class="track-items">
-        <div class="track-items-title">Items in This Order</div>
-        ${itemsHTML}
-        <div style="display:flex;justify-content:space-between;padding:14px 0 0;font-weight:800;font-size:0.9rem;">
-          <span>Order Total</span>
-          <span style="color:var(--rose);">₹${order.total.toLocaleString('en-IN')}</span>
-        </div>
-      </div>
-
-      <div class="track-details-grid">
-        <div class="track-detail-card">
-          <div class="track-detail-head">📍 Delivery Address</div>
-          <div class="track-detail-line">
-            <strong>${addr.name || currentUser?.name || ''}</strong><br>
-            ${addrLine || 'Address not available'}
-          </div>
-        </div>
-        <div class="track-detail-card">
-          <div class="track-detail-head">💳 Payment Details</div>
-          <div class="track-detail-line">
-            <strong>${order.payment.method}</strong><br>
-            ${order.payment.txnId.startsWith('COD') ? 'Pay on delivery' : 'Txn: ' + order.payment.txnId.slice(-10)}<br>
-            <span style="color:var(--sage);font-weight:700;">✓ ${order.payment.method === 'Cash on Delivery' ? 'Pending' : 'Payment Successful'}</span>
-          </div>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
-        <a href="https://wa.me/919876543210?text=Hi! I need help tracking order ${order.id}"
-           target="_blank"
-           style="background:var(--choco);color:white;border:none;border-radius:999px;padding:12px 22px;
-                  font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;
-                  text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.3s;">
-          <i class="fa-brands fa-whatsapp"></i> Track on WhatsApp
-        </a>
-        ${canCancel ? `<button class="cancel-btn" onclick="cancelOrder('${order.id}')">
-          <i class="fa fa-times-circle"></i> Cancel Order
-        </button>` : ''}
-        <button onclick="closeOrderTrack();showAccount()"
-                style="background:none;border:none;cursor:pointer;color:rgba(61,26,14,0.45);
-                       font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:700;margin-left:auto;">
-          ← Back to Orders
-        </button>
-      </div>`;
-
-    document.getElementById('order-track-modal').classList.add('active');
-}
 
 function closeOrderTrack() {
     document.getElementById('order-track-modal').classList.remove('active');
 }
 
-function cancelOrder(orderId) {
-    if (!currentUser) return;
-    if (!confirm('Are you sure you want to cancel this order?')) return;
-    const key = 'dd_orders_' + currentUser.id;
-    const orders = _getUserOrders();
-    const order  = orders.find(o => o.id === orderId);
-    if (order) {
-        order.status = 'Cancelled';
-        localStorage.setItem(key, JSON.stringify(orders));
-        closeOrderTrack();
-        showNotif('❌ Order ' + orderId + ' has been cancelled.');
-        showAccount();
-    }
-}
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  PATCH _renderAccount — add "Track" button to each order row
 // ═══════════════════════════════════════════════════════════════════════════
-function _renderAccount() {
-    const orders = _getUserOrders();
-    const el = document.getElementById('account-content');
 
-    const avatar = '<div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--blush),var(--rose));display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:900;color:white;flex-shrink:0;">' + currentUser.name[0].toUpperCase() + '</div>';
-    const info   = '<div><div style="font-weight:800;font-size:1rem;">' + currentUser.name + '</div>'
-        + '<div style="font-size:0.75rem;color:var(--rose);">' + currentUser.email + '</div>'
-        + (currentUser.phone ? '<div style="font-size:0.72rem;color:rgba(61,26,14,0.4);">' + currentUser.phone + '</div>' : '')
-        + '</div>';
-
-    const orderRows = orders.length
-        ? orders.slice().reverse().map(o => {
-            const isCancelled = o.status === 'Cancelled';
-            const statusCls   = isCancelled ? 'status-processing' : 'status-placed';
-            return '<div style="padding:14px 0;border-bottom:1px solid rgba(61,26,14,0.08);">'
-                + '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">'
-                + '<div style="flex:1;min-width:0;">'
-                + '<div style="font-weight:700;font-size:0.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
-                + o.items.map(i => i.name + (i.qty > 1 ? ' ×' + i.qty : '')).join(', ')
-                + '</div>'
-                + '<div style="font-size:0.68rem;color:rgba(61,26,14,0.35);margin-top:3px;">'
-                + o.date + ' · #' + o.id + '</div></div>'
-                + '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
-                + '<div style="text-align:right;">'
-                + '<div style="font-weight:800;color:var(--rose);font-size:0.88rem;">₹' + o.total.toLocaleString('en-IN') + '</div>'
-                + '<span class="order-status-badge ' + statusCls + '">' + o.status + '</span>'
-                + '</div>'
-                + (!isCancelled
-                    ? '<button onclick="hideAccount();showOrderTrack(\'' + o.id + '\')" '
-                    + 'style="background:var(--rose);color:white;border:none;border-radius:10px;padding:8px 14px;'
-                    + 'font-family:Nunito,sans-serif;font-size:0.7rem;font-weight:800;cursor:pointer;'
-                    + 'white-space:nowrap;transition:all 0.3s;"'
-                    + '>Track ›</button>'
-                    : '')
-                + '</div></div></div>';
-          }).join('')
-        : '<div style="color:rgba(61,26,14,0.4);font-size:0.85rem;padding:20px 0;text-align:center;">No orders yet. Start shopping! 🧶</div>';
-
-    el.innerHTML =
-        '<div style="display:flex;align-items:center;gap:16px;margin-bottom:28px;">' + avatar + info + '</div>'
-        + '<div style="font-weight:800;font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;color:var(--choco);">Order History</div>'
-        + '<div style="margin-bottom:24px;">' + orderRows + '</div>'
-        + '<button class="btn-outline" style="width:100%" onclick="logout()">🚪 Sign Out</button>';
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  FREE SHIPPING PROGRESS BAR (Cart)
 // ═══════════════════════════════════════════════════════════════════════════
 function _updateShippingBar() {
     const total   = cart.reduce((s,x) => s + x.price * x.qty, 0);
-    const FREE_AT = 999;
+    const FREE_AT = SHIPPING.freeAbove;
     const bar     = document.getElementById('shipping-bar-fill');
     const msg     = document.getElementById('shipping-bar-msg');
     if (!bar || !msg) return;
-    const pct = Math.min(100, Math.round(total / FREE_AT * 100));
+    const pct = FREE_AT > 0 ? Math.min(100, Math.round(total / FREE_AT * 100)) : 100;
     bar.style.width = pct + '%';
     if (total >= FREE_AT) {
-        msg.innerHTML = '🎉 <span>Free shipping unlocked!</span> You saved ₹99';
+        msg.innerHTML = '🎉 <span>Free shipping unlocked!</span> You saved ₹' + SHIPPING.fee;
     } else {
         const rem = FREE_AT - total;
-        msg.innerHTML = 'Add <span>₹' + rem + ' more</span> for FREE shipping!';
+        msg.innerHTML = 'Add <span>₹' + rem.toLocaleString('en-IN') + ' more</span> for FREE shipping!';
     }
 }
 
 // Patch renderCartItems to include bar
 
 // ═══════════════════════════════════════════════════════════════════════════
-//  COUPON CODES
+//  COUPON CODES — API-backed
 // ═══════════════════════════════════════════════════════════════════════════
-const COUPONS = {
-    'WELCOME10': { type:'pct',  val:10, label:'10% off your order' },
-    'YARN20':    { type:'pct',  val:20, label:'20% off for yarn lovers' },
-    'FLAT100':   { type:'flat', val:100, label:'₹100 off on orders above ₹500' },
-    'NEWSTITCH': { type:'pct',  val:15, label:'15% off for new members' },
-    'CHENNAI':   { type:'flat', val:50,  label:'₹50 off — local Chennai love' },
-};
 let _activeCoupon = null;
 
 function toggleCoupon() {
@@ -2948,24 +3846,29 @@ function toggleCoupon() {
     if (row) row.classList.toggle('open');
 }
 
-function applyCoupon() {
+async function applyCoupon() {
     const inp = document.getElementById('coupon-code');
     const msg = document.getElementById('coupon-msg');
     if (!inp || !msg) return;
     const code = inp.value.trim().toUpperCase();
-    const coupon = COUPONS[code];
-    if (!coupon) {
-        msg.textContent = '✗ Invalid coupon code'; msg.className = 'coupon-msg err';
-        inp.classList.remove('valid'); _activeCoupon = null; _updateCartTotal(); return;
-    }
+    if (!code) { msg.textContent = '✗ Please enter a coupon code'; msg.className = 'coupon-msg err'; return; }
+
+    const applyBtn = document.querySelector('.coupon-apply');
+    if (applyBtn) { applyBtn.textContent = '…'; applyBtn.disabled = true; }
+
     const sub = cart.reduce((s,x) => s + x.price * x.qty, 0);
-    if (coupon.type === 'flat' && sub < 500) {
-        msg.textContent = '✗ Minimum order ₹500 required'; msg.className = 'coupon-msg err';
+    const r = await _api('POST', '/coupons/validate', { code, cartTotal: sub });
+
+    if (applyBtn) { applyBtn.textContent = 'Apply'; applyBtn.disabled = false; }
+
+    if (!r.ok || !r.data.valid) {
+        msg.textContent = '✗ ' + (r.data.message || 'Invalid coupon code');
+        msg.className = 'coupon-msg err';
         inp.classList.remove('valid'); _activeCoupon = null; _updateCartTotal(); return;
     }
-    _activeCoupon = { ...coupon, code };
+    _activeCoupon = { type: r.data.type, val: r.data.val, code: r.data.code, label: r.data.label };
     inp.classList.add('valid');
-    msg.textContent = '✓ ' + coupon.label + ' applied!'; msg.className = 'coupon-msg ok';
+    msg.textContent = '✓ ' + r.data.label + ' applied!'; msg.className = 'coupon-msg ok';
     _updateCartTotal();
     showNotif('🎁 Coupon ' + code + ' applied!');
 }
@@ -2980,7 +3883,7 @@ function _calcDiscount(sub) {
 function _updateCartTotal() {
     const sub  = cart.reduce((s,x) => s + x.price * x.qty, 0);
     const disc = _calcDiscount(sub);
-    const ship = sub >= 999 ? 0 : 99;
+    const ship = _calcShipping(sub, disc);
     const tot  = sub - disc + ship;
     const el   = document.getElementById('cart-total');
     if (el) el.textContent = '₹' + tot.toLocaleString('en-IN');
@@ -3007,19 +3910,19 @@ function renderCartItems() {
             <div class="cart-item-name">${item.name}</div>
             <div class="cart-item-price">₹${(item.price * item.qty).toLocaleString('en-IN')}</div>
             <div class="cart-item-qty">
-              <button class="qty-btn" onclick="changeCartQty(${item.id},-1)">−</button>
+              <button class="qty-btn" onclick="changeCartQty('${item._id}',-1)">−</button>
               <span style="font-weight:700;min-width:16px;text-align:center">${item.qty}</span>
-              <button class="qty-btn" onclick="changeCartQty(${item.id},1)">+</button>
+              <button class="qty-btn" onclick="changeCartQty('${item._id}',1)">+</button>
             </div>
           </div>
-          <button class="cart-item-remove" onclick="removeFromCart(${item.id})">✕</button>
+          <button class="cart-item-remove" onclick="removeFromCart('${item._id}')">✕</button>
         </div>`
     ).join('');
 
     // Rebuild footer content
     const sub  = cart.reduce((s,x) => s + x.price * x.qty, 0);
     const disc = _calcDiscount(sub);
-    const ship = sub >= 999 ? 0 : 99;
+    const ship = _calcShipping(sub, disc);
     const tot  = sub - disc + ship;
 
     footer.innerHTML = `
@@ -3054,7 +3957,7 @@ function renderCartItems() {
           <span class="cart-total-val" id="cart-total">₹${tot.toLocaleString('en-IN')}</span>
         </div>
         <p style="font-size:0.72rem;color:var(--sage);margin-bottom:14px;font-weight:700;">
-          ✓ Free shipping on orders over ₹999 &nbsp;·&nbsp; 2-day delivery
+          ✓ Free shipping on orders over ₹${SHIPPING.freeAbove.toLocaleString('en-IN')} &nbsp;·&nbsp; 2-day delivery
         </p>
         <button class="btn-primary" style="width:100%;justify-content:center" onclick="proceedToCheckout()">
           <span>Proceed to Checkout</span>
@@ -3082,9 +3985,9 @@ function _renderRV() {
     const grid = document.getElementById('rv-grid');
     if (!sec || !grid || _recentlyViewed.length === 0) { if(sec) sec.style.display='none'; return; }
     sec.style.display = 'block';
-    const prods = _recentlyViewed.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
+    const prods = _recentlyViewed.map(id => PRODUCTS.find(p => p._id === id)).filter(Boolean);
     grid.innerHTML = prods.map(p => `
-        <div class="rv-card reveal" onclick="showProductModal(${p.id})">
+        <div class="rv-card reveal" onclick="showProductModal('${p._id}')">
           <img src="${p.img}" alt="${p.name}" loading="lazy">
           <div class="rv-card-body">
             <div class="rv-card-name">${p.name}</div>
@@ -3097,6 +4000,13 @@ function _renderRV() {
 }
 
 // Patch showProductModal to track views
+(function(){
+    const _orig = showProductModal;
+    showProductModal = function(id) {
+        _orig(id);
+        _trackView(id);
+    };
+})();
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  BACK TO TOP BUTTON
@@ -3112,7 +4022,7 @@ window.addEventListener('scroll', () => {
 function _renderCoSummary() {
     const sub  = cart.reduce((s,x) => s + x.price * x.qty, 0);
     const disc = _calcDiscount(sub);
-    const ship = (sub - disc) >= 999 ? 0 : 99;
+    const ship = _calcShipping(sub, disc);
     const tot  = sub - disc + ship;
 
     const el = document.getElementById('co-items');
@@ -3130,34 +4040,630 @@ function _renderCoSummary() {
     setSafe('co-tot',  '₹' + tot.toLocaleString('en-IN'));
 }
 
-function _confirmOrder(payMethod, txnId) {
-    const g = id => { const e = document.getElementById(id); return e ? e.value : ''; };
+
+
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  API CONFIG
+// ══════════════════════════════════════════════════════════════════════════════
+const API_BASE = (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000/api'
+    : '/api'; // In production, served from same origin
+
+// ── Lightweight API helper ──────────────────────────────────────────────────
+async function _api(method, path, body) {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    const token = localStorage.getItem('dd_token');
+    if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+    if (body)  opts.body = JSON.stringify(body);
+    try {
+        const res  = await fetch(API_BASE + path, opts);
+        let data = {};
+        const raw = await res.text();
+        if (raw) {
+            try { data = JSON.parse(raw); }
+            catch (_) { data = { message: raw }; }
+        }
+        return { ok: res.ok, status: res.status, data };
+    } catch (e) {
+        return { ok: false, status: 0, data: { message: 'Network error — check server connection' } };
+    }
+}
+
+function _getToken()   { return localStorage.getItem('dd_token'); }
+function _setToken(t)  { if (t) localStorage.setItem('dd_token', t); }
+function _clearToken() { localStorage.removeItem('dd_token'); }
+
+// ── Spinner helper ──────────────────────────────────────────────────────────
+function _spinner(msg) {
+    return `<div style="text-align:center;padding:50px 20px;">
+        <div style="width:38px;height:38px;border:3px solid var(--mist);border-top-color:var(--rose);
+                    border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;"></div>
+        <p style="font-size:0.82rem;color:rgba(61,26,14,0.45);">${msg || 'Loading...'}</p>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  SESSION — JWT-based
+// ══════════════════════════════════════════════════════════════════════════════
+async function loadSession() {
+    const token = _getToken();
+    if (!token) { currentUser = null; _updateAuthBtn(); _syncTestiForm(); return; }
+    const r = await _api('GET', '/auth/me');
+    if (r.ok) {
+        currentUser = _extractAuthUser(r.data);
+        await _loadUserData();
+        _updateAuthBtn();
+        updateCartCount();
+        updateWishlistCount();
+        _syncTestiForm();   // ← refresh name display for returning logged-in users
+    } else {
+        _clearToken(); // token expired / invalid
+        currentUser = null;
+        _syncTestiForm();   // ← ensure form shows login prompt if token was invalid
+    }
+}
+
+async function _loadUserData() {
+    const [cartR, wishR] = await Promise.all([
+        _api('GET', '/cart'),
+        _api('GET', '/wishlist')
+    ]);
+    // Merge guest cart into logged-in user's cart
+    const guestItems = JSON.parse(localStorage.getItem('dd_cart') || '[]');
+    let serverItems  = cartR.ok ? (cartR.data.items || []) : [];
+    if (guestItems.length) {
+        guestItems.forEach(gi => {
+            const ex = serverItems.find(x => x._id === gi._id);
+            if (ex) ex.qty = Math.min(ex.qty + gi.qty, 99);
+            else serverItems.push({...gi});
+        });
+        localStorage.removeItem('dd_cart');
+        await _api('PUT', '/cart', { items: serverItems });
+    }
+    cart     = serverItems;
+    wishlist = wishR.ok ? (wishR.data.items || []) : [];
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  AUTH — Sign Up / Login / Logout
+// ══════════════════════════════════════════════════════════════════════════════
+async function signUp() {
+    _clearAuthErr();
+    _clearAllFieldErrs(['su-name','su-email','su-phone','su-pw']);
+    const name  = document.getElementById('su-name').value.trim();
+    const email = document.getElementById('su-email').value.trim().toLowerCase();
+    const phone = document.getElementById('su-phone').value.trim();
+    const pw    = document.getElementById('su-pw').value;
+
+    if (!_isValidName(name)) return _authErr('su-name-err', 'Please enter your full name (at least 2 characters)');
+    if (!_isValidEmail(email)) return _authErr('su-email-err', 'Enter a valid email address (e.g. name@gmail.com)');
+    if (phone && !_isValidPhone(phone)) return _authErr('su-email-err', 'Phone must be a valid 10-digit Indian mobile number');
+    if (!_RX.pw.test(pw)) return _authErr('su-pw-err', 'Password must be at least 6 characters');
+
+    const btn = document.querySelector('#su-form .btn-rose');
+    if (btn) { btn.textContent = 'Creating account…'; btn.disabled = true; }
+
+    const r = await _api('POST', '/auth/register', { name, email, phone: _cleanPhone(phone)||undefined, password: pw });
+
+    if (btn) { btn.textContent = 'Create Account ✦'; btn.disabled = false; }
+    if (!r.ok) return _authErr('su-email-err', r.data.message || 'Registration failed');
+
+    _setToken(_extractAuthToken(r.data));
+    currentUser = _extractAuthUser(r.data);
+    await _loadUserData();
+    _updateAuthBtn(); updateCartCount(); updateWishlistCount();
+    _syncTestiForm();   // ← refresh name display on register
+    hideAuth();
+    showNotif('🎉 Welcome to Design Den, ' + name + '!');
+    launchConfetti();
+}
+
+// Toggle password visibility
+function togglePasswordVisibility(inputId, button) {
+    const input = document.getElementById(inputId);
+    const icon = button.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+async function login() {
+    _clearAuthErr();
+    _clearAllFieldErrs(['li-email','li-pw']);
+    const email = document.getElementById('li-email').value.trim().toLowerCase();
+    const pw    = document.getElementById('li-pw').value;
+
+    if (!_isValidEmail(email)) return _authErr('li-err', 'Enter a valid email address');
+    if (!pw)                   return _authErr('li-err', 'Please enter your password');
+
+    const btn = document.querySelector('#li-form .btn-rose');
+    if (btn) { btn.textContent = 'Logging in…'; btn.disabled = true; }
+
+    const r = await _api('POST', '/auth/login', { email, password: pw });
+
+    if (btn) { btn.textContent = 'Log In to My Account →'; btn.disabled = false; }
+    if (!r.ok) return _authErr('li-err', r.data.message || 'Invalid email or password');
+
+    _setToken(_extractAuthToken(r.data));
+    currentUser = _extractAuthUser(r.data);
+    await _loadUserData();
+    _updateAuthBtn(); updateCartCount(); updateWishlistCount();
+    _syncTestiForm();   // ← refresh name display on login
+    hideAuth();
+    showNotif('🧶 Welcome back, ' + _currentUserName() + '!');
+}
+
+function logout() {
+    _clearToken();
+    currentUser = null;
+    cart = []; wishlist = [];
+    _updateAuthBtn(); updateCartCount(); updateWishlistCount();
+    _syncTestiForm();   // ← clear name display on logout
+    hideAccount();
+    showNotif('👋 Logged out. See you soon!');
+}
+
+function _updateAuthBtn() {
+    const btn = document.getElementById('account-btn');
+    if (!btn) return;
+    if (currentUser) {
+        btn.innerHTML = '<span style="font-size:0.72rem;font-weight:900;letter-spacing:0;">' + _currentUserName().charAt(0).toUpperCase() + '</span>';
+        btn.style.background = 'linear-gradient(135deg,var(--blush),var(--rose))';
+        btn.style.color = 'white';
+    } else {
+        btn.innerHTML = '<i class="fa-regular fa-user"></i>';
+        btn.style.background = ''; btn.style.color = '';
+    }
+}
+
+// ── Auth Modal ──────────────────────────────────────────────────────────────
+function showAuth(tab) {
+    document.getElementById('auth-modal').classList.add('active');
+    switchAuthTab(tab || 'login');
+}
+function hideAuth() { document.getElementById('auth-modal').classList.remove('active'); }
+function switchAuthTab(tab) {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    document.getElementById('li-form').style.display = tab === 'login'  ? 'block' : 'none';
+    document.getElementById('su-form').style.display = tab === 'signup' ? 'block' : 'none';
+}
+function _authErr(id, msg) {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 4000); }
+}
+function _clearAuthErr() {
+    ['li-err','su-name-err','su-email-err','su-pw-err'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.classList.remove('show');
+    });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  CART & WISHLIST — API-backed, guest-friendly
+// ══════════════════════════════════════════════════════════════════════════════
+async function saveCart() {
+    if (currentUser) {
+        await _api('PUT', '/cart', { items: cart });
+    } else {
+        localStorage.setItem('dd_cart', JSON.stringify(cart));
+    }
+}
+
+async function saveWishlist() {
+    if (currentUser) {
+        await _api('PUT', '/wishlist', { items: wishlist });
+    } else {
+        localStorage.setItem('dd_wishlist', JSON.stringify(wishlist));
+    }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  ORDERS — API-backed
+// ══════════════════════════════════════════════════════════════════════════════
+async function _getUserOrders() {
+    if (!currentUser) return [];
+    const r = await _api('GET', '/orders');
+    return r.ok ? (r.data.orders || []) : [];
+}
+
+async function _saveOrderRecord(order) {
+    if (!currentUser) return;
+    await _api('POST', '/orders', order);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  ACCOUNT MODAL — async render with tabs
+// ══════════════════════════════════════════════════════════════════════════════
+function showAccount() {
+    if (!currentUser) { showAuth('login'); return; }
+    const el = document.getElementById('account-modal');
+    el.classList.add('active');
+    // Clear content so profile + tabs always re-render fresh on open
+    document.getElementById('account-content').innerHTML = _spinner('Loading your account…');
+    _renderAccount('orders');
+}
+function hideAccount() { document.getElementById('account-modal').classList.remove('active'); }
+
+async function _renderAccount(activeTab) {
+    activeTab = activeTab || 'orders';
+    const el = document.getElementById('account-content');
+    if (!el) return;
+
+    // Only do a full render if the tab structure isn't already in place
+    const isFirstRender = !document.getElementById('acc-tab-bar');
+
+    if (isFirstRender) {
+        const avatar = '<div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--blush),var(--rose));display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:900;color:white;flex-shrink:0;">' + _currentUserName().charAt(0).toUpperCase() + '</div>';
+        const info   = '<div><div style="font-weight:800;font-size:1rem;">' + _currentUserName() + '</div>'
+            + '<div style="font-size:0.75rem;color:var(--rose);">' + _currentUserEmail() + '</div>'
+            + (_currentUserPhone() ? '<div style="font-size:0.72rem;color:rgba(61,26,14,0.4);">' + _currentUserPhone() + '</div>' : '')
+            + '</div>';
+
+        el.innerHTML =
+            '<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">' + avatar + info + '</div>'
+            + '<div id="acc-tab-bar" style="display:flex;gap:6px;margin-bottom:20px;background:var(--mist);border-radius:14px;padding:5px;">'
+            + '<button id="acc-tab-orders" onclick="_renderAccount(\'orders\')" style="flex:1;border:none;border-radius:10px;padding:9px 6px;font-family:\'Nunito\',sans-serif;font-size:0.72rem;font-weight:800;cursor:pointer;transition:all 0.2s;">📦 Orders</button>'
+            + '<button id="acc-tab-commissions" onclick="_renderAccount(\'commissions\')" style="flex:1;border:none;border-radius:10px;padding:9px 6px;font-family:\'Nunito\',sans-serif;font-size:0.72rem;font-weight:800;cursor:pointer;transition:all 0.2s;">🎨 My Commissions</button>'
+            + '</div>'
+            + '<div id="acc-tab-content">' + _spinner('Loading…') + '</div>'
+            + '<div style="margin-top:16px;"><button class="btn-outline" style="width:100%" onclick="logout()">🚪 Sign Out</button></div>';
+    }
+
+    // Update tab button styles
+    const tabOrders      = document.getElementById('acc-tab-orders');
+    const tabCommissions = document.getElementById('acc-tab-commissions');
+    const activeStyle   = 'flex:1;border:none;border-radius:10px;padding:9px 6px;font-family:\'Nunito\',sans-serif;font-size:0.72rem;font-weight:800;cursor:pointer;transition:all 0.2s;background:white;color:var(--choco);box-shadow:0 2px 8px rgba(61,26,14,0.1);';
+    const inactiveStyle = 'flex:1;border:none;border-radius:10px;padding:9px 6px;font-family:\'Nunito\',sans-serif;font-size:0.72rem;font-weight:800;cursor:pointer;transition:all 0.2s;background:transparent;color:rgba(61,26,14,0.5);';
+    if (tabOrders)      tabOrders.style.cssText      = activeTab === 'orders'      ? activeStyle : inactiveStyle;
+    if (tabCommissions) tabCommissions.style.cssText = activeTab === 'commissions' ? activeStyle : inactiveStyle;
+
+    // Show spinner in tab content while loading
+    const tc = document.getElementById('acc-tab-content');
+    if (tc) tc.innerHTML = _spinner('Loading…');
+
+    if (activeTab === 'orders') {
+        await _renderOrdersTab();
+    } else {
+        await _renderCommissionsTab();
+    }
+}
+
+async function _renderOrdersTab() {
+    const tabContent = document.getElementById('acc-tab-content');
+    if (!tabContent) return;
+    const orders = await _getUserOrders();
+
+    const orderRows = orders.length
+        ? orders.map(o => {
+            const isCancelled = o.status === 'Cancelled';
+            const sc = _getStatusBadgeClass(o.status);
+            return '<div style="padding:14px 0;border-bottom:1px solid rgba(61,26,14,0.08);">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">'
+                + '<div style="flex:1;min-width:0;">'
+                + '<div style="font-weight:700;font-size:0.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
+                + o.items.map(i => i.name + (i.qty > 1 ? ' ×' + i.qty : '')).join(', ') + '</div>'
+                + '<div style="font-size:0.68rem;color:rgba(61,26,14,0.35);margin-top:3px;">'
+                + o.date + ' · #' + o.id + '</div></div>'
+                + '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
+                + '<div style="text-align:right;">'
+                + '<div style="font-weight:800;color:var(--rose);font-size:0.88rem;">₹' + o.total.toLocaleString('en-IN') + '</div>'
+                + '<span class="order-status-badge ' + sc + '">' + o.status + '</span></div>'
+                + (!isCancelled
+                    ? '<button onclick="hideAccount();showOrderTrack(\'' + o.id + '\')"'
+                    + ' style="background:var(--rose);color:white;border:none;border-radius:10px;padding:8px 16px;'
+                    + 'font-family:Nunito,sans-serif;font-size:0.7rem;font-weight:800;cursor:pointer;white-space:nowrap;">Track ›</button>'
+                    : '')
+                + '</div></div></div>';
+          }).join('')
+        : '<div style="color:rgba(61,26,14,0.4);font-size:0.85rem;padding:20px 0;text-align:center;">No orders yet. Start shopping! 🧶</div>';
+
+    tabContent.innerHTML =
+        '<div style="font-weight:800;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;color:var(--choco);">Order History</div>'
+        + orderRows;
+}
+
+// Status badge styles for commissions
+function _getCommStatusStyle(status) {
+    const styles = {
+        'New':         'background:#FEF3C7;color:#92400E;',
+        'Quoted':      'background:#DBEAFE;color:#1E40AF;',
+        'In Progress': 'background:#D1FAE5;color:#065F46;',
+        'Completed':   'background:#D1FAE5;color:#065F46;',
+        'Cancelled':   'background:#FEE2E2;color:#991B1B;'
+    };
+    return styles[status] || 'background:var(--mist);color:var(--choco);';
+}
+
+async function _renderCommissionsTab() {
+    const tabContent = document.getElementById('acc-tab-content');
+    if (!tabContent) return;
+
+    // Use the authenticated endpoint for accurate, secure results
+    const r = await _api('GET', '/user/commissions');
+
+    let commissions = [];
+    if (r.ok) {
+        commissions = r.data.commissions || [];
+    } else {
+        // Fallback: try by email (in case of token issue)
+        const fallback = await _api('POST', '/commissions/track', { email: _currentUserEmail() });
+        if (fallback.ok) commissions = fallback.data.commissions || [];
+    }
+
+    // Commission tracking is now handled entirely by the database
+    const commissionStatusIcon = { 'New':'🆕', 'Quoted':'💰', 'In Progress':'🔨', 'Completed':'🎉', 'Cancelled':'❌' };
+
+    const commRows = commissions.length
+        ? commissions.map(c => {
+            const statusStyle = _getCommStatusStyle(c.status);
+            const icon = commissionStatusIcon[c.status] || '🎨';
+            const dateStr = c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}) : '';
+            return '<div style="background:rgba(212,116,140,0.04);border:1.5px solid rgba(212,116,140,0.12);border-radius:16px;padding:16px;margin-bottom:12px;">'
+                + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;">'
+                + '<div style="flex:1;min-width:0;">'
+                + '<div style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--rose);margin-bottom:3px;">' + c.commissionId + '</div>'
+                + '<div style="font-weight:800;font-size:0.88rem;color:var(--choco);">' + icon + ' ' + (c.type || 'Custom Design') + '</div>'
+                + (dateStr ? '<div style="font-size:0.68rem;color:rgba(61,26,14,0.38);margin-top:2px;">Submitted ' + dateStr + '</div>' : '')
+                + '</div>'
+                + '<span style="' + statusStyle + 'border-radius:99px;padding:4px 12px;font-size:0.65rem;font-weight:800;letter-spacing:0.5px;white-space:nowrap;flex-shrink:0;">'
+                + c.status + '</span>'
+                + '</div>'
+                + (c.quotedPrice ? '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 12px;background:rgba(212,160,74,0.08);border-radius:10px;">'
+                    + '<span style="font-size:0.7rem;font-weight:700;color:rgba(61,26,14,0.5);">Quoted Price:</span>'
+                    + '<span style="font-weight:800;color:var(--choco);font-size:0.9rem;">₹' + c.quotedPrice.toLocaleString('en-IN') + '</span>'
+                    + '</div>' : '')
+                + (c.adminNote ? '<div style="background:white;border-left:3px solid var(--rose);border-radius:0 10px 10px 0;padding:10px 12px;margin-bottom:8px;">'
+                    + '<div style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--rose);margin-bottom:4px;">📌 Message from Design Den</div>'
+                    + '<div style="font-size:0.8rem;color:rgba(61,26,14,0.7);line-height:1.5;">' + c.adminNote + '</div>'
+                    + '</div>' : '')
+                + '<div style="display:flex;justify-content:flex-end;">'
+                + '<button onclick="openCommissionTrackerForId(\'' + c.commissionId + '\')" style="background:transparent;border:1.5px solid rgba(212,116,140,0.35);color:var(--rose);border-radius:10px;padding:6px 14px;font-family:Nunito,sans-serif;font-size:0.7rem;font-weight:800;cursor:pointer;">View Details →</button>'
+                + '</div>'
+                + '</div>';
+          }).join('')
+        : '<div style="text-align:center;padding:28px 16px;">'
+            + '<div style="font-size:2.5rem;margin-bottom:12px;">🎨</div>'
+            + '<div style="font-weight:800;font-size:0.9rem;color:var(--choco);margin-bottom:6px;">No Commissions Yet</div>'
+            + '<div style="font-size:0.8rem;color:rgba(61,26,14,0.45);margin-bottom:16px;line-height:1.6;">Have a custom design in mind? We\'d love to create it for you!</div>'
+            + '<button class="btn-rose" style="display:inline-flex;align-items:center;gap:6px;" onclick="hideAccount();document.getElementById(\'custom\')?.scrollIntoView({behavior:\'smooth\'});">Commission a Design ✦</button>'
+            + '</div>';
+
+    tabContent.innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
+        + '<div style="font-weight:800;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--choco);">My Commissions</div>'
+        + (commissions.length ? '<button onclick="hideAccount();setTimeout(openCommissionTracker,200)" style="background:transparent;border:none;color:var(--rose);font-family:Nunito,sans-serif;font-size:0.72rem;font-weight:800;cursor:pointer;text-decoration:underline;">Track by ID →</button>' : '')
+        + '</div>'
+        + commRows;
+}
+
+// Open commission tracker pre-filled with a specific commission ID (called from My Account)
+function openCommissionTrackerForId(commissionId) {
+    hideAccount();
+    setTimeout(() => {
+        openCommissionTracker();
+        const idInput = document.getElementById('ct-comm-id');
+        if (idInput) {
+            idInput.value = commissionId;
+            // Auto-fetch
+            setTimeout(trackCommissionById, 300);
+        }
+    }, 200);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  ORDER TRACKING — async, DB-backed
+// ══════════════════════════════════════════════════════════════════════════════
+async function showOrderTrack(orderId) {
+    document.getElementById('order-track-modal').classList.add('active');
+    document.getElementById('order-track-content').innerHTML = _spinner('Loading tracking details…');
+
+    const orders = await _getUserOrders();
+    const order  = orders.find(o => o.id === orderId);
+    if (!order) {
+        document.getElementById('order-track-content').innerHTML =
+            '<div style="text-align:center;padding:40px;color:rgba(61,26,14,0.4);">Order not found.</div>';
+        return;
+    }
+    _renderOrderTrack(order);
+}
+
+function closeOrderTrack() { document.getElementById('order-track-modal').classList.remove('active'); }
+
+function _getStatusBadgeClass(status) {
+    const map = {
+        'Placed':           'status-placed',
+        'Confirmed':        'status-processing',
+        'Processing':       'status-processing',
+        'Shipped':          'status-shipped',
+        'Out for Delivery': 'status-shipped',
+        'Delivered':        'status-delivered',
+        'Cancelled':        'status-placed',
+    };
+    return map[status] || 'status-placed';
+}
+
+function _renderOrderTrack(order) {
+    const statusIdx = _getOrderStatus(order);
+    const isDelivered = statusIdx === 6;
+
+    const timelineHTML = TRACK_STEPS.map((step, i) => {
+        const idx   = i + 1;
+        const state = idx < statusIdx ? 'done' : idx === statusIdx ? 'active' : 'pending';
+        const icon  = state === 'done' ? '✓' : step.icon;
+        const timeStr = state !== 'pending'
+            ? '<div class="track-step-time">' + _stepTimestamp(order, i) + '</div>' : '';
+        return '<div class="track-step ' + state + '">'
+            + '<div class="track-dot">' + icon + '</div>'
+            + '<div class="track-step-body">'
+            + '<div class="track-step-title">' + step.label + '</div>'
+            + '<div class="track-step-desc">' + (state !== 'pending' ? step.desc : 'Pending') + '</div>'
+            + timeStr + '</div></div>';
+    }).join('');
+
+    const itemsHTML = order.items.map(item => {
+        const prod = PRODUCTS.find(p => p._id === item._id);
+        const img  = prod ? prod.img : '';
+        return '<div class="track-item">'
+            + (img ? '<img class="track-item-img" src="' + img + '" alt="' + item.name + '">' : '')
+            + '<div style="flex:1;">'
+            + '<div class="track-item-name">' + item.name + '</div>'
+            + '<div class="track-item-meta">Qty: ' + item.qty + ' &nbsp;·&nbsp; ₹' + item.price.toLocaleString('en-IN') + ' each</div>'
+            + '</div>'
+            + '<div class="track-item-price">₹' + (item.price * item.qty).toLocaleString('en-IN') + '</div>'
+            + '</div>';
+    }).join('');
+
+    const addr    = order.address || {};
+    const addrStr = [addr.line1, addr.line2, addr.city, addr.pin, addr.state].filter(Boolean).join(', ');
+
+    document.getElementById('order-track-content').innerHTML =
+        '<div class="track-header">'
+        + '<div><div class="track-order-id">Order #' + order.id + '</div>'
+        + '<div class="track-date">Placed on ' + order.date
+        + ' &nbsp;·&nbsp; <span class="order-status-badge ' + _getStatusBadgeClass(order.status) + '">' + order.status + '</span></div></div>'
+        + '<div style="text-align:right;">'
+        + '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1.4rem;font-weight:700;color:var(--rose);">₹' + order.total.toLocaleString('en-IN') + '</div>'
+        + '<div style="font-size:0.72rem;color:rgba(61,26,14,0.4);">' + order.payment.method + '</div>'
+        + '</div></div>'
+
+        + '<div class="delivery-bar">'
+        + '<div class="delivery-icon">' + (isDelivered ? '🎁' : '🚚') + '</div>'
+        + '<div><div class="delivery-label">' + (isDelivered ? 'Delivered' : 'Estimated Delivery') + '</div>'
+        + '<div class="delivery-date">' + _deliveryDate(order) + '</div>'
+        + '<div class="delivery-sub">' + (isDelivered ? 'Your order was delivered successfully' : 'Standard delivery · Fully insured') + '</div>'
+        + '</div></div>'
+
+        + '<div class="track-timeline">' + timelineHTML + '</div>'
+
+        + (order.adminNote ? '<div style="margin:18px 0 4px;background:rgba(212,116,140,0.08);border:1.5px solid rgba(212,116,140,0.2);border-radius:16px;padding:16px 20px;">'
+        + '<div style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--rose);margin-bottom:8px;">📌 Message from Design Den</div>'
+        + '<div style="font-size:0.88rem;color:var(--choco);line-height:1.65;">' + order.adminNote + '</div>'
+        + '</div>' : '')
+
+        + '<div class="track-items">'
+        + '<div class="track-items-title">Items in This Order</div>'
+        + itemsHTML
+        + '<div style="display:flex;justify-content:space-between;padding:14px 0 0;font-weight:800;font-size:0.9rem;">'
+        + '<span>Order Total</span><span style="color:var(--rose);">₹' + order.total.toLocaleString('en-IN') + '</span>'
+        + '</div></div>'
+
+        + '<div class="track-details-grid">'
+        + '<div class="track-detail-card"><div class="track-detail-head">📍 Delivery Address</div>'
+        + '<div class="track-detail-line"><strong>' + (addr.name || '') + '</strong><br>' + (addrStr || 'Not available') + '</div></div>'
+        + '<div class="track-detail-card"><div class="track-detail-head">💳 Payment Details</div>'
+        + '<div class="track-detail-line"><strong>' + order.payment.method + '</strong><br>'
+        + 'Txn: ' + (order.payment.txnId || '—').slice(-12) + '<br>'
+        + '<span style="color:var(--sage);font-weight:700;">✓ Payment Verified</span></div></div>'
+        + '</div>'
+
+        + '<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">'
+        + '<a href="https://wa.me/919876543210?text=Hi%20Design%20Den!%20I%20need%20help%20tracking%20order%20' + order.id + '"'
+        + ' target="_blank" style="background:var(--choco);color:white;border:none;border-radius:999px;padding:12px 22px;'
+        + 'font-family:Nunito,sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;'
+        + 'text-decoration:none;display:inline-flex;align-items:center;gap:8px;">'
+        + '<i class="fa-brands fa-whatsapp"></i> Track on WhatsApp</a>'
+        + '<button onclick="closeOrderTrack();showAccount()" style="background:none;border:none;cursor:pointer;'
+        + 'color:rgba(61,26,14,0.45);font-family:Nunito,sans-serif;font-size:0.78rem;font-weight:700;margin-left:auto;">'
+        + '← Back to Orders</button></div>';
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  RAZORPAY — server-side order creation + signature verification
+// ══════════════════════════════════════════════════════════════════════════════
+async function _launchRazorpay() {
+    if (typeof Razorpay === 'undefined') {
+        showNotif('⚠ Razorpay failed to load — check your connection'); return;
+    }
+
+    // Step 1: Create order on server. We send the cart contents + coupon
+    // code, NOT a pre-computed total — the server recalculates the real
+    // amount from live product prices, the live coupon, and live shipping
+    // settings so it can never be tampered with from the browser.
+    showNotif('⏳ Preparing payment...');
+    const items = cart.map(i => ({ _id: i._id, qty: i.qty }));
+    const coupon = _activeCoupon ? _activeCoupon.code : null;
+    const r = await _api('POST', '/payment/create-order', { items, coupon });
+    if (!r.ok) { showNotif('⚠ Payment setup failed: ' + r.data.message); return; }
+
+    const { orderId, key, total } = r.data;
+
+    const rzp = new Razorpay({
+        key,
+        amount:   Math.round(total * 100),
+        currency: 'INR',
+        order_id: orderId,
+        name:     'Design Den',
+        description: 'Crochet Studio — Chennai, Tamil Nadu',
+        handler: async function(resp) {
+            // Step 2: Verify signature on server
+            showNotif('⏳ Verifying payment...');
+            const vr = await _api('POST', '/payment/verify', {
+                razorpay_order_id:   resp.razorpay_order_id,
+                razorpay_payment_id: resp.razorpay_payment_id,
+                razorpay_signature:  resp.razorpay_signature
+            });
+            if (vr.ok && vr.data.success) {
+                // NEW: pass the Razorpay order_id through so it gets stored on the
+                // order record (payment.razorpayOrderId). The server's webhook uses
+                // this field to match incoming Razorpay events back to our order —
+                // without it, the webhook has no way to find the right order.
+                _confirmOrder('Online', resp.razorpay_payment_id, resp.razorpay_order_id);
+            } else {
+                showNotif('⚠ Payment could not be verified. Please contact support.');
+            }
+        },
+        prefill: {
+            name:    currentUser ? _currentUserName()  : '',
+            email:   currentUser ? _currentUserEmail() : '',
+            contact: currentUser ? _currentUserPhone() : ''
+        },
+        theme:  { color: '#D4748C' },
+        modal:  { ondismiss: () => showNotif('Payment cancelled') }
+    });
+    rzp.open();
+}
+
+async function _confirmOrder(payMethod, txnId, razorpayOrderId) {
+    const g   = id => { const e = document.getElementById(id); return e ? e.value : ''; };
     const sub  = cart.reduce((s,x) => s + x.price * x.qty, 0);
     const disc = _calcDiscount(sub);
-    const ship = (sub - disc) >= 999 ? 0 : 99;
+    const ship = _calcShipping(sub, disc);
+
     const order = {
-        id:     'DD' + Date.now().toString().slice(-8),
-        items:  cart.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })),
-        total:  sub - disc + ship,
+        id:       'DD' + Date.now().toString().slice(-8),
+        items:    cart.map(i => ({ _id: i._id, name: i.name, price: i.price, qty: i.qty })),
+        total:    sub - disc + ship,
+        shipping: ship,
         discount: disc,
-        coupon: _activeCoupon ? _activeCoupon.code : null,
-        status: 'Placed',
-        date:   new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }),
-        address: { name: g('addr-name'), line1: g('addr-line1'), line2: g('addr-line2'),
-                   city: g('addr-city'), pin: g('addr-pin'), state: g('addr-state') },
-        payment: { method: payMethod, txnId }
+        coupon:   _activeCoupon ? _activeCoupon.code : null,
+        status:   'Placed',
+        date:     new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }),
+        address: {
+            name:  g('addr-name'),  phone: g('addr-phone'),
+            line1: g('addr-line1'), line2: g('addr-line2'),
+            city:  g('addr-city'),  pin:   g('addr-pin'),   state: g('addr-state')
+        },
+        payment: { method: payMethod, txnId, razorpayOrderId: razorpayOrderId || '' }
     };
-    _saveOrderRecord(order);
+
+    await _saveOrderRecord(order);
     _activeCoupon = null;
     cart = [];
-    saveCart();
+    saveCart(); // fire-and-forget
     updateCartCount();
+
     const disp = document.getElementById('co-order-id');
     if (disp) disp.textContent = '#' + order.id;
     _goCoStep(3);
     launchConfetti();
 }
-
 </script>
 
 <!-- ══ AUTH MODAL ═══════════════════════════════════════════════════ -->
@@ -3181,10 +4687,16 @@ function _confirmOrder(payMethod, txnId) {
         <input class="form-input" id="li-email" type="email" placeholder="you@example.com"
                onkeyup="if(event.key==='Enter')login()">
       </div>
-      <div class="form-group">
+      <div class="form-group" style="position:relative;">
         <label class="form-label">Password</label>
         <input class="form-input" id="li-pw" type="password" placeholder="Your password"
-               onkeyup="if(event.key==='Enter')login()">
+               onkeyup="if(event.key==='Enter')login()" style="padding-right:45px;">
+        <button type="button" onclick="togglePasswordVisibility('li-pw', this)"
+                style="position:absolute;right:12px;top:32px;background:none;border:none;cursor:pointer;color:rgba(61,26,14,0.4);font-size:1.1rem;padding:5px;transition:color 0.2s;"
+                onmouseover="this.style.color='rgba(61,26,14,0.7)'"
+                onmouseout="this.style.color='rgba(61,26,14,0.4)'">
+          <i class="fa fa-eye"></i>
+        </button>
       </div>
       <div class="form-err" id="li-err"></div>
       <button class="btn-rose" style="width:100%;margin-top:10px;justify-content:center;display:flex;" onclick="login()">
@@ -3197,7 +4709,7 @@ function _confirmOrder(payMethod, txnId) {
     <div id="su-form" style="display:none">
       <div class="form-group">
         <label class="form-label">Full Name</label>
-        <input class="form-input" id="su-name" type="text" placeholder="Priya Sharma">
+        <input class="form-input" id="su-name" type="text" placeholder="Your Sweet Name">
         <div class="form-err" id="su-name-err"></div>
       </div>
       <div class="form-row">
@@ -3211,9 +4723,15 @@ function _confirmOrder(payMethod, txnId) {
           <input class="form-input" id="su-phone" type="tel" placeholder="98765 43210">
         </div>
       </div>
-      <div class="form-group">
+      <div class="form-group" style="position:relative;">
         <label class="form-label">Password</label>
-        <input class="form-input" id="su-pw" type="password" placeholder="Min 6 characters">
+        <input class="form-input" id="su-pw" type="password" placeholder="Min 6 characters" style="padding-right:45px;">
+        <button type="button" onclick="togglePasswordVisibility('su-pw', this)"
+                style="position:absolute;right:12px;top:32px;background:none;border:none;cursor:pointer;color:rgba(61,26,14,0.4);font-size:1.1rem;padding:5px;transition:color 0.2s;"
+                onmouseover="this.style.color='rgba(61,26,14,0.7)'"
+                onmouseout="this.style.color='rgba(61,26,14,0.4)'">
+          <i class="fa fa-eye"></i>
+        </button>
         <div class="form-err" id="su-pw-err"></div>
       </div>
       <button class="btn-rose" style="width:100%;margin-top:10px;justify-content:center;display:flex;" onclick="signUp()">
@@ -3228,7 +4746,13 @@ function _confirmOrder(payMethod, txnId) {
 <div class="modal-overlay" id="checkout-modal" onclick="if(event.target.id==='checkout-modal')closeCheckout()">
   <div class="modal-box" style="max-width:620px;">
     <button class="modal-close" onclick="closeCheckout()"><i class="fa fa-times"></i></button>
-    <h2 class="modal-title" style="margin-bottom:28px;">Secure Checkout 🔒</h2>
+    <div style="text-align:center;margin-bottom:32px;">
+      <h2 class="modal-title" style="margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:10px;">
+        <i class="fa fa-lock" style="font-size:1.4rem;color:var(--sage);"></i>
+        <span>Secure Checkout</span>
+      </h2>
+      <p style="font-size:0.75rem;color:rgba(61,26,14,0.5);font-weight:600;">Your information is protected with 256-bit encryption</p>
+    </div>
 
     <!-- Step indicator -->
     <div class="co-steps">
@@ -3241,69 +4765,150 @@ function _confirmOrder(payMethod, txnId) {
 
     <!-- ── STEP 1: ADDRESS ─────────────────────────────────────── -->
     <div class="co-page active" id="co-step-1">
-      <div style="background:var(--mist);border-radius:18px;padding:16px;margin-bottom:24px;">
-        <div style="font-size:0.66rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--rose);margin-bottom:12px;">Order Summary</div>
+      <div style="background:var(--mist);border-radius:18px;padding:20px;margin-bottom:28px;border:1px solid rgba(212,116,140,0.1);">
+        <div style="font-size:0.68rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--rose);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+          <i class="fa fa-shopping-bag" style="font-size:0.9rem;"></i>
+          <span>Order Summary</span>
+        </div>
         <div id="co-items"></div>
       </div>
-      <div style="font-size:0.68rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;color:var(--choco);">Delivery Address</div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="addr-name" type="text" placeholder="Your name"></div>
-        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="addr-phone" type="tel" placeholder="+91 98765 43210"></div>
+      
+      <div style="font-size:0.68rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;color:var(--choco);display:flex;align-items:center;gap:8px;">
+        <i class="fa fa-map-marker-alt" style="font-size:0.9rem;color:var(--rose);"></i>
+        <span>Delivery Address</span>
       </div>
-      <div class="form-group"><label class="form-label">Address Line 1</label><input class="form-input" id="addr-line1" type="text" placeholder="House no., Street name"></div>
-      <div class="form-group"><label class="form-label">Address Line 2 (Optional)</label><input class="form-input" id="addr-line2" type="text" placeholder="Landmark, Area name"></div>
+      
       <div class="form-row">
-        <div class="form-group"><label class="form-label">City</label><input class="form-input" id="addr-city" type="text" placeholder="Chennai"></div>
-        <div class="form-group"><label class="form-label">Pincode</label><input class="form-input" id="addr-pin" type="text" placeholder="600001"></div>
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" id="addr-name" type="text" placeholder="Enter your full name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input class="form-input" id="addr-phone" type="tel" placeholder="+91 98765 43210">
+        </div>
       </div>
-      <div class="form-group"><label class="form-label">State</label><input class="form-input" id="addr-state" type="text" placeholder="Tamil Nadu"></div>
-      <button class="btn-rose" style="width:100%;justify-content:center;display:flex;margin-top:8px;" onclick="submitAddress()">
-        Continue to Payment →
+      
+      <div class="form-group">
+        <label class="form-label">Address Line 1</label>
+        <input class="form-input" id="addr-line1" type="text" placeholder="House no., Building name, Street">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Address Line 2 (Optional)</label>
+        <input class="form-input" id="addr-line2" type="text" placeholder="Landmark, Area name">
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">City</label>
+          <input class="form-input" id="addr-city" type="text" placeholder="Chennai">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pincode</label>
+          <input class="form-input" id="addr-pin" type="text" placeholder="600001">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">State</label>
+        <input class="form-input" id="addr-state" type="text" placeholder="Tamil Nadu">
+      </div>
+      
+      <button class="btn-rose" style="width:100%;justify-content:center;display:flex;align-items:center;margin-top:20px;padding:14px;" onclick="submitAddress()">
+        <span>Continue to Payment</span>
+        <i class="fa fa-arrow-right" style="margin-left:8px;"></i>
       </button>
     </div>
 
     <!-- ── STEP 2: PAYMENT ─────────────────────────────────────── -->
     <div class="co-page" id="co-step-2">
-      <div style="font-size:0.68rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;color:var(--choco);">Choose Payment Method</div>
+      <div style="font-size:0.68rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;color:var(--choco);">Choose Payment Method</div>
+      
       <div class="pay-opts">
         <div class="pay-opt selected" data-m="razorpay" onclick="selectPayment('razorpay')">
           <div class="pay-icon">💳</div>
-          <div><div class="pay-label">Card / UPI / Net Banking</div><div class="pay-sub">Powered by Razorpay</div></div>
+          <div>
+            <div class="pay-label">Card / UPI / Net Banking</div>
+            <div class="pay-sub">Powered by Razorpay</div>
+          </div>
         </div>
         <div class="pay-opt" data-m="cod" onclick="selectPayment('cod')">
-          <div class="pay-icon">🏠</div>
-          <div><div class="pay-label">Cash on Delivery</div><div class="pay-sub">Pay when it arrives</div></div>
+          <div class="pay-icon">💵</div>
+          <div>
+            <div class="pay-label">Cash on Delivery</div>
+            <div class="pay-sub">Pay when you receive</div>
+          </div>
         </div>
       </div>
-      <div style="background:var(--mist);border-radius:16px;padding:18px;margin:20px 0;">
-        <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:8px;"><span>Subtotal</span><span id="co-sub" style="font-weight:700;"></span></div>
-        <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:8px;color:var(--sage);"><span>Shipping</span><span id="co-ship" style="font-weight:700;"></span></div>
-        <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:800;border-top:1px solid rgba(61,26,14,0.08);padding-top:10px;">
-          <span>Total</span><span style="color:var(--rose);" id="co-tot"></span>
+
+      <div style="background:var(--mist);border-radius:16px;padding:20px;margin:24px 0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.88rem;margin-bottom:10px;">
+          <span style="color:rgba(61,26,14,0.7);">Subtotal</span>
+          <span id="co-sub" style="font-weight:700;color:var(--choco);"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.88rem;margin-bottom:12px;">
+          <span style="color:var(--sage);">Shipping</span>
+          <span id="co-ship" style="font-weight:700;color:var(--sage);"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:1.1rem;font-weight:800;border-top:2px solid rgba(61,26,14,0.1);padding-top:12px;margin-top:4px;">
+          <span style="color:var(--choco);">Total</span>
+          <span style="color:var(--rose);" id="co-tot"></span>
         </div>
       </div>
-      <div style="display:flex;gap:12px;">
-        <button class="btn-outline" style="flex:1;" onclick="_goCoStep(1)">← Back</button>
-        <button class="btn-rose" style="flex:2;justify-content:center;display:flex;" onclick="placeOrder()">
-          Place Order ✦
+
+      <div style="display:flex;gap:12px;margin-bottom:16px;">
+        <button class="btn-outline" style="flex:1;justify-content:center;display:flex;align-items:center;" onclick="_goCoStep(1)">
+          <span>← Back</span>
+        </button>
+        <button class="btn-rose" style="flex:2;justify-content:center;display:flex;align-items:center;" onclick="placeOrder()">
+          <span>Place Order ✦</span>
         </button>
       </div>
-      <p style="font-size:0.68rem;color:rgba(61,26,14,0.4);text-align:center;margin-top:14px;">🔒 256-bit SSL · Payments secured by Razorpay</p>
+      
+      <p style="font-size:0.7rem;color:rgba(61,26,14,0.45);text-align:center;line-height:1.5;">
+        <i class="fa fa-lock" style="margin-right:4px;"></i>256-bit SSL Encryption<br>
+        <span style="font-size:0.68rem;">Payments secured by Razorpay</span>
+      </p>
     </div>
 
     <!-- ── STEP 3: SUCCESS ─────────────────────────────────────── -->
-    <div class="co-page" id="co-step-3" style="text-align:center;padding:20px 0 8px;">
+    <div class="co-page" id="co-step-3" style="text-align:center;padding:24px 0 12px;">
       <div class="success-icon">✓</div>
-      <h3 style="font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:var(--choco);margin-bottom:10px;">Order Placed! 🎉</h3>
-      <p style="color:rgba(61,26,14,0.6);margin-bottom:22px;line-height:1.6;">Your crochet goodies are on their way!<br>Estimated delivery: <strong>2 business days</strong>.</p>
-      <div style="background:var(--mist);border-radius:16px;padding:16px 24px;margin-bottom:28px;display:inline-block;">
-        <div style="font-size:0.66rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--rose);margin-bottom:6px;">Your Order ID</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;" id="co-order-id"></div>
+      
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--choco);margin-bottom:12px;line-height:1.2;">
+        Order Placed Successfully! 🎉
+      </h3>
+      
+      <p style="color:rgba(61,26,14,0.65);margin-bottom:28px;line-height:1.7;font-size:0.95rem;">
+        Thank you for your order! Your handcrafted crochet items<br>
+        will be carefully packed and shipped soon.<br>
+        <strong style="color:var(--sage);">Estimated delivery: 2 business days</strong>
+      </p>
+      
+      <div style="background:linear-gradient(135deg, var(--mist) 0%, var(--warm) 100%);border-radius:18px;padding:20px 28px;margin-bottom:32px;display:inline-block;border:2px solid rgba(212,116,140,0.15);box-shadow:0 4px 16px rgba(212,116,140,0.1);">
+        <div style="font-size:0.68rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--rose);margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:6px;">
+          <i class="fa fa-receipt" style="font-size:0.85rem;"></i>
+          <span>Your Order ID</span>
+        </div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--choco);letter-spacing:1px;" id="co-order-id"></div>
       </div>
-      <div style="display:flex;gap:12px;justify-content:center;">
-        <button class="btn-rose" onclick="closeCheckout();showAccount()">View My Orders</button>
-        <button class="btn-outline" onclick="closeCheckout()">Continue Shopping</button>
+      
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn-rose" style="padding:12px 24px;display:flex;align-items:center;gap:8px;" onclick="closeCheckout();showAccount()">
+          <i class="fa fa-box"></i>
+          <span>View My Orders</span>
+        </button>
+        <button class="btn-outline" style="padding:12px 24px;display:flex;align-items:center;gap:8px;" onclick="closeCheckout()">
+          <i class="fa fa-shopping-bag"></i>
+          <span>Continue Shopping</span>
+        </button>
       </div>
+      
+      <p style="font-size:0.72rem;color:rgba(61,26,14,0.4);margin-top:24px;line-height:1.5;">
+        <i class="fa fa-envelope" style="margin-right:4px;"></i>
+        Order confirmation sent to your email
+      </p>
     </div>
   </div>
 </div>
@@ -3321,7 +4926,7 @@ function _confirmOrder(payMethod, txnId) {
 
 <!-- ══ FLOATING BUTTONS ═══════════════════════════════════════════════ -->
 <div class="float-btns">
-  <a class="float-wa" href="https://wa.me/919876543210?text=Hi%20Design%20Den!%20I%20need%20help%20with%20my%20order."
+  <a class="float-wa" href="https://wa.me/918072489076?text=Hi%20Design%20Den!%20I%20need%20help%20with%20my%20order."
      target="_blank" title="Chat on WhatsApp">
     <i class="fa-brands fa-whatsapp"></i>
   </a>
