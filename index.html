@@ -4047,9 +4047,7 @@ function _renderCoSummary() {
 // ══════════════════════════════════════════════════════════════════════════════
 //  API CONFIG
 // ══════════════════════════════════════════════════════════════════════════════
-const API_BASE = (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-    ? 'http://localhost:5000/api'
-    : '/api'; // In production, served from same origin
+const API_BASE = 'https://design-den-backend.onrender.com/api';
 
 // ── Lightweight API helper ──────────────────────────────────────────────────
 async function _api(method, path, body) {
