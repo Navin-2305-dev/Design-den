@@ -1197,6 +1197,52 @@
 
             /* Notif toast */
             .notif { font-size: 0.78rem; padding: 13px 22px; white-space: normal; text-align: center; max-width: 85vw; }
+
+            /* ── Filter bar — search/category/sort/toggle row ──
+               .filter-input previously had min-width:200px, which alone is
+               over half a 375px screen; combined with two selects and two
+               buttons in one flex-wrap row, this produced a cramped, uneven
+               stack. Stretching each control to full width with a sane
+               min-height reads as an intentional stacked toolbar instead. */
+            .filters-bar { flex-direction: column; align-items: stretch; gap: 10px; }
+            .filter-input, .filter-select, .filter-btn, .filter-toggle-btn {
+                width: 100%; min-width: 0; box-sizing: border-box; text-align: center;
+            }
+            .filter-input { text-align: left; }
+
+            /* ── Advanced filters panel ──
+               adv-filter-group had min-width:180px with a 28px gap between
+               groups — three groups side by side need ~600px+, far past any
+               phone width. Stacking groups vertically with tighter internal
+               spacing keeps every control fully visible without horizontal
+               scroll or overlap. */
+            #advanced-filters.open { flex-direction: column; gap: 18px; padding: 18px; }
+            .adv-filter-group { min-width: 0; width: 100%; }
+            .price-range-inputs input { flex: 1; width: auto; min-width: 0; }
+
+            /* ── Product modal: image gallery thumbnails ──
+               Shrink thumbnails slightly so 4-5 fit per row on a narrow
+               screen without forcing a second wrapped row for every product. */
+            .pmodal-thumb { width: 44px; height: 44px; }
+            .pmodal-zoom-hint { font-size: 0.58rem; padding: 4px 8px; }
+
+            /* ── Product modal: variant picker ──
+               Chips/swatches keep their shape but get slightly tighter
+               padding and a smaller tap target floor so 3-4 fit per row
+               instead of every variant wrapping to its own line. Swatches
+               stay above the 40px touch-target minimum throughout. */
+            .variant-chip { padding: 7px 14px; font-size: 0.76rem; }
+            .variant-swatch { width: 32px; height: 32px; }
+            .variant-options { gap: 8px; }
+
+            /* ── Saved address picker (checkout + account) ──
+               Action icon buttons (edit/delete/set-default) sit absolutely
+               positioned top-right, which can crowd the label/default-tag on
+               a narrow card. Reduce icon spacing slightly and let the label
+               row wrap underneath instead of fighting for the same line. */
+            .saved-addr-card { padding: 14px 44px 14px 14px; }
+            .saved-addr-actions { gap: 4px; }
+            .saved-addr-actions button { font-size: 0.85rem; padding: 6px; min-width: 32px; min-height: 32px; }
         }
 
         /* ── Small mobile (≤480px) ── */
@@ -1215,6 +1261,12 @@
             .nav-inner { height: 62px; }
             #mobile-menu { top: 62px; }
             .logo-text { font-size: 1.4rem; }
+
+            /* Variant picker / gallery thumbs — one notch tighter than the
+               768px pass above, so chips still read as a row rather than
+               wrapping one-per-line on very narrow phones. */
+            .variant-chip { padding: 6px 12px; font-size: 0.72rem; }
+            .pmodal-thumb { width: 40px; height: 40px; }
         }
 
         /* ── Extra-small (≤360px) ── */
@@ -1339,16 +1391,6 @@
             gap: 14px;
         }
 
-        /* NEW: saved address picker */
-        .saved-addr-card { background: var(--mist); border: 1.5px solid transparent; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; position: relative; }
-        .saved-addr-card:hover { border-color: rgba(212,116,140,0.3); }
-        .saved-addr-card.selected { border-color: var(--rose); background: rgba(212,116,140,0.06); }
-        .saved-addr-label { font-size: 0.66rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--rose); margin-bottom: 4px; }
-        .saved-addr-text { font-size: 0.82rem; color: var(--choco); line-height: 1.5; }
-        .saved-addr-default-tag { font-size: 0.6rem; font-weight: 800; background: var(--sage); color: white; padding: 2px 8px; border-radius: 999px; margin-left: 8px; }
-        .saved-addr-delete { position: absolute; top: 12px; right: 12px; background: none; border: none; color: rgba(61,26,14,0.3); cursor: pointer; font-size: 0.8rem; }
-        .saved-addr-delete:hover { color: #e53e3e; }
-        .save-addr-checkbox-wrap { display: flex; align-items: center; gap: 8px; margin: 4px 0 18px; font-size: 0.82rem; color: var(--choco); }
         .form-err {
             display: none;
             font-size: 0.72rem;
