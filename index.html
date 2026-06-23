@@ -261,7 +261,7 @@
             animation: fadeSlideUp 0.8s ease 0.4s both;
         }
         .hero-h1 em {
-            font-style: italic; color: var(--rose); 
+            font-style: italic; color: var(--rose); padding-bottom: 10px;
         }
         .hero-sub {
             font-size: 1.05rem; font-weight: 400;
@@ -470,7 +470,7 @@
             transition: border-color 0.3s;
         }
         .filter-select:focus { border-color: var(--rose); }
-
+     
         /* NEW: advanced filters panel (price range, material, in-stock, sort) */
         .filter-toggle-btn { background: white; border: 1.5px solid rgba(212,116,140,0.25); border-radius: 999px; padding: 12px 22px; font-family:'Nunito',sans-serif; font-size:0.82rem; font-weight:700; color:var(--choco); cursor:none; transition: all 0.2s; }
         .filter-toggle-btn:hover { border-color: var(--rose); }
@@ -949,7 +949,7 @@
         /* PRODUCT MODAL */
         #product-modal .modal-box { max-width: 780px; padding: 0; overflow: hidden; }
         .pmodal-grid { display: grid; grid-template-columns: 1fr 1fr; }
-        .pmodal-img { aspect-ratio: 1; object-fit: cover; width: 100%; cursor: zoom-in; }
+        .pmodal-img { aspect-ratio: 1; object-fit: cover; width: 100%; height: 100%; cursor: zoom-in; }
         .pmodal-info { padding: 44px; max-height: 80vh; overflow-y: auto; }
         .pmodal-cat { font-size: 0.62rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--rose); margin-bottom: 8px; }
         .pmodal-name { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; color: var(--choco); margin-bottom: 6px; }
