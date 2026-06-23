@@ -470,15 +470,6 @@
             transition: border-color 0.3s;
         }
         .filter-select:focus { border-color: var(--rose); }
-        .filter-btn {
-            background: var(--rose); color: white;
-            border: none; border-radius: 999px;
-            padding: 12px 24px; cursor: none;
-            font-family: 'Nunito', sans-serif;
-            font-size: 0.82rem; font-weight: 700;
-            transition: all 0.3s;
-        }
-        .filter-btn:hover { background: var(--deep); transform: scale(1.05); }
 
         /* NEW: advanced filters panel (price range, material, in-stock, sort) */
         .filter-toggle-btn { background: white; border: 1.5px solid rgba(212,116,140,0.25); border-radius: 999px; padding: 12px 22px; font-family:'Nunito',sans-serif; font-size:0.82rem; font-weight:700; color:var(--choco); cursor:none; transition: all 0.2s; }
@@ -1075,7 +1066,7 @@
                column treatment (see 480px breakpoint below) or overflowing. */
             .filters-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center; }
             .filter-input { grid-column: 1 / -1; min-width: 0; width: 100%; box-sizing: border-box; }
-            .filter-select, .filter-btn, .filter-toggle-btn { min-width: 0; width: 100%; box-sizing: border-box; }
+            .filter-select, .filter-toggle-btn { min-width: 0; width: 100%; box-sizing: border-box; }
         }
 
         /* ── Small tablet (≤860px) ── */
@@ -2223,7 +2214,6 @@
                     <option value="price_desc">Price: High to Low</option>
                     <option value="rating">Highest Rated</option>
                 </select>
-                <button class="filter-btn" onclick="filterProducts()">Filter</button>
                 <button class="filter-toggle-btn" id="adv-filter-toggle" onclick="_toggleAdvFilters()">⚙ More Filters</button>
             </div>
             <!-- NEW: advanced filters — price range, material, in-stock-only.
@@ -2780,7 +2770,6 @@ function _isCursorTarget(el) {
             node.classList.contains('pattern-card')  ||
             node.classList.contains('float-card')    ||
             node.classList.contains('pact-btn')      ||
-            node.classList.contains('filter-btn')    ||
             node.classList.contains('filter-select') ||
             node.classList.contains('icon-btn')      ||
             node.classList.contains('rv-card')       ||
