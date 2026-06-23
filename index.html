@@ -185,6 +185,8 @@
             padding: 10px 0;
             border-bottom: 1px solid rgba(212,116,140,0.1);
         }
+        /* NEW: separates nav links from Search/Account at the bottom of the menu */
+        .mmenu-divider { height: 1px; background: rgba(212,116,140,0.15); margin: 4px 0; }
 
         /* ═══════════════════════════════════════
            MARQUEE STRIP
@@ -1053,14 +1055,14 @@
         @media (max-width: 1024px) {
             .footer-inner { grid-template-columns: 1fr 1fr; gap: 40px; }
             .testi-grid { grid-template-columns: 1fr 1fr; }
-            .products-grid { grid-template-columns: repeat(3, 1fr); }
+            #products-grid { grid-template-columns: repeat(3, 1fr); }
             .patterns-grid { grid-template-columns: 1fr 1fr; }
             .hero-h1 { font-size: clamp(2.8rem, 5.5vw, 5rem); }
         }
 
         /* ── Small tablet (≤860px) ── */
         @media (max-width: 860px) {
-            .products-grid { grid-template-columns: repeat(2, 1fr); }
+            #products-grid { grid-template-columns: repeat(2, 1fr); }
             .why-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
             .custom-grid { grid-template-columns: 1fr 1fr; }
         }
@@ -1077,15 +1079,27 @@
             button, a, [onclick], .product-card, .pattern-card, .float-card { cursor: pointer !important; }
 
             /* Nav */
-            nav { padding: 0 18px; }
-            .nav-inner { height: 66px; }
+            nav { padding: 0 16px; }
+            /* FIXED: 66px was too short for the two-line logo (title + "CHENNAI
+               • SINCE 2026" subtitle), which pushed into the marquee strip
+               below it. 72px gives the subtitle room without overlapping. */
+            .nav-inner { height: 72px; }
             .nav-links { display: none; }
-            .hamburger { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; cursor: pointer; }
-            .logo-text { font-size: 1.6rem; }
-            .logo-yarn { width: 38px; height: 38px; }
-            .logo { gap: 10px; }
-            .nav-actions { gap: 8px; }
-            .icon-btn { width: 36px; height: 36px; font-size: 1.1rem; }
+            .hamburger { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; cursor: pointer; flex-shrink: 0; }
+            .logo-text { font-size: 1.35rem; line-height: 1.1; }
+            .logo-sub { font-size: 0.48rem; letter-spacing: 2.5px; }
+            .logo-yarn { width: 34px; height: 34px; flex-shrink: 0; }
+            .logo { gap: 8px; min-width: 0; }
+            .nav-actions { gap: 4px; flex-shrink: 0; }
+            .icon-btn { width: 34px; height: 34px; font-size: 1rem; }
+            /* FIXED: this is the actual overlap bug — 5 full-size icon buttons
+               (search, wishlist, cart, account, hamburger) plus a two-line logo
+               cannot fit in ~340px of usable width on a 375px phone; they were
+               colliding with the logo text. Search and Account now live inside
+               the hamburger menu instead (see #mobile-menu below) — only the
+               two icons people actually tap mid-browse (Wishlist, Cart) stay
+               visible in the top bar, alongside the hamburger itself. */
+            #nav-search-btn, #account-btn { display: none; }
 
             /* Mobile menu */
             #mobile-menu { top: 66px; padding: 20px 18px; }
@@ -1107,7 +1121,7 @@
 
             /* Products */
             #shop-section { padding: 80px 0; }
-            .products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            #products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .product-card { border-radius: 18px; }
             .product-name { font-size: 1rem; }
             .product-price { font-size: 1rem; }
@@ -1120,6 +1134,24 @@
             .patterns-inner { grid-template-columns: 1fr; gap: 48px; }
             .patterns-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
             .patterns-desc { max-width: 100%; }
+
+            /* FIXED: the pattern card footer crammed a "downloads" count and a
+               nowrap "Download Free →" button side-by-side via space-between —
+               at 2-column mobile width (~170px per card) there isn't room for
+               both, so the button text/padding overflowed past the card edge.
+               Stacking the count above a full-width button fits comfortably
+               at any width down to the single-column breakpoint below. */
+            .pattern-body { padding: 14px 14px 4px; }
+            .pattern-name { font-size: 0.92rem; line-height: 1.25; }
+            .pattern-meta { font-size: 0.6rem; }
+            .pattern-footer { flex-direction: column; align-items: stretch; gap: 8px; padding: 10px 14px 14px; }
+            .pattern-dl-btn { width: 100%; text-align: center; padding: 9px 14px; }
+
+            /* Testimonial submit row — hint + button were squeezed together
+               side-by-side on narrow screens; stack instead. */
+            .tc-submit-row { flex-direction: column; align-items: stretch; gap: 10px; }
+            #tc-login-hint { margin-right: 0; text-align: center; }
+            .tc-submit-row .btn-blush { width: 100%; }
 
             /* Why Us */
             #why-us { padding: 80px 0; }
@@ -1247,7 +1279,7 @@
 
         /* ── Small mobile (≤480px) ── */
         @media (max-width: 480px) {
-            .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            #products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .hero-h1 { font-size: clamp(2.4rem, 12vw, 3.5rem); }
             .hero-ctas { flex-direction: column; }
             .btn-primary, .btn-outline, .btn-rose { width: 100%; justify-content: center; text-align: center; }
@@ -1271,7 +1303,11 @@
 
         /* ── Extra-small (≤360px) ── */
         @media (max-width: 360px) {
-            .products-grid { grid-template-columns: 1fr; }
+            #products-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .product-name { font-size: 0.88rem; }
+            .product-price { font-size: 0.92rem; }
+            .pact-btn { font-size: 0.6rem; padding: 7px 4px; }
+            .product-body { padding: 12px 10px 14px; }
             .gallery-grid { grid-template-columns: 1fr; }
             .patterns-grid { grid-template-columns: 1fr; }
             .hero-h1 { font-size: 2.2rem; }
@@ -1934,8 +1970,16 @@
             /* Improve tap targets */
             .icon-btn { min-width: 40px; min-height: 40px; }
             .qty-btn { min-width: 32px; min-height: 32px; }
-            /* Remove hover-only product actions, show them always on mobile */
-            .product-actions { opacity: 1; transform: translateY(0); background: transparent; }
+            /* FIXED: previously only set opacity:1, but the real show/hide
+               mechanism for .product-actions is bottom:-60px → bottom:14px
+               (see .product-card:hover above) — opacity was never the
+               blocking property. Without overriding `bottom` here too, these
+               buttons stayed positioned off-screen below the card on every
+               touch device, since touch has no :hover state to trigger the
+               reveal. This meant Add to Cart and the wishlist button were
+               completely untappable on mobile — the single most serious
+               bug found in this pass. */
+            .product-actions { opacity: 1; bottom: 14px; transform: translateY(0); background: transparent; }
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -1982,7 +2026,7 @@
         </ul>
 
         <div class="nav-actions">
-            <button class="icon-btn" onclick="toggleSearch()" title="Search"><i class="fa fa-search"></i></button>
+            <button class="icon-btn" id="nav-search-btn" onclick="toggleSearch()" title="Search"><i class="fa fa-search"></i></button>
             <button class="icon-btn" onclick="toggleWishlist()" title="Wishlist">
                 <i class="fa-regular fa-heart"></i>
                 <span class="badge" id="wishlist-count">0</span>
@@ -2004,7 +2048,17 @@
     <a href="#community" onclick="toggleMobile();ss(this,event)">📸 Gallery</a>
     <a href="#why-us" onclick="toggleMobile();ss(this,event)">💖 Why Design Den</a>
     <a href="#custom" onclick="toggleMobile();ss(this,event)">🧵 Custom Orders</a>
+    <!-- NEW: Search and Account moved here from the top-bar icon row. The top
+         bar can only comfortably fit ~3 icon buttons next to the logo on a
+         narrow screen — cramming all 5 (search, wishlist, cart, account, plus
+         the hamburger itself) caused the logo/icon overlap reported. Wishlist
+         and Cart stay in the top bar since those are checked constantly while
+         browsing; Search and Account are one tap away in here instead. -->
+    <div class="mmenu-divider"></div>
+    <a href="#" onclick="toggleMobile();toggleSearch();return false;">🔍 Search</a>
+    <a href="#" onclick="toggleMobile();showAccount();return false;">👤 My Account</a>
 </div>
+
 
 <!-- ══════════════════════════════════════════════
      MARQUEE
