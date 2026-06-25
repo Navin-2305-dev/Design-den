@@ -1058,15 +1058,17 @@
             .hero-h1 { font-size: clamp(2.8rem, 5.5vw, 5rem); }
 
             /* ── Filter bar — tablet layout ──
-               At tablet widths there's room for more than one column, but not
-               enough for all 5 controls (search, category, sort, Filter,
-               More Filters) in a single flex-wrap row without overflow or an
-               uneven wrap. A clean 2-column grid uses the available width
-               properly instead of falling back to the narrow-phone single
-               column treatment (see 480px breakpoint below) or overflowing. */
-            .filters-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center; }
+               FIXED: previously a 2-column grid forced the input to span both
+               columns (fine) but left category/sort/toggle as 2+1 — two filling
+               a row evenly and the third (whichever wrapped) sitting alone on
+               its own row at half width, which read as broken/uneven rather
+               than intentional. Search now gets its own full-width row, and
+               the three secondary controls (category, sort, more filters)
+               share one clean 3-column row — they're conceptually a single
+               filter group, so they should read as one. */
+            .filters-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; align-items: center; }
             .filter-input { grid-column: 1 / -1; min-width: 0; width: 100%; box-sizing: border-box; }
-            .filter-select, .filter-toggle-btn { min-width: 0; width: 100%; box-sizing: border-box; }
+            .filter-select, .filter-toggle-btn { min-width: 0; width: 100%; box-sizing: border-box; padding: 11px 10px; font-size: 0.76rem; text-align: center; }
         }
 
         /* ── Small tablet (≤860px) ── */
@@ -1394,11 +1396,23 @@
             .hero-ctas { flex-direction: column; }
 
             /* ── Filter bar — narrow phone treatment ──
-               Below 480px, even the 2-column tablet grid (set at 1024px)
-               starts feeling tight for select labels like "Sort: Newest" —
-               drop to a single column here specifically. */
-            .filters-bar { grid-template-columns: 1fr; }
-            .filter-input { grid-column: auto; }
+               FIXED: this previously dropped to a single column, stacking
+               search, category, sort, and "More Filters" as four nearly-
+               identical full-width pills in a tall vertical wall — visually
+               it read as one undifferentiated list rather than "a search box
+               plus a small filter toolbar", and wasted a lot of vertical
+               space before any products were visible. Search keeps its own
+               full-width row (it's the primary action); category/sort/toggle
+               keep sharing one compact 3-column row, just tightened further
+               for very narrow screens — same grouping as the tablet
+               breakpoint above, scaled down rather than abandoned. */
+            .filters-bar { grid-template-columns: 1fr 1fr 1fr; gap: 7px; }
+            .filter-input { grid-column: 1 / -1; }
+            .filter-select, .filter-toggle-btn { padding: 10px 4px; font-size: 0.68rem; letter-spacing: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            /* "More Filters" text is the longest label in this row — hide it
+               below 480px and rely on the ⚙ icon alone (aria-label keeps it
+               accessible to screen readers), freeing width for Category/Sort. */
+            .ftb-label { display: none; }
             /* FIXED: previously a bare global selector (.btn-primary, .btn-outline,
                .btn-rose { width:100% }) — this silently broke every OTHER
                side-by-side button pair sitewide that reuses these same three
@@ -2326,7 +2340,7 @@
                     <option value="kit">Amigurumi Kits</option>
                     <option value="hook">Hooks &amp; Tools</option>
                     <option value="Toy">Crochet Companion</option>
-                    <option value="Accessories">Baby Accessoriesn</option>
+                    <option value="Accessories">Baby Accessories</option>
                     <option value="Keychains">Keychains</option>
                     <option value="flower">Petal Stories</option>
                 </select>
@@ -2336,7 +2350,7 @@
                     <option value="price_desc">Price: High to Low</option>
                     <option value="rating">Highest Rated</option>
                 </select>
-                <button class="filter-toggle-btn" id="adv-filter-toggle" onclick="_toggleAdvFilters()">⚙ More Filters</button>
+                <button class="filter-toggle-btn" id="adv-filter-toggle" onclick="_toggleAdvFilters()" aria-label="More Filters">⚙<span class="ftb-label"> More Filters</span></button>
             </div>
             <!-- NEW: advanced filters — price range, material, in-stock-only.
                  Hidden by default to keep the main filter bar uncluttered;
@@ -2627,6 +2641,64 @@
       </div>
       <div id="ct-results"></div>
     </div>
+  </div>
+</div>
+
+<!-- ══ COMMISSION ACCEPT & PAY MODAL ════════════════════════════════════════ -->
+<!-- NEW: the missing link between "admin quoted a custom piece" and "this
+     becomes a real, trackable order". Collects a delivery address (a custom
+     crocheted piece still needs to physically ship somewhere), then launches
+     Razorpay for exactly the quoted amount — never a client-supplied number —
+     and on verified payment the backend creates a real Order, so from here on
+     the customer tracks delivery exactly like any other purchase. -->
+<div class="modal-overlay" id="comm-pay-modal" onclick="if(event.target.id==='comm-pay-modal')closeCommissionPayModal()">
+  <div class="modal-box" style="max-width:520px;">
+    <button class="modal-close" onclick="closeCommissionPayModal()"><i class="fa fa-times"></i></button>
+    <h2 class="modal-title" style="margin-bottom:6px;">Accept Quote &amp; Pay ✦</h2>
+    <p style="font-size:0.82rem;color:rgba(61,26,14,0.5);margin:0 0 18px;line-height:1.6;">
+      Commission <strong id="cpay-comm-id">—</strong> · Quoted price <strong id="cpay-amount" style="color:var(--rose);">₹0</strong><br>
+      Enter where this should be delivered, then complete payment to confirm your order.
+    </p>
+    <div id="cpay-guest-email-wrap" class="form-group" style="display:none;">
+      <label class="form-label">Your Email <span style="opacity:.5;font-weight:400;">(for order updates)</span></label>
+      <input class="form-input" id="cpay-guest-email" type="email" placeholder="your@email.com">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-input" id="cpay-name" type="text" placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input class="form-input" id="cpay-phone" type="tel" placeholder="98765 43210">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Address Line 1</label>
+      <input class="form-input" id="cpay-line1" type="text" placeholder="House no., street, area">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Address Line 2 (Optional)</label>
+      <input class="form-input" id="cpay-line2" type="text" placeholder="Landmark, area name">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">City</label>
+        <input class="form-input" id="cpay-city" type="text" placeholder="Chennai">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Pincode</label>
+        <input class="form-input" id="cpay-pin" type="text" placeholder="600001">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">State</label>
+      <input class="form-input" id="cpay-state" type="text" placeholder="Tamil Nadu">
+    </div>
+    <button class="btn-rose" id="cpay-submit-btn" style="width:100%;justify-content:center;display:flex;align-items:center;gap:8px;margin-top:8px;padding:14px;" onclick="acceptAndPayCommission()">
+      <span id="cpay-submit-label">Pay Now →</span>
+    </button>
+    <p style="font-size:0.68rem;color:rgba(61,26,14,0.38);text-align:center;margin-top:12px;">Payments secured by Razorpay</p>
   </div>
 </div>
 
@@ -2978,7 +3050,14 @@ document.addEventListener('mouseout', e => {
 function renderHeroCards(){
     const wrap = document.getElementById('hero-float-cards');
     if(!wrap) return;
-    const items = PRODUCTS.slice(0,4);
+    // FIXED: this used to be PRODUCTS.slice(0,4) — always the 4 most-recently-
+    // created active products, completely ignoring the admin's "⭐ Featured on
+    // homepage" toggle. Now it actually filters by p.featured first. If the
+    // admin hasn't marked anything as featured yet, fall back to the newest
+    // products so the hero never renders empty — but a real featured pick
+    // always wins once one exists.
+    const featured = PRODUCTS.filter(p => p.featured);
+    const items = (featured.length ? featured : PRODUCTS).slice(0,4);
     wrap.innerHTML = items.map(p=>`
         <div class="float-card" onclick="showProductModal('${p._id}')">
             <img src="${p.img}" alt="${p.name}" loading="lazy">
@@ -3707,8 +3786,28 @@ async function trackCommission(){
     el.innerHTML='<div style="font-size:0.7rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(61,26,14,0.38);margin-bottom:12px">'+list.length+' Commission'+(list.length!==1?'s':'')+' Found</div>'+list.map(_renderCommCard).join('');
 }
 function _renderCommCard(c){
-    const icn={New:'⏳',Quoted:'💰','In Progress':'🔨',Completed:'🎉',Cancelled:'❌'};
+    const icn={New:'⏳',Quoted:'💰',Accepted:'⏳','In Progress':'🔨',Completed:'🎉',Converted:'🎉',Cancelled:'❌'};
     const d=new Date(c.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+    // NEW: once a commission's quote has been paid for, it's a real Order —
+    // show its live delivery status (via the linkedOrder summary the backend
+    // now attaches) and a Track button, instead of the static "Converted"
+    // commission status which tells the customer nothing about where their
+    // order actually is.
+    if (c.status === 'Converted' && c.linkedOrder) {
+        const lo = c.linkedOrder;
+        return '<div style="background:var(--mist);border-radius:16px;padding:18px;margin-bottom:12px;border-left:3px solid var(--sage);">'
+            +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;">'
+            +'<div>'
+            +(c.commissionId?'<div style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--rose);margin-bottom:3px;">'+c.commissionId+' → Order '+lo.id+'</div>':'')
+            +'<div style="font-weight:800;font-size:0.9rem;color:var(--choco);margin-bottom:3px;">'+c.type+'</div>'
+            +'<div style="font-size:0.72rem;color:rgba(61,26,14,0.42)">Submitted on '+d+'</div>'
+            +'</div>'
+            +'<span class="order-status-badge '+_getStatusBadgeClass(lo.status)+'">'+lo.status+'</span>'
+            +'</div>'
+            +'<div style="font-size:0.8rem;font-weight:800;color:var(--sage);background:rgba(125,170,138,0.1);border-radius:8px;padding:7px 12px;display:inline-block;margin-bottom:10px;">✅ Paid: ₹'+lo.total.toLocaleString('en-IN')+'</div>'
+            +'<div><button onclick="_trackLinkedCommOrder(\''+lo.id+'\',\''+esc(c.email||'')+'\')" style="background:var(--rose);color:white;border:none;border-radius:10px;padding:9px 18px;font-family:Nunito,sans-serif;font-size:0.74rem;font-weight:800;cursor:pointer;">Track Order →</button></div>'
+            +'</div>';
+    }
     return '<div style="background:var(--mist);border-radius:16px;padding:18px;margin-bottom:12px;border-left:3px solid var(--rose);">'
         +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;">'
         +'<div>'
@@ -3721,7 +3820,154 @@ function _renderCommCard(c){
         +(c.quotedPrice?'<div style="font-size:0.8rem;font-weight:800;color:var(--gold);background:rgba(212,160,74,0.1);border-radius:8px;padding:7px 12px;display:inline-block;margin-bottom:8px;">💰 Quoted: ₹'+c.quotedPrice.toLocaleString('en-IN')+'</div>':'')
         +(c.budget&&!c.quotedPrice?'<div style="font-size:0.74rem;color:rgba(61,26,14,0.55);background:rgba(212,160,74,0.08);border-radius:8px;padding:6px 10px;display:inline-block;margin-bottom:8px;">💬 Budget: '+c.budget+'</div>':'')
         +(c.adminNote?'<div style="background:white;border-radius:10px;padding:12px;margin-top:10px;font-size:0.8rem;color:var(--choco);line-height:1.65;border-left:3px solid var(--rose)"><strong style="font-size:0.62rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--rose);display:block;margin-bottom:5px">📌 Message from Design Den</strong>'+c.adminNote+'</div>':'')
+        // NEW: the actual "convert quote into a tracked order" entry point.
+        // Shown whenever there's a quoted price and the commission hasn't
+        // been paid for yet (covers both 'Quoted' and 'Accepted' — the
+        // latter meaning a previous payment attempt was started but not
+        // completed, so let them resume rather than getting stuck).
+        +((c.quotedPrice && ['Quoted','Accepted'].includes(c.status))
+            ? '<div style="margin-top:12px;"><button onclick="openCommissionPayModal(\''+esc(c.commissionId)+'\','+c.quotedPrice+',\''+esc(c.email||'')+'\')" style="background:linear-gradient(135deg,var(--rose),var(--deep));color:white;border:none;border-radius:10px;padding:10px 20px;font-family:Nunito,sans-serif;font-size:0.78rem;font-weight:800;cursor:pointer;width:100%;">✅ Accept Quote &amp; Pay ₹'+c.quotedPrice.toLocaleString('en-IN')+'</button></div>'
+            : '')
         +'</div>';
+}
+
+// NEW: tiny wrapper so the rendered card's onclick can call the guest-aware
+// showOrderTrack with the email captured on the commission itself, without
+// needing to know whether the current viewer is logged in or a guest.
+function _trackLinkedCommOrder(orderId, commEmail) {
+    if (currentUser) showOrderTrack(orderId);
+    else showOrderTrack(orderId, commEmail);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  COMMISSION → ORDER: accept quote, collect address, pay, become a tracked order
+// ═══════════════════════════════════════════════════════════════════════════
+let _cpayCommissionId = null;
+let _cpayAmount = 0;
+let _cpayEmail = '';
+
+function openCommissionPayModal(commissionId, amount, email) {
+    _cpayCommissionId = commissionId;
+    _cpayAmount = amount;
+    _cpayEmail = email || '';
+    document.getElementById('cpay-comm-id').textContent = commissionId;
+    document.getElementById('cpay-amount').textContent = '₹' + Number(amount).toLocaleString('en-IN');
+    // Guests (not logged in) need an email collected for order updates —
+    // logged-in users already have one on file, so that field stays hidden.
+    const guestWrap = document.getElementById('cpay-guest-email-wrap');
+    if (guestWrap) guestWrap.style.display = currentUser ? 'none' : 'block';
+    // Pre-fill name/phone/email if we already know them, so returning
+    // customers (or anyone who's already saved an address) don't retype it.
+    const setIf = (id, v) => { const el = document.getElementById(id); if (el && v) el.value = v; };
+    setIf('cpay-guest-email', email);
+    if (currentUser) {
+        setIf('cpay-name', _currentUserName());
+        setIf('cpay-phone', _currentUserPhone());
+    }
+    document.getElementById('comm-pay-modal').classList.add('active');
+}
+
+function closeCommissionPayModal() {
+    document.getElementById('comm-pay-modal').classList.remove('active');
+}
+
+function _cpayValidate() {
+    const ids = ['cpay-name','cpay-phone','cpay-line1','cpay-city','cpay-pin','cpay-state','cpay-guest-email'];
+    _clearAllFieldErrs(ids);
+    const name  = (document.getElementById('cpay-name')?.value||'').trim();
+    const phone = (document.getElementById('cpay-phone')?.value||'').trim();
+    const line1 = (document.getElementById('cpay-line1')?.value||'').trim();
+    const city  = (document.getElementById('cpay-city')?.value||'').trim();
+    const pin   = (document.getElementById('cpay-pin')?.value||'').trim();
+    const state = (document.getElementById('cpay-state')?.value||'').trim();
+    const guestEmail = (document.getElementById('cpay-guest-email')?.value||'').trim().toLowerCase();
+
+    if (!name || name.length < 2)        { _fieldErr('cpay-name', 'Please enter your full name'); return null; }
+    if (!phone || !_isValidPhone(phone)) { _fieldErr('cpay-phone', 'Enter a valid 10-digit mobile number'); return null; }
+    if (!currentUser) {
+        if (!guestEmail || !_isValidEmail(guestEmail)) { _fieldErr('cpay-guest-email', 'Enter a valid email address'); return null; }
+    }
+    if (!line1)                          { _fieldErr('cpay-line1', 'Please enter your address'); return null; }
+    if (!city)                           { _fieldErr('cpay-city', 'Please enter your city'); return null; }
+    if (!pin || !_isValidPin(pin))       { _fieldErr('cpay-pin', 'Pincode must be exactly 6 digits'); return null; }
+    if (!state)                          { _fieldErr('cpay-state', 'Please enter your state'); return null; }
+
+    return {
+        address: {
+            name, phone,
+            line1, line2: (document.getElementById('cpay-line2')?.value||'').trim(),
+            city, pin, state
+        },
+        guestEmail: currentUser ? undefined : guestEmail,
+        guestPhone: currentUser ? undefined : phone
+    };
+}
+
+async function acceptAndPayCommission() {
+    const data = _cpayValidate();
+    if (!data) return;
+    if (typeof Razorpay === 'undefined') { showNotif('⚠ Razorpay failed to load — check your connection'); return; }
+
+    const btn = document.getElementById('cpay-submit-btn');
+    const label = document.getElementById('cpay-submit-label');
+    btn.disabled = true; label.textContent = 'Preparing payment…';
+
+    // Step 1: tell the server we're accepting this quote — it re-validates
+    // server-side that the commission is actually Quoted/Accepted with a real
+    // quotedPrice set, and creates a Razorpay order for THAT amount (never one
+    // we send from here), exactly the same trust model as cart checkout.
+    const r = await _api('POST', '/commissions/' + _cpayCommissionId + '/accept', {});
+    if (!r.ok) {
+        showNotif('⚠ ' + (r.data.message || 'Could not start payment')); 
+        btn.disabled = false; label.textContent = 'Pay Now →';
+        return;
+    }
+    const { orderId, key, amount } = r.data;
+
+    const rzp = new Razorpay({
+        key,
+        amount: Math.round(amount * 100),
+        currency: 'INR',
+        order_id: orderId,
+        name: 'Design Den',
+        description: 'Custom Commission — ' + _cpayCommissionId,
+        handler: async function(resp) {
+            label.textContent = 'Verifying payment…';
+            const vr = await _api('POST', '/commissions/' + _cpayCommissionId + '/pay/verify', {
+                razorpay_order_id:   resp.razorpay_order_id,
+                razorpay_payment_id: resp.razorpay_payment_id,
+                razorpay_signature:  resp.razorpay_signature,
+                address: data.address,
+                guestEmail: data.guestEmail,
+                guestPhone: data.guestPhone
+            });
+            btn.disabled = false; label.textContent = 'Pay Now →';
+            if (vr.ok && vr.data.success) {
+                closeCommissionPayModal();
+                launchConfetti();
+                showNotif('🎉 Payment confirmed! Your commission is now Order #' + vr.data.order.id);
+                // Refresh whichever commission view is currently open so the
+                // card immediately reflects the new Converted + linked-order
+                // state, rather than the customer needing to manually re-search.
+                if (document.getElementById('comm-track-modal')?.classList.contains('active')) {
+                    if (document.getElementById('ct-panel-id')?.style.display !== 'none') trackByCommId();
+                    else trackCommission();
+                }
+                if (document.getElementById('account-modal')?.classList.contains('active')) _renderCommissionsTab();
+            } else {
+                showNotif('⚠ Payment could not be verified. Please contact support with your payment ID: ' + resp.razorpay_payment_id);
+            }
+        },
+        prefill: {
+            name: data.address.name,
+            email: currentUser ? _currentUserEmail() : data.guestEmail,
+            contact: data.address.phone
+        },
+        theme: { color: '#D4748C' },
+        modal: { ondismiss: () => { btn.disabled = false; label.textContent = 'Pay Now →'; showNotif('Payment cancelled'); } }
+    });
+    btn.disabled = false; label.textContent = 'Pay Now →';
+    rzp.open();
 }
 
 
@@ -4382,13 +4628,19 @@ async function initStore() {
 }
 
 function _applyPublicSettings(s) {
-    // Marquee items
-    if (s['marquee.items']) {
-        const items = s['marquee.items'].split('\n').map(x => x.trim()).filter(Boolean);
+    // Marquee items — admin enters these as one line per item in Settings →
+    // "📣 Marquee Banner Text" and they replace the placeholder text below
+    // verbatim. FIXED: guard against a saved value that's present but only
+    // whitespace/blank lines (e.g. admin saved an empty textarea) — without
+    // this, `items.length` would be 0 and we'd silently keep whatever was in
+    // the HTML at load time, which looked like "irrelevant" leftover content.
+    const marqueeRaw = (s['marquee.items'] || '').trim();
+    if (marqueeRaw) {
+        const items = marqueeRaw.split('\n').map(x => x.trim()).filter(Boolean);
         const strip = document.querySelector('.marquee-inner');
         if (strip && items.length) {
             const doubled = [...items, ...items]; // duplicate for seamless loop
-            strip.innerHTML = doubled.map(t => `<span>${t}</span><span class="dot">✦</span>`).join('');
+            strip.innerHTML = doubled.map(t => `<span>${esc(t)}</span><span class="dot">✦</span>`).join('');
         }
     }
     // WhatsApp link
@@ -5194,8 +5446,10 @@ function _getCommStatusStyle(status) {
     const styles = {
         'New':         'background:#FEF3C7;color:#92400E;',
         'Quoted':      'background:#DBEAFE;color:#1E40AF;',
+        'Accepted':    'background:#DBEAFE;color:#1E40AF;',
         'In Progress': 'background:#D1FAE5;color:#065F46;',
         'Completed':   'background:#D1FAE5;color:#065F46;',
+        'Converted':   'background:#D1FAE5;color:#065F46;',
         'Cancelled':   'background:#FEE2E2;color:#991B1B;'
     };
     return styles[status] || 'background:var(--mist);color:var(--choco);';
@@ -5218,7 +5472,7 @@ async function _renderCommissionsTab() {
     }
 
     // Commission tracking is now handled entirely by the database
-    const commissionStatusIcon = { 'New':'🆕', 'Quoted':'💰', 'In Progress':'🔨', 'Completed':'🎉', 'Cancelled':'❌' };
+    const commissionStatusIcon = { 'New':'🆕', 'Quoted':'💰', 'Accepted':'⏳', 'In Progress':'🔨', 'Completed':'🎉', 'Converted':'🎉', 'Cancelled':'❌' };
 
     const commRows = commissions.length
         ? commissions.map(c => {
@@ -5235,15 +5489,24 @@ async function _renderCommissionsTab() {
                 + '<span style="' + statusStyle + 'border-radius:99px;padding:4px 12px;font-size:0.65rem;font-weight:800;letter-spacing:0.5px;white-space:nowrap;flex-shrink:0;">'
                 + c.status + '</span>'
                 + '</div>'
-                + (c.quotedPrice ? '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 12px;background:rgba(212,160,74,0.08);border-radius:10px;">'
+                + (c.quotedPrice && ['Quoted','Accepted'].includes(c.status) ? '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 12px;background:rgba(212,160,74,0.08);border-radius:10px;">'
                     + '<span style="font-size:0.7rem;font-weight:700;color:rgba(61,26,14,0.5);">Quoted Price:</span>'
                     + '<span style="font-weight:800;color:var(--choco);font-size:0.9rem;">₹' + c.quotedPrice.toLocaleString('en-IN') + '</span>'
+                    + '</div>' : '')
+                + (c.status === 'Converted' && c.linkedOrder ? '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 12px;background:rgba(125,170,138,0.1);border-radius:10px;">'
+                    + '<span style="font-size:0.7rem;font-weight:700;color:rgba(61,26,14,0.5);">Order ' + c.linkedOrder.id + ':</span>'
+                    + '<span style="font-weight:800;color:var(--sage);font-size:0.8rem;">' + c.linkedOrder.status + '</span>'
                     + '</div>' : '')
                 + (c.adminNote ? '<div style="background:white;border-left:3px solid var(--rose);border-radius:0 10px 10px 0;padding:10px 12px;margin-bottom:8px;">'
                     + '<div style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--rose);margin-bottom:4px;">📌 Message from Design Den</div>'
                     + '<div style="font-size:0.8rem;color:rgba(61,26,14,0.7);line-height:1.5;">' + c.adminNote + '</div>'
                     + '</div>' : '')
-                + '<div style="display:flex;justify-content:flex-end;">'
+                + '<div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;">'
+                + (c.status === 'Converted' && c.linkedOrder
+                    ? '<button onclick="hideAccount();_trackLinkedCommOrder(\'' + c.linkedOrder.id + '\',\'' + esc(c.email||_currentUserEmail()) + '\')" style="background:var(--rose);color:white;border:none;border-radius:10px;padding:6px 14px;font-family:Nunito,sans-serif;font-size:0.7rem;font-weight:800;cursor:pointer;">Track Order →</button>'
+                    : (c.quotedPrice && ['Quoted','Accepted'].includes(c.status)
+                        ? '<button onclick="hideAccount();setTimeout(()=>openCommissionPayModal(\'' + c.commissionId + '\',' + c.quotedPrice + ',\'' + esc(c.email||_currentUserEmail()) + '\'),200)" style="background:linear-gradient(135deg,var(--rose),var(--deep));color:white;border:none;border-radius:10px;padding:6px 14px;font-family:Nunito,sans-serif;font-size:0.7rem;font-weight:800;cursor:pointer;">Accept &amp; Pay →</button>'
+                        : ''))
                 + '<button onclick="openCommissionTrackerForId(\'' + c.commissionId + '\')" style="background:transparent;border:1.5px solid rgba(212,116,140,0.35);color:var(--rose);border-radius:10px;padding:6px 14px;font-family:Nunito,sans-serif;font-size:0.7rem;font-weight:800;cursor:pointer;">View Details →</button>'
                 + '</div>'
                 + '</div>';
@@ -5280,12 +5543,25 @@ function openCommissionTrackerForId(commissionId) {
 // ══════════════════════════════════════════════════════════════════════════════
 //  ORDER TRACKING — async, DB-backed
 // ══════════════════════════════════════════════════════════════════════════════
-async function showOrderTrack(orderId) {
+// NEW: optional `guestEmail` param makes this work for guests too — previously
+// this only ever checked _getUserOrders() (logged-in accounts only), so a
+// guest who paid for a commission (no account) would always hit "Order not
+// found" here even though their order genuinely exists. When an email is
+// supplied, it's used with the existing guest-order-tracking endpoint
+// (/api/orders/track), the same one used elsewhere for guest checkout
+// tracking — no new backend surface needed.
+async function showOrderTrack(orderId, guestEmail) {
     document.getElementById('order-track-modal').classList.add('active');
     document.getElementById('order-track-content').innerHTML = _spinner('Loading tracking details…');
 
-    const orders = await _getUserOrders();
-    const order  = orders.find(o => o.id === orderId);
+    let order = null;
+    if (guestEmail) {
+        const r = await _api('POST', '/orders/track', { orderId, email: guestEmail });
+        if (r.ok) order = r.data.order;
+    } else {
+        const orders = await _getUserOrders();
+        order = orders.find(o => o.id === orderId);
+    }
     if (!order) {
         document.getElementById('order-track-content').innerHTML =
             '<div style="text-align:center;padding:40px;color:rgba(61,26,14,0.4);">Order not found.</div>';
