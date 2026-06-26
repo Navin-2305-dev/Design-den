@@ -511,7 +511,122 @@
             width: 100%; height: 100%; object-fit: cover;
             transition: transform 0.7s cubic-bezier(0.4,0,0.2,1);
         }
-        .product-card:hover .product-img-wrap img { transform: scale(1.08); }
+        /* ── CRITICAL FIX: Use direct-child selector (>) so scale ONLY applies
+           to the single <img> on non-gallery cards. Gallery cards have their
+           images nested inside .product-img-scroll, so they are NOT direct
+           children of .product-img-wrap. The old rule matched ALL descendants,
+           scaling every gallery image simultaneously and completely breaking
+           scroll-snap alignment (snapped positions shifted by the scale factor
+           so the strip never settled on a full image). ── */
+        .product-card:hover .product-img-wrap > img { transform: scale(1.08); }
+
+        /* ── MULTI-IMAGE GALLERY STRIP ─────────────────────────────────────
+           Horizontally-scrollable, scroll-snap-locked strip inside the card.
+           Images are flex items sized to 100% of the strip so scroll-snap
+           always settles exactly on one image. Scrollbar hidden on all
+           engines; touch-action:pan-x lets mobile browsers disambiguate
+           horizontal card swipes from vertical page scrolls instantly. ──── */
+        .product-img-scroll {
+            display: flex; width: 100%; height: 100%;
+            overflow-x: auto; overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            cursor: grab;   /* FIX: was cursor:none — showed nothing at all */
+            touch-action: pan-x;
+        }
+        .product-img-scroll:active { cursor: grabbing; }
+        .product-img-scroll::-webkit-scrollbar { display: none; }
+        /* ── Gallery images: fixed 100% width so each snaps to exactly one
+           slot. No transition/transform so hover scale from parent rule never
+           bleeds in — gallery images should never scale independently. ──── */
+        .product-img-scroll img {
+            flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover;
+            scroll-snap-align: start; scroll-snap-stop: always;
+            -webkit-user-drag: none; user-select: none;
+            border-radius: 0;          /* Prevent mobile border-radius bleeding */
+            /* Hard block: scale/transition from .product-img-wrap img rule
+               must never affect gallery images — it breaks scroll-snap. */
+            transform: none !important;
+            transition: none !important;
+        }
+
+        /* ── DOT INDICATORS ─────────────────────────────────────────────── */
+        .product-img-dots {
+            position: absolute; bottom: 10px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 5px;
+            z-index: 4;
+        }
+        .product-img-dots span {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: rgba(255,255,255,0.55);
+            box-shadow: 0 1px 4px rgba(61,26,14,0.3);
+            transition: all 0.22s;
+            cursor: pointer;   /* FIX: was cursor:none — dots looked dead */
+        }
+        .product-img-dots span.active { background: white; width: 18px; border-radius: 3px; }
+        .product-img-dots span:hover { background: rgba(255,255,255,0.9); transform: scale(1.2); }
+
+        /* ── LEFT / RIGHT ARROW NAVIGATION (desktop) ───────────────────── */
+        .gallery-nav-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 30px; height: 30px; border-radius: 50%;
+            background: rgba(255,255,255,0.92);
+            border: none; display: flex; align-items: center;
+            justify-content: center; font-size: 0.65rem;
+            color: var(--choco);
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
+            z-index: 5; box-shadow: 0 2px 10px rgba(61,26,14,0.22);
+        }
+        .gallery-nav-btn.prev { left: 8px; }
+        .gallery-nav-btn.next { right: 8px; }
+        .product-card:hover .gallery-nav-btn {
+            opacity: 1; pointer-events: auto; cursor: pointer;
+        }
+        .gallery-nav-btn:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.12);
+            box-shadow: 0 4px 14px rgba(61,26,14,0.28);
+        }
+        .gallery-nav-btn:active { transform: translateY(-50%) scale(0.94); }
+
+        /* ── IMAGE COUNTER BADGE "1 / 3" ───────────────────────────────── */
+        .gallery-counter {
+            position: absolute; top: 12px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(61,26,14,0.58); color: white;
+            font-size: 0.6rem; font-weight: 800; letter-spacing: 0.5px;
+            padding: 3px 10px; border-radius: 999px;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.22s, transform 0.22s;
+            translate: 0 -4px;
+            z-index: 4; white-space: nowrap;
+        }
+        .product-card:hover .gallery-counter {
+            opacity: 1; translate: 0 0;
+        }
+
+        /* ── AUTO-PLAY PROGRESS BAR ─────────────────────────────────────── */
+        .gallery-progress {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: 2px; background: rgba(255,255,255,0.15);
+            z-index: 4; overflow: hidden; pointer-events: none;
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .product-card:hover .gallery-progress { opacity: 1; }
+        .gallery-progress-bar {
+            height: 100%; width: 0%; background: var(--rose);
+            transition: width 2.8s linear;
+        }
+
+        /* ── SWIPE HINT SHIMMER (first-reveal only) ─────────────────────── */
+        @keyframes galleryPeek {
+            0%   { scroll-behavior: auto; }
+            40%  { transform: translateX(-12%); }
+            100% { transform: translateX(0); }
+        }
         .product-badge {
             position: absolute; top: 14px; left: 14px;
             background: var(--choco); color: white;
@@ -2056,36 +2171,6 @@
         .coupon-msg.err { color: #e53e3e; }
 
         /* ═══════════════════════════════════════════════════════════
-           RECENTLY VIEWED
-        ═══════════════════════════════════════════════════════════ */
-        #recently-viewed {
-            padding: 60px 0; background: var(--warm);
-            border-top: 1px solid rgba(212,116,140,0.1);
-        }
-        .rv-title {
-            font-family: 'Cormorant Garamond',serif;
-            font-size: 1.8rem; font-weight: 700; color: var(--choco);
-            margin-bottom: 24px;
-        }
-        .rv-title em { font-style: italic; color: var(--rose); }
-        .rv-grid {
-            display: flex; gap: 16px; overflow-x: auto;
-            padding-bottom: 8px; scrollbar-width: none;
-        }
-        .rv-grid::-webkit-scrollbar { display: none; }
-        .rv-card {
-            background: white; border-radius: 20px; overflow: hidden;
-            flex-shrink: 0; width: 180px; cursor: pointer;
-            box-shadow: 0 4px 20px rgba(61,26,14,0.06);
-            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
-        }
-        .rv-card:hover { transform: translateY(-8px); }
-        .rv-card img { width: 100%; aspect-ratio: 1; object-fit: cover; }
-        .rv-card-body { padding: 12px 14px; }
-        .rv-card-name { font-weight: 700; font-size: 0.78rem; color: var(--choco); margin-bottom: 4px; line-height: 1.3; }
-        .rv-card-price { font-weight: 800; font-size: 0.82rem; color: var(--rose); }
-
-        /* ═══════════════════════════════════════════════════════════
            FLOATING BUTTONS
         ═══════════════════════════════════════════════════════════ */
         .float-btns {
@@ -2155,6 +2240,25 @@
                completely untappable on mobile — the single most serious
                bug found in this pass. */
             .product-actions { opacity: 1; bottom: 14px; transform: translateY(0); background: transparent; }
+
+            /* ── Gallery on touch devices ──────────────────────────────────
+               On touch screens:
+               • Nav arrows are useless (native swipe handles navigation)
+               • Counter is unnecessary visual noise
+               • Progress bar (auto-play driven) has no hover trigger anyway
+               • Dots must move to TOP so they don't collide with action
+                 buttons which are permanently revealed at bottom:14px ──── */
+            .gallery-nav-btn  { display: none !important; }
+            .gallery-counter  { display: none !important; }
+            .gallery-progress { display: none !important; }
+            /* Re-position dots to top-right (clear of action buttons below) */
+            .product-img-dots {
+                bottom: auto; top: 8px;
+                left: auto; right: 10px;
+                transform: none;
+            }
+            /* Always visible on touch (no hover state to reveal them) */
+            .product-img-dots span { opacity: 0.85; }
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -2497,14 +2601,6 @@
     </div>
 </section>
 
-
-<!-- ══ RECENTLY VIEWED ════════════════════════════════════════════════ -->
-<section id="recently-viewed" style="display:none;">
-  <div class="container">
-    <h3 class="rv-title">Recently <em>Viewed</em></h3>
-    <div class="rv-grid" id="rv-grid"></div>
-  </div>
-</section>
 
 <!-- ══ TESTIMONIAL COLLECTOR ════════════════════════════════════════════════ -->
 <section id="testi-collector">
@@ -2969,7 +3065,6 @@ function _isCursorTarget(el) {
             node.classList.contains('pact-btn')      ||
             node.classList.contains('filter-select') ||
             node.classList.contains('icon-btn')      ||
-            node.classList.contains('rv-card')       ||
             node.classList.contains('pay-opt')       ||
             node.classList.contains('float-wa')      ||
             node.classList.contains('float-top')     ||
@@ -3082,10 +3177,44 @@ function renderProducts(list){
         grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:80px 0;color:rgba(61,26,14,0.4);font-size:1.1rem;">No products found. Try a different search.</div>';
         return;
     }
-    grid.innerHTML = list.map(p=>`
+    grid.innerHTML = list.map(p=>{
+        // Combine main image + gallery images; main always first.
+        const allImgs = [p.img, ...(p.images||[])].filter(Boolean);
+        const dedupedImgs = [...new Set(allImgs)];
+        const hasMultiple = dedupedImgs.length > 1;
+        const stripId = 'imgstrip-' + p._id;
+
+        const imgMarkup = hasMultiple
+            ? `<!-- Horizontally-scrollable gallery strip -->
+               <div class="product-img-scroll" id="${stripId}"
+                    onscroll="_onCardScroll(this)"
+                    onpointerdown="_cardGalleryDragStart(this,event)"
+                    onclick="_cardGalleryClick(event,this)"
+               >${dedupedImgs.map(src=>`<img src="${src}" alt="${esc(p.name)}" loading="lazy" draggable="false">`).join('')}</div>
+
+               <!-- Dot indicators: centred at bottom, each directly jumps to that slide -->
+               <div class="product-img-dots">${dedupedImgs.map((_,i)=>`<span class="${i===0?'active':''}" onclick="event.stopPropagation();_goToCardImage('${stripId}',${i})"></span>`).join('')}</div>
+
+               <!-- Left / right arrow nav (desktop mouse users) -->
+               <button class="gallery-nav-btn prev" aria-label="Previous image"
+                   onclick="event.stopPropagation();_goToCardImage('${stripId}',_cardPrevIdx('${stripId}'))">
+                   <i class="fa fa-chevron-left"></i>
+               </button>
+               <button class="gallery-nav-btn next" aria-label="Next image"
+                   onclick="event.stopPropagation();_goToCardImage('${stripId}',_cardNextIdx('${stripId}'))">
+                   <i class="fa fa-chevron-right"></i>
+               </button>
+
+               <!-- "1 / N" image counter badge -->
+               <div class="gallery-counter" id="counter-${stripId}">1 / ${dedupedImgs.length}</div>
+
+               <!-- Auto-play progress bar -->
+               <div class="gallery-progress"><div class="gallery-progress-bar" id="prog-${stripId}"></div></div>`
+            : `<img src="${p.img}" alt="${esc(p.name)}" loading="lazy">`;
+        return `
         <div class="product-card reveal" onclick="showProductModal('${p._id}')">
             <div class="product-img-wrap">
-                <img src="${p.img}" alt="${p.name}" loading="lazy">
+                ${imgMarkup}
                 ${p.badge?`<div class="product-badge ${BADGE_CLASS[p.badge]||''}">${BADGE_TEXT[p.badge]||''}</div>`:''}
                 <div class="product-actions">
                     <button class="pact-btn${p.stock<1?' disabled':''}" ${p.stock<1?'disabled':'onclick="event.stopPropagation();_quickAddToCart(\''+p._id+'\');return false;"'}>${p.stock<1?'Out of Stock':'Add to Cart'}</button>
@@ -3102,8 +3231,172 @@ function renderProducts(list){
                 <div class="product-stock">${p.stock<1?'✗ Out of stock':p.stock<10?`⚠ Only ${p.stock} left`:p.stock<20?`✓ ${p.stock} in stock`:'✓ In stock'}</div>
             </div>
         </div>
-    `).join('');
-    setTimeout(()=>{ document.querySelectorAll('.product-card.reveal').forEach(el=>el.classList.add('active')); },100);
+    `;}).join('');
+    setTimeout(()=>{
+        document.querySelectorAll('.product-card.reveal').forEach((el,i)=>{
+            el.classList.add('active');
+            // Staggered swipe-hint: each gallery card briefly peeks right
+            // then snaps back, giving a subtle "swipeable" cue on first reveal.
+            setTimeout(()=>_gallerySwipeHint(el), 300 + i * 80);
+        });
+    },100);
+}
+
+// ── GALLERY: dot sync ──────────────────────────────────────────────────────
+// Runs on every native scroll event of the strip. Cheap scroll-position math
+// keeps dots + counter in sync. Also cancels auto-play when user touches it.
+function _onCardScroll(stripEl) {
+    const wrap = stripEl.closest('.product-img-wrap');
+    const dots = wrap?.querySelectorAll('.product-img-dots span');
+    if (!dots || !dots.length) return;
+    const idx = Math.round(stripEl.scrollLeft / stripEl.clientWidth);
+    dots.forEach((d,i) => d.classList.toggle('active', i===idx));
+
+    // Sync the "1 / N" counter badge
+    const counter = document.getElementById('counter-' + stripEl.id);
+    if (counter) counter.textContent = `${idx + 1} / ${dots.length}`;
+
+    // If user manually swiped, cancel any running auto-play so it doesn't
+    // fight their choice and immediately flip to a different image.
+    _galleryAutoStop(stripEl.id);
+}
+
+// ── GALLERY: programmatic jump ─────────────────────────────────────────────
+// Scrolls the strip to image[index] smoothly; syncs dots + counter
+// immediately so feedback feels instant rather than lagging the animation.
+function _goToCardImage(stripId, index) {
+    const strip = document.getElementById(stripId);
+    if (!strip) return;
+    const imgs = strip.querySelectorAll('img');
+    const clampedIdx = Math.max(0, Math.min(index, imgs.length - 1));
+    strip.scrollTo({ left: strip.clientWidth * clampedIdx, behavior: 'smooth' });
+
+    const wrap = strip.closest('.product-img-wrap');
+    const dots = wrap?.querySelectorAll('.product-img-dots span');
+    dots?.forEach((d,i) => d.classList.toggle('active', i===clampedIdx));
+
+    const counter = document.getElementById('counter-' + stripId);
+    if (counter && dots?.length) counter.textContent = `${clampedIdx + 1} / ${dots.length}`;
+}
+
+// ── GALLERY: prev / next index helpers ─────────────────────────────────────
+function _cardPrevIdx(stripId) {
+    const strip = document.getElementById(stripId);
+    if (!strip) return 0;
+    const cur   = Math.round(strip.scrollLeft / strip.clientWidth);
+    const total = strip.querySelectorAll('img').length;
+    return (cur - 1 + total) % total;
+}
+function _cardNextIdx(stripId) {
+    const strip = document.getElementById(stripId);
+    if (!strip) return 0;
+    const cur   = Math.round(strip.scrollLeft / strip.clientWidth);
+    const total = strip.querySelectorAll('img').length;
+    return (cur + 1) % total;
+}
+
+// ── GALLERY: click-vs-drag detection ──────────────────────────────────────
+// Prevents the card's modal onclick from firing when the user was actually
+// dragging/swiping the gallery strip. Records pointer-down X+scrollLeft;
+// if either changed more than 6px by the time click fires, stopPropagation.
+function _cardGalleryDragStart(strip, e) {
+    strip._dsx = e.clientX;
+    strip._dss = strip.scrollLeft;
+}
+function _cardGalleryClick(e, strip) {
+    const dx = Math.abs(e.clientX - (strip._dsx ?? e.clientX));
+    const ds = Math.abs(strip.scrollLeft - (strip._dss ?? strip.scrollLeft));
+    if (dx > 6 || ds > 6) e.stopPropagation();
+}
+
+// ── GALLERY: auto-play on hover ────────────────────────────────────────────
+// While the mouse is over a multi-image card, advance through images every
+// ~3 s. The progress bar animates to give a visual countdown. Stops instantly
+// when the user swipes manually (_onCardScroll calls _galleryAutoStop) or
+// the pointer leaves the card.
+const _galleryTimers = new Map();   // stripId → { interval, progResetFn }
+
+function _galleryAutoStart(card) {
+    const strip = card.querySelector('.product-img-scroll');
+    if (!strip) return;
+    const total = strip.querySelectorAll('img').length;
+    if (total <= 1) return;
+
+    const id = strip.id;
+    if (_galleryTimers.has(id)) return;          // already running
+
+    // Progress-bar animation helper
+    const prog = document.getElementById('prog-' + id);
+    const startProgress = () => {
+        if (!prog) return;
+        prog.style.transition = 'none';
+        prog.style.width = '0%';
+        requestAnimationFrame(() => {
+            prog.style.transition = 'width 2.8s linear';
+            prog.style.width = '100%';
+        });
+    };
+    startProgress();
+
+    const timer = setInterval(() => {
+        const nextIdx = _cardNextIdx(id);
+        _goToCardImage(id, nextIdx);
+        startProgress();
+    }, 3000);
+
+    _galleryTimers.set(id, timer);
+}
+
+function _galleryAutoStop(stripId) {
+    const t = _galleryTimers.get(stripId);
+    if (t) { clearInterval(t); _galleryTimers.delete(stripId); }
+    // Reset progress bar
+    const prog = document.getElementById('prog-' + stripId);
+    if (prog) { prog.style.transition = 'none'; prog.style.width = '0%'; }
+}
+
+// Delegate mouseenter / mouseleave on cards for auto-play.
+// mouseover/out bubble (unlike mouseenter/leave) so we check relatedTarget
+// to fire only when truly entering/leaving the card element.
+document.addEventListener('mouseover', e => {
+    const card = e.target.closest?.('.product-card');
+    if (!card) return;
+    const from = e.relatedTarget?.closest?.('.product-card');
+    if (card !== from) _galleryAutoStart(card);
+});
+document.addEventListener('mouseout', e => {
+    const card = e.target.closest?.('.product-card');
+    if (!card) return;
+    const to = e.relatedTarget?.closest?.('.product-card');
+    if (card !== to) {
+        const strip = card.querySelector('.product-img-scroll');
+        if (strip) _galleryAutoStop(strip.id);
+    }
+});
+
+// ── GALLERY: swipe hint on first reveal ───────────────────────────────────
+// When a gallery card first enters the viewport it briefly peeks right
+// (~15 % of card width) then snaps back, hinting that it's swipeable.
+// Runs only once per card (guarded by data-hinted attribute).
+function _gallerySwipeHint(card) {
+    const strip = card.querySelector('.product-img-scroll');
+    if (!strip || strip.dataset.hinted) return;
+    strip.dataset.hinted = '1';
+    const imgs = strip.querySelectorAll('img');
+    if (imgs.length <= 1) return;
+    // Delay slightly so the card's reveal animation has finished first
+    setTimeout(() => {
+        const peekPx = strip.clientWidth * 0.15;
+        // Temporarily disable snap so the partial scroll looks smooth
+        strip.style.scrollSnapType = 'none';
+        strip.scrollTo({ left: peekPx, behavior: 'smooth' });
+        setTimeout(() => {
+            strip.scrollTo({ left: 0, behavior: 'smooth' });
+            setTimeout(() => {
+                strip.style.scrollSnapType = '';   // re-enable snap
+            }, 350);
+        }, 420);
+    }, 250);
 }
 
 function filterProducts(){
@@ -3259,8 +3552,19 @@ function selectVariant(variantId) {
     modalQty = 1;
     _renderVariantPicker((currentProduct.variants||[]).filter(v=>v.active));
     _refreshModalForVariant();
-    // Swap to the variant's own image if it has one, otherwise leave the gallery as-is
-    if (v.img) { document.getElementById('pmodal-img').src = v.img; }
+    // FIXED: this used to be `if (v.img) { ...set src... }` — meaning if you
+    // selected a variant WITH its own photo, then switched to a different
+    // variant that had NO photo of its own, the image never updated at all
+    // and kept showing the previous variant's picture instead of falling
+    // back to the product's main photo. Now it always sets the image: the
+    // variant's own photo when it has one, otherwise the product's default
+    // main image — exactly the documented fallback behavior, every time.
+    document.getElementById('pmodal-img').src = v.img || currentProduct.img;
+    // Keep the thumbnail strip's highlight consistent with what's actually
+    // showing: falling back to the main image re-highlights its thumbnail;
+    // showing a variant-specific photo (which isn't part of the gallery
+    // strip) clears any stale highlight so nothing claims to match it.
+    document.querySelectorAll('.pmodal-thumb').forEach((t,i)=>t.classList.toggle('active', !v.img && i===0));
 }
 
 // NEW: re-renders price, stock message, qty cap, and button state for whichever
@@ -3786,6 +4090,9 @@ async function trackCommission(){
     el.innerHTML='<div style="font-size:0.7rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(61,26,14,0.38);margin-bottom:12px">'+list.length+' Commission'+(list.length!==1?'s':'')+' Found</div>'+list.map(_renderCommCard).join('');
 }
 function _renderCommCard(c){
+    return `<div id="comm-card-${esc(c.commissionId)}">${_renderCommCardInner(c)}</div>`;
+}
+function _renderCommCardInner(c){
     const icn={New:'⏳',Quoted:'💰',Accepted:'⏳','In Progress':'🔨',Completed:'🎉',Converted:'🎉',Cancelled:'❌'};
     const d=new Date(c.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
     // NEW: once a commission's quote has been paid for, it's a real Order —
@@ -3817,18 +4124,96 @@ function _renderCommCard(c){
         +'</div>'
         +'<div style="display:inline-flex;align-items:center;gap:5px;background:rgba(212,116,140,0.12);border-radius:99px;padding:5px 12px;font-size:0.72rem;font-weight:800;color:var(--choco);flex-shrink:0;">'+(icn[c.status]||'🔔')+' '+c.status+'</div>'
         +'</div>'
-        +(c.quotedPrice?'<div style="font-size:0.8rem;font-weight:800;color:var(--gold);background:rgba(212,160,74,0.1);border-radius:8px;padding:7px 12px;display:inline-block;margin-bottom:8px;">💰 Quoted: ₹'+c.quotedPrice.toLocaleString('en-IN')+'</div>':'')
         +(c.budget&&!c.quotedPrice?'<div style="font-size:0.74rem;color:rgba(61,26,14,0.55);background:rgba(212,160,74,0.08);border-radius:8px;padding:6px 10px;display:inline-block;margin-bottom:8px;">💬 Budget: '+c.budget+'</div>':'')
         +(c.adminNote?'<div style="background:white;border-radius:10px;padding:12px;margin-top:10px;font-size:0.8rem;color:var(--choco);line-height:1.65;border-left:3px solid var(--rose)"><strong style="font-size:0.62rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--rose);display:block;margin-bottom:5px">📌 Message from Design Den</strong>'+c.adminNote+'</div>':'')
-        // NEW: the actual "convert quote into a tracked order" entry point.
-        // Shown whenever there's a quoted price and the commission hasn't
-        // been paid for yet (covers both 'Quoted' and 'Accepted' — the
-        // latter meaning a previous payment attempt was started but not
-        // completed, so let them resume rather than getting stuck).
-        +((c.quotedPrice && ['Quoted','Accepted'].includes(c.status))
-            ? '<div style="margin-top:12px;"><button onclick="openCommissionPayModal(\''+esc(c.commissionId)+'\','+c.quotedPrice+',\''+esc(c.email||'')+'\')" style="background:linear-gradient(135deg,var(--rose),var(--deep));color:white;border:none;border-radius:10px;padding:10px 20px;font-family:Nunito,sans-serif;font-size:0.78rem;font-weight:800;cursor:pointer;width:100%;">✅ Accept Quote &amp; Pay ₹'+c.quotedPrice.toLocaleString('en-IN')+'</button></div>'
-            : '')
+        +_commNegotiationHtml(c)
         +'</div>';
+}
+
+// NEW: the customer-facing half of the dual-approval negotiation flow. A
+// quote is no longer "set a price, customer pays or doesn't" — both sides
+// must actively approve the SAME number before payment is even possible.
+// Shows the current price, who's approved it so far, and lets the customer
+// either approve it outright or counter with a different number + a short
+// message (e.g. "Could you do ₹2000 instead? I can wait the extra week").
+// Once both sides have approved, this becomes the existing Pay Now flow.
+function _commNegotiationHtml(c) {
+    if (!c.quotedPrice) return '';
+    const bothApproved = c.adminApproved && c.userApproved;
+    const cid = esc(c.commissionId);
+    const log = c.negotiationLog || [];
+    let html = '<div style="margin-top:12px;padding-top:12px;border-top:1px dashed rgba(212,116,140,0.25);">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;">';
+    html += '<div><div style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(61,26,14,0.42);margin-bottom:3px;">Current Price'+(c.proposedBy?' — proposed by '+(c.proposedBy==='admin'?'Design Den':'you'):'')+'</div><div style="font-family:Georgia,serif;font-size:1.3rem;font-weight:700;color:var(--choco);">₹'+c.quotedPrice.toLocaleString('en-IN')+'</div></div>';
+    html += '<div style="display:flex;gap:8px;flex-shrink:0;">';
+    html += '<span style="font-size:0.65rem;font-weight:700;color:'+(c.adminApproved?'var(--sage)':'rgba(61,26,14,0.4)')+'">'+(c.adminApproved?'✅':'⏳')+' Design Den</span>';
+    html += '<span style="font-size:0.65rem;font-weight:700;color:'+(c.userApproved?'var(--sage)':'rgba(61,26,14,0.4)')+'">'+(c.userApproved?'✅':'⏳')+' You</span>';
+    html += '</div></div>';
+
+    if (bothApproved && ['Quoted','Accepted'].includes(c.status)) {
+        html += '<button onclick="openCommissionPayModal(\''+cid+'\','+c.quotedPrice+',\''+esc(c.email||'')+'\')" style="background:linear-gradient(135deg,var(--rose),var(--deep));color:white;border:none;border-radius:10px;padding:10px 20px;font-family:Nunito,sans-serif;font-size:0.78rem;font-weight:800;cursor:pointer;width:100%;">✅ Pay Now ₹'+c.quotedPrice.toLocaleString('en-IN')+'</button>';
+    } else if (c.status !== 'Converted' && c.status !== 'Cancelled') {
+        html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+        if (!c.userApproved) {
+            html += '<button onclick="approveCommissionPriceCustomer(\''+cid+'\')" style="background:var(--sage);color:white;border:none;border-radius:10px;padding:9px 16px;font-family:Nunito,sans-serif;font-size:0.74rem;font-weight:800;cursor:pointer;flex:1;">✅ Approve ₹'+c.quotedPrice.toLocaleString('en-IN')+'</button>';
+        }
+        html += '<button onclick="_toggleCustomerProposeForm(\''+cid+'\',true)" style="background:white;border:1.5px solid rgba(212,116,140,0.3);color:var(--rose);border-radius:10px;padding:9px 16px;font-family:Nunito,sans-serif;font-size:0.74rem;font-weight:800;cursor:pointer;flex:1;">💬 Propose Different Price</button>';
+        html += '</div>';
+    }
+
+    // Inline propose form — hidden by default, IDs scoped by commissionId so
+    // multiple cards (e.g. "track by email" showing several commissions at
+    // once) never collide with each other.
+    html += '<div id="cneg-form-'+cid+'" style="display:none;margin-top:10px;">';
+    html += '<input class="form-input" type="number" id="cneg-price-'+cid+'" placeholder="Your suggested price (₹)" style="margin-bottom:8px;" value="'+c.quotedPrice+'">';
+    html += '<textarea class="form-input" id="cneg-msg-'+cid+'" placeholder="Optional message, e.g. reason for the different price" style="margin-bottom:8px;min-height:50px;resize:vertical;"></textarea>';
+    html += '<div style="display:flex;gap:8px;"><button onclick="proposeCommissionPriceCustomer(\''+cid+'\')" style="background:var(--rose);color:white;border:none;border-radius:10px;padding:9px 16px;font-family:Nunito,sans-serif;font-size:0.74rem;font-weight:800;cursor:pointer;flex:1;">Send</button><button onclick="_toggleCustomerProposeForm(\''+cid+'\',false)" style="background:transparent;border:1.5px solid rgba(61,26,14,0.15);color:rgba(61,26,14,0.5);border-radius:10px;padding:9px 16px;font-family:Nunito,sans-serif;font-size:0.74rem;font-weight:700;cursor:pointer;">Cancel</button></div>';
+    html += '</div>';
+
+    if (log.length) {
+        html += '<div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(212,116,140,0.15);">';
+        html += '<div style="font-size:0.58rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(61,26,14,0.35);margin-bottom:8px;">History</div>';
+        html += '<div style="display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;">';
+        log.slice().reverse().forEach(l => {
+            const who = l.by === 'admin' ? 'Design Den' : 'You';
+            const action = l.message === 'Approved' ? ('Approved ₹'+l.price.toLocaleString('en-IN')) : ('Proposed ₹'+l.price.toLocaleString('en-IN') + (l.message ? ' — '+esc(l.message) : ''));
+            const dt = new Date(l.at).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+            html += '<div style="font-size:0.72rem;background:white;border-radius:8px;padding:7px 10px;border-left:2px solid '+(l.by==='admin'?'var(--rose)':'var(--sage)')+';"><div style="display:flex;justify-content:space-between;gap:8px;"><strong>'+who+'</strong><span style="opacity:0.4;font-size:0.62rem;">'+dt+'</span></div><div style="margin-top:2px;">'+action+'</div></div>';
+        });
+        html += '</div></div>';
+    }
+
+    html += '</div>';
+    return html;
+}
+
+function _toggleCustomerProposeForm(commissionId, show) {
+    const f = document.getElementById('cneg-form-' + commissionId);
+    if (f) f.style.display = show ? 'block' : 'none';
+}
+
+// Replaces just this one card in place after a negotiation action succeeds —
+// works regardless of whether it's showing inside the single "track by ID"
+// result or one of several in the "track by email" list, since every card
+// is wrapped in a stable #comm-card-<commissionId> container.
+function _refreshCommCard(c) {
+    const wrap = document.getElementById('comm-card-' + c.commissionId);
+    if (wrap) wrap.outerHTML = _renderCommCard(c);
+}
+
+async function approveCommissionPriceCustomer(commissionId) {
+    const r = await _api('POST', '/commissions/' + commissionId + '/approve-quote', {});
+    if (r.ok) { showNotif('✅ Price approved!'); _refreshCommCard(r.data.commission); }
+    else showNotif('⚠ ' + (r.data.message || 'Something went wrong'));
+}
+
+async function proposeCommissionPriceCustomer(commissionId) {
+    const price = document.getElementById('cneg-price-' + commissionId)?.value;
+    const message = document.getElementById('cneg-msg-' + commissionId)?.value || '';
+    if (!price || isNaN(price) || Number(price) <= 0) { showNotif('⚠ Enter a valid price'); return; }
+    const r = await _api('POST', '/commissions/' + commissionId + '/propose', { price: Number(price), message });
+    if (r.ok) { showNotif('💬 Your price has been sent to Design Den!'); _refreshCommCard(r.data.commission); }
+    else showNotif('⚠ ' + (r.data.message || 'Something went wrong'));
 }
 
 // NEW: tiny wrapper so the rendered card's onclick can call the guest-aware
@@ -4933,47 +5318,6 @@ function renderCartItems() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-//  RECENTLY VIEWED
-// ═══════════════════════════════════════════════════════════════════════════
-let _recentlyViewed = JSON.parse(localStorage.getItem('dd_rv') || '[]');
-
-function _trackView(id) {
-    _recentlyViewed = _recentlyViewed.filter(x => x !== id);
-    _recentlyViewed.unshift(id);
-    if (_recentlyViewed.length > 8) _recentlyViewed = _recentlyViewed.slice(0, 8);
-    localStorage.setItem('dd_rv', JSON.stringify(_recentlyViewed));
-    _renderRV();
-}
-
-function _renderRV() {
-    const sec = document.getElementById('recently-viewed');
-    const grid = document.getElementById('rv-grid');
-    if (!sec || !grid || _recentlyViewed.length === 0) { if(sec) sec.style.display='none'; return; }
-    sec.style.display = 'block';
-    const prods = _recentlyViewed.map(id => PRODUCTS.find(p => p._id === id)).filter(Boolean);
-    grid.innerHTML = prods.map(p => `
-        <div class="rv-card reveal" onclick="showProductModal('${p._id}')">
-          <img src="${p.img}" alt="${p.name}" loading="lazy">
-          <div class="rv-card-body">
-            <div class="rv-card-name">${p.name}</div>
-            <div class="rv-card-price">₹${p.price.toLocaleString('en-IN')}</div>
-          </div>
-        </div>`
-    ).join('');
-    // re-trigger reveal
-    setTimeout(() => grid.querySelectorAll('.reveal').forEach(el => el.classList.add('active')), 50);
-}
-
-// Patch showProductModal to track views
-(function(){
-    const _orig = showProductModal;
-    showProductModal = function(id) {
-        _orig(id);
-        _trackView(id);
-    };
-})();
-
-// ═══════════════════════════════════════════════════════════════════════════
 //  BACK TO TOP BUTTON
 // ═══════════════════════════════════════════════════════════════════════════
 window.addEventListener('scroll', () => {
@@ -5490,8 +5834,9 @@ async function _renderCommissionsTab() {
                 + c.status + '</span>'
                 + '</div>'
                 + (c.quotedPrice && ['Quoted','Accepted'].includes(c.status) ? '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 12px;background:rgba(212,160,74,0.08);border-radius:10px;">'
-                    + '<span style="font-size:0.7rem;font-weight:700;color:rgba(61,26,14,0.5);">Quoted Price:</span>'
+                    + '<span style="font-size:0.7rem;font-weight:700;color:rgba(61,26,14,0.5);">'+(c.adminApproved&&c.userApproved?'Agreed Price:':'Current Price:')+'</span>'
                     + '<span style="font-weight:800;color:var(--choco);font-size:0.9rem;">₹' + c.quotedPrice.toLocaleString('en-IN') + '</span>'
+                    + (c.adminApproved&&c.userApproved ? '' : '<span style="font-size:0.65rem;font-weight:700;color:'+(!c.userApproved?'var(--rose)':'rgba(61,26,14,0.4)')+';margin-left:auto;">'+(!c.userApproved?'⏳ Your approval needed':'⏳ Awaiting Design Den')+'</span>')
                     + '</div>' : '')
                 + (c.status === 'Converted' && c.linkedOrder ? '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 12px;background:rgba(125,170,138,0.1);border-radius:10px;">'
                     + '<span style="font-size:0.7rem;font-weight:700;color:rgba(61,26,14,0.5);">Order ' + c.linkedOrder.id + ':</span>'
@@ -5504,10 +5849,10 @@ async function _renderCommissionsTab() {
                 + '<div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;">'
                 + (c.status === 'Converted' && c.linkedOrder
                     ? '<button onclick="hideAccount();_trackLinkedCommOrder(\'' + c.linkedOrder.id + '\',\'' + esc(c.email||_currentUserEmail()) + '\')" style="background:var(--rose);color:white;border:none;border-radius:10px;padding:6px 14px;font-family:Nunito,sans-serif;font-size:0.7rem;font-weight:800;cursor:pointer;">Track Order →</button>'
-                    : (c.quotedPrice && ['Quoted','Accepted'].includes(c.status)
-                        ? '<button onclick="hideAccount();setTimeout(()=>openCommissionPayModal(\'' + c.commissionId + '\',' + c.quotedPrice + ',\'' + esc(c.email||_currentUserEmail()) + '\'),200)" style="background:linear-gradient(135deg,var(--rose),var(--deep));color:white;border:none;border-radius:10px;padding:6px 14px;font-family:Nunito,sans-serif;font-size:0.7rem;font-weight:800;cursor:pointer;">Accept &amp; Pay →</button>'
+                    : (c.quotedPrice && c.adminApproved && c.userApproved && ['Quoted','Accepted'].includes(c.status)
+                        ? '<button onclick="hideAccount();setTimeout(()=>openCommissionPayModal(\'' + c.commissionId + '\',' + c.quotedPrice + ',\'' + esc(c.email||_currentUserEmail()) + '\'),200)" style="background:linear-gradient(135deg,var(--rose),var(--deep));color:white;border:none;border-radius:10px;padding:6px 14px;font-family:Nunito,sans-serif;font-size:0.7rem;font-weight:800;cursor:pointer;">Pay Now →</button>'
                         : ''))
-                + '<button onclick="openCommissionTrackerForId(\'' + c.commissionId + '\')" style="background:transparent;border:1.5px solid rgba(212,116,140,0.35);color:var(--rose);border-radius:10px;padding:6px 14px;font-family:Nunito,sans-serif;font-size:0.7rem;font-weight:800;cursor:pointer;">View Details →</button>'
+                + '<button onclick="openCommissionTrackerForId(\'' + c.commissionId + '\')" style="background:transparent;border:1.5px solid rgba(212,116,140,0.35);color:var(--rose);border-radius:10px;padding:6px 14px;font-family:Nunito,sans-serif;font-size:0.7rem;font-weight:800;cursor:pointer;">'+(c.quotedPrice&&!(c.adminApproved&&c.userApproved)&&!['Converted','Cancelled'].includes(c.status)?'Respond to Offer →':'View Details →')+'</button>'
                 + '</div>'
                 + '</div>';
           }).join('')
