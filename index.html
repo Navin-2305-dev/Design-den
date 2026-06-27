@@ -4042,7 +4042,6 @@ function switchCommTab(tab){
     if(panelEmail) panelEmail.style.display = isId ? 'none' : '';
 }
 function openCommissionTracker(){
-    _stopCommPolling();
     const el=document.getElementById('ct-comm-id'); if(el) el.value='';
     const el2=document.getElementById('ct-email'); if(el2) el2.value='';
     const r1=document.getElementById('ct-id-results'); if(r1) r1.innerHTML='';
@@ -4053,83 +4052,7 @@ function openCommissionTracker(){
     document.getElementById('comm-track-modal').classList.add('active');
     setTimeout(()=>document.getElementById('ct-comm-id')?.focus(),200);
 }
-function closeCommissionTracker(){ document.getElementById('comm-track-modal').classList.remove('active'); _stopCommPolling(); }
-
-// ─── COMMISSION TRACKER — live polling ───────────────────────────────────────
-// NEW: previously a commission's negotiation state was fetched ONCE per
-// search. That's fine when the CUSTOMER's own action (approve/propose) is
-// what completes the dual-approval handshake — the server's response to
-// that very request already carries the fresh state, so the card updates
-// immediately on screen. But when DESIGN DEN (the admin) is the side that
-// completes it — approving a counter-offer the customer already sent, for
-// example — nothing told an already-open tracker that anything changed. The
-// customer would be stuck looking at a stale "⏳ Design Den" card forever
-// unless they manually re-searched. This quietly re-checks in the background
-// while the tracker modal stays open, live-updates any card whose state
-// actually changed, and celebrates the moment both sides land on one price.
-let _commPollTimer = null;
-let _commPollMode = null;      // 'id' | 'email' | null
-let _commPollValue = '';
-let _commPollSnapshots = {};   // commissionId -> last-seen comparable state string
-
-function _commSnapshotOf(c) {
-    return [c.status, c.quotedPrice, c.adminApproved, c.userApproved, (c.negotiationLog || []).length].join('|');
-}
-
-function _stopCommPolling() {
-    if (_commPollTimer) { clearInterval(_commPollTimer); _commPollTimer = null; }
-    _commPollMode = null; _commPollValue = ''; _commPollSnapshots = {};
-}
-
-function _startCommPolling(mode, value, initialList) {
-    _stopCommPolling();
-    _commPollMode = mode; _commPollValue = value;
-    (initialList || []).forEach(c => { _commPollSnapshots[c.commissionId] = _commSnapshotOf(c); });
-    _commPollTimer = setInterval(_pollActiveCommissions, 8000);
-}
-
-async function _pollActiveCommissions() {
-    if (document.hidden) return; // skip quietly while the tab is backgrounded
-    if (!document.getElementById('comm-track-modal')?.classList.contains('active')) { _stopCommPolling(); return; }
-    let list = [];
-    if (_commPollMode === 'id') {
-        const r = await _api('GET', '/commissions/track/' + _commPollValue);
-        if (r.ok) list = [r.data.commission];
-    } else if (_commPollMode === 'email') {
-        const r = await _api('POST', '/commissions/track', { email: _commPollValue });
-        if (r.ok) list = r.data.commissions || [];
-    } else {
-        return;
-    }
-    list.forEach(c => {
-        const snap = _commSnapshotOf(c);
-        const prev = _commPollSnapshots[c.commissionId];
-        _commPollSnapshots[c.commissionId] = snap;
-        if (prev === undefined || prev === snap) return; // first sighting, or genuinely unchanged
-        if (!document.getElementById('comm-card-' + c.commissionId)) return; // not currently rendered
-        const wasBothApproved = prev.split('|')[2] === 'true' && prev.split('|')[3] === 'true';
-        const nowBothApproved = c.adminApproved && c.userApproved;
-        _refreshCommCard(c);
-        if (!wasBothApproved && nowBothApproved && ['Quoted', 'Accepted'].includes(c.status)) {
-            showNotif('🎉 Design Den approved the price — you can pay now!');
-            launchConfetti();
-        } else if (c.status === 'Converted') {
-            showNotif('🎉 Your commission is now a confirmed order!');
-        } else {
-            showNotif('🔔 ' + c.commissionId + ' was just updated');
-        }
-    });
-}
-
-// Manual fallback — lets the customer force an immediate re-check instead of
-// waiting for the next automatic poll.
-async function _manualRefreshCommCard(commissionId) {
-    const r = await _api('GET', '/commissions/track/' + commissionId);
-    if (!r.ok) { showNotif('⚠ ' + (r.data.message || 'Could not refresh')); return; }
-    _commPollSnapshots[commissionId] = _commSnapshotOf(r.data.commission);
-    _refreshCommCard(r.data.commission);
-    showNotif('🔄 Up to date');
-}
+function closeCommissionTracker(){ document.getElementById('comm-track-modal').classList.remove('active'); }
 // Alias used when opening tracker pre-filled from My Account → My Commissions
 async function trackCommissionById(){
     await trackByCommId();
@@ -4144,12 +4067,10 @@ async function trackByCommId(){
     if(btn) btn.disabled=false; if(lbl) lbl.textContent='Track →';
     const el=document.getElementById('ct-id-results');
     if(!r.ok){
-        _stopCommPolling();
         el.innerHTML='<div style="background:var(--mist);border-radius:14px;padding:24px;text-align:center;color:rgba(61,26,14,0.5)"><div style="font-size:2rem;margin-bottom:10px">🔍</div><div style="font-weight:700;margin-bottom:6px">Commission Not Found</div><div style="font-size:0.8rem">Check your Commission ID and try again.</div></div>';
         return;
     }
     el.innerHTML=_renderCommCard(r.data.commission);
-    _startCommPolling('id', commId, [r.data.commission]);
 }
 async function trackCommission(){
     const email=(document.getElementById('ct-email')?.value||'').trim().toLowerCase();
@@ -4160,15 +4081,13 @@ async function trackCommission(){
     const r=await _api('POST','/commissions/track',{email});
     if(btn) btn.disabled=false; if(lbl) lbl.textContent='Track →';
     const el=document.getElementById('ct-results');
-    if(!r.ok){ _stopCommPolling(); el.innerHTML='<div style="color:rgba(61,26,14,0.5);text-align:center;padding:20px">Something went wrong. Please try again.</div>'; return; }
+    if(!r.ok){ el.innerHTML='<div style="color:rgba(61,26,14,0.5);text-align:center;padding:20px">Something went wrong. Please try again.</div>'; return; }
     const list=r.data.commissions||[];
     if(!list.length){
-        _stopCommPolling();
         el.innerHTML='<div style="background:var(--mist);border-radius:14px;padding:24px;text-align:center;color:rgba(61,26,14,0.5)"><div style="font-size:2rem;margin-bottom:10px">🔍</div><div style="font-weight:700;margin-bottom:6px">No Commissions Found</div><div style="font-size:0.8rem">We could not find any requests for this email.</div></div>';
         return;
     }
     el.innerHTML='<div style="font-size:0.7rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(61,26,14,0.38);margin-bottom:12px">'+list.length+' Commission'+(list.length!==1?'s':'')+' Found</div>'+list.map(_renderCommCard).join('');
-    _startCommPolling('email', email, list);
 }
 function _renderCommCard(c){
     return `<div id="comm-card-${esc(c.commissionId)}">${_renderCommCardInner(c)}</div>`;
@@ -4226,15 +4145,10 @@ function _commNegotiationHtml(c) {
     let html = '<div style="margin-top:12px;padding-top:12px;border-top:1px dashed rgba(212,116,140,0.25);">';
     html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;">';
     html += '<div><div style="font-size:0.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(61,26,14,0.42);margin-bottom:3px;">Current Price'+(c.proposedBy?' — proposed by '+(c.proposedBy==='admin'?'Design Den':'you'):'')+'</div><div style="font-family:Georgia,serif;font-size:1.3rem;font-weight:700;color:var(--choco);">₹'+c.quotedPrice.toLocaleString('en-IN')+'</div></div>';
-    html += '<div style="display:flex;gap:8px;flex-shrink:0;align-items:center;">';
-    html += '<button onclick="_manualRefreshCommCard(\''+cid+'\')" title="Check for updates now" style="background:none;border:1px solid rgba(61,26,14,0.15);border-radius:7px;width:24px;height:24px;color:rgba(61,26,14,0.45);font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">↻</button>';
+    html += '<div style="display:flex;gap:8px;flex-shrink:0;">';
     html += '<span style="font-size:0.65rem;font-weight:700;color:'+(c.adminApproved?'var(--sage)':'rgba(61,26,14,0.4)')+'">'+(c.adminApproved?'✅':'⏳')+' Design Den</span>';
     html += '<span style="font-size:0.65rem;font-weight:700;color:'+(c.userApproved?'var(--sage)':'rgba(61,26,14,0.4)')+'">'+(c.userApproved?'✅':'⏳')+' You</span>';
     html += '</div></div>';
-
-    if (!bothApproved && c.status !== 'Converted' && c.status !== 'Cancelled') {
-        html += '<div style="font-size:0.62rem;color:rgba(61,26,14,0.32);margin-bottom:8px;">🔄 This checks for updates automatically — or tap ↻ above anytime</div>';
-    }
 
     if (bothApproved && ['Quoted','Accepted'].includes(c.status)) {
         html += '<button onclick="openCommissionPayModal(\''+cid+'\','+c.quotedPrice+',\''+esc(c.email||'')+'\')" style="background:linear-gradient(135deg,var(--rose),var(--deep));color:white;border:none;border-radius:10px;padding:10px 20px;font-family:Nunito,sans-serif;font-size:0.78rem;font-weight:800;cursor:pointer;width:100%;">✅ Pay Now ₹'+c.quotedPrice.toLocaleString('en-IN')+'</button>';
@@ -5952,10 +5866,7 @@ async function _renderCommissionsTab() {
     tabContent.innerHTML =
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
         + '<div style="font-weight:800;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--choco);">My Commissions</div>'
-        + '<div style="display:flex;gap:12px;align-items:center;">'
-        + '<button onclick="_renderCommissionsTab()" title="Refresh" style="background:transparent;border:none;color:var(--rose);font-family:Nunito,sans-serif;font-size:0.72rem;font-weight:800;cursor:pointer;">↻ Refresh</button>'
         + (commissions.length ? '<button onclick="hideAccount();setTimeout(openCommissionTracker,200)" style="background:transparent;border:none;color:var(--rose);font-family:Nunito,sans-serif;font-size:0.72rem;font-weight:800;cursor:pointer;text-decoration:underline;">Track by ID →</button>' : '')
-        + '</div>'
         + '</div>'
         + commRows;
 }
