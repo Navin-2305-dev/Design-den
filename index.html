@@ -2791,10 +2791,25 @@
       <label class="form-label">State</label>
       <input class="form-input" id="cpay-state" type="text" placeholder="Tamil Nadu">
     </div>
-    <button class="btn-rose" id="cpay-submit-btn" style="width:100%;justify-content:center;display:flex;align-items:center;gap:8px;margin-top:8px;padding:14px;" onclick="acceptAndPayCommission()">
+    <!-- NEW: Payment method selection for commission — COD shows only when admin
+         has enabled it in settings (same toggle as regular checkout). -->
+    <div id="cpay-pay-opts" style="margin-top:16px;margin-bottom:4px;">
+      <div style="font-size:0.72rem;font-weight:800;color:rgba(61,26,14,0.5);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Payment Method</div>
+      <div id="cpay-opts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="cpay-opt selected" data-m="razorpay" onclick="selectCpay('razorpay')" style="padding:14px 12px;border:2px solid var(--rose);border-radius:14px;cursor:pointer;display:flex;align-items:center;gap:10px;background:rgba(212,116,140,0.08);position:relative;transition:all .3s;">
+          <span style="font-size:1.6rem;flex-shrink:0;">💳</span>
+          <div><div style="font-weight:800;font-size:0.82rem;color:var(--choco);">Pay Online</div><div style="font-size:0.68rem;color:rgba(61,26,14,0.5);">Razorpay — Instant</div></div>
+        </div>
+        <div class="cpay-opt" data-m="cod" id="cpay-cod-opt" onclick="selectCpay('cod')" style="padding:14px 12px;border:2px solid rgba(212,116,140,0.18);border-radius:14px;cursor:pointer;display:flex;align-items:center;gap:10px;background:var(--cream);position:relative;transition:all .3s;">
+          <span style="font-size:1.6rem;flex-shrink:0;">🏠</span>
+          <div><div style="font-weight:800;font-size:0.82rem;color:var(--choco);">Cash on Delivery</div><div style="font-size:0.68rem;color:rgba(61,26,14,0.5);">Pay when delivered</div></div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-rose" id="cpay-submit-btn" style="width:100%;justify-content:center;display:flex;align-items:center;gap:8px;margin-top:14px;padding:14px;" onclick="acceptAndPayCommission()">
       <span id="cpay-submit-label">Pay Now →</span>
     </button>
-    <p style="font-size:0.68rem;color:rgba(61,26,14,0.38);text-align:center;margin-top:12px;">Payments secured by Razorpay</p>
+    <p id="cpay-secure-note" style="font-size:0.68rem;color:rgba(61,26,14,0.38);text-align:center;margin-top:12px;">Payments secured by Razorpay</p>
   </div>
 </div>
 
@@ -4230,6 +4245,35 @@ function _trackLinkedCommOrder(orderId, commEmail) {
 let _cpayCommissionId = null;
 let _cpayAmount = 0;
 let _cpayEmail = '';
+let _selCpay = 'razorpay'; // selected payment method for commission pay modal
+
+function selectCpay(method) {
+    _selCpay = method;
+    document.querySelectorAll('.cpay-opt').forEach(o => {
+        const sel = o.dataset.m === method;
+        o.style.borderColor = sel ? 'var(--rose)' : 'rgba(212,116,140,0.18)';
+        o.style.background  = sel ? 'rgba(212,116,140,0.08)' : 'var(--cream)';
+    });
+    const note = document.getElementById('cpay-secure-note');
+    const label = document.getElementById('cpay-submit-label');
+    if (note)  note.textContent = method === 'cod' ? 'You will pay when your order is delivered.' : 'Payments secured by Razorpay';
+    if (label) label.textContent = method === 'cod' ? 'Place Order (COD) →' : 'Pay Now →';
+}
+
+// Shows/hides COD option in commission pay modal based on settings — mirrors _applyCodAvailability()
+function _applyCpayMethodVisibility() {
+    const codOpt = document.getElementById('cpay-cod-opt');
+    const grid   = document.getElementById('cpay-opts-grid');
+    if (!codOpt || !grid) return;
+    if (SHIPPING.codEnabled) {
+        codOpt.style.display = '';
+        grid.style.gridTemplateColumns = '1fr 1fr';
+    } else {
+        codOpt.style.display = 'none';
+        grid.style.gridTemplateColumns = '1fr';
+        if (_selCpay === 'cod') selectCpay('razorpay');
+    }
+}
 
 function openCommissionPayModal(commissionId, amount, email) {
     _cpayCommissionId = commissionId;
@@ -4249,6 +4293,10 @@ function openCommissionPayModal(commissionId, amount, email) {
         setIf('cpay-name', _currentUserName());
         setIf('cpay-phone', _currentUserPhone());
     }
+    // Reset payment method to Razorpay each time the modal opens, then apply COD toggle
+    _selCpay = 'razorpay';
+    selectCpay('razorpay');
+    _applyCpayMethodVisibility();
     document.getElementById('comm-pay-modal').classList.add('active');
 }
 
@@ -4291,10 +4339,38 @@ function _cpayValidate() {
 async function acceptAndPayCommission() {
     const data = _cpayValidate();
     if (!data) return;
+
+    const btn   = document.getElementById('cpay-submit-btn');
+    const label = document.getElementById('cpay-submit-label');
+
+    // ── COD path ─────────────────────────────────────────────────────────────
+    // NEW: if the customer chose Cash on Delivery, skip Razorpay entirely and
+    // call the dedicated COD endpoint — same single-round-trip pattern as the
+    // regular COD checkout, just scoped to commissions. The backend still
+    // checks that COD is enabled and that both sides approved the price, so
+    // this cannot be exploited by calling the endpoint directly.
+    if (_selCpay === 'cod') {
+        btn.disabled = true; label.textContent = 'Placing order…';
+        const cr = await _api('POST', '/commissions/' + _cpayCommissionId + '/pay/cod', {
+            address:    data.address,
+            guestEmail: data.guestEmail,
+            guestPhone: data.guestPhone
+        });
+        btn.disabled = false; label.textContent = 'Place Order (COD) →';
+        if (cr.ok && cr.data.success) {
+            closeCommissionPayModal();
+            launchConfetti();
+            showNotif('🎉 Order placed! Your commission is now Order #' + cr.data.order.id + ' — pay on delivery.');
+            _refreshAfterCommissionPay();
+        } else {
+            showNotif('⚠ ' + (cr.data?.message || 'Could not place order. Please try again.'));
+        }
+        return;
+    }
+
+    // ── Razorpay path (original flow) ─────────────────────────────────────
     if (typeof Razorpay === 'undefined') { showNotif('⚠ Razorpay failed to load — check your connection'); return; }
 
-    const btn = document.getElementById('cpay-submit-btn');
-    const label = document.getElementById('cpay-submit-label');
     btn.disabled = true; label.textContent = 'Preparing payment…';
 
     // Step 1: tell the server we're accepting this quote — it re-validates
@@ -4303,7 +4379,7 @@ async function acceptAndPayCommission() {
     // we send from here), exactly the same trust model as cart checkout.
     const r = await _api('POST', '/commissions/' + _cpayCommissionId + '/accept', {});
     if (!r.ok) {
-        showNotif('⚠ ' + (r.data.message || 'Could not start payment')); 
+        showNotif('⚠ ' + (r.data.message || 'Could not start payment'));
         btn.disabled = false; label.textContent = 'Pay Now →';
         return;
     }
@@ -4322,7 +4398,7 @@ async function acceptAndPayCommission() {
                 razorpay_order_id:   resp.razorpay_order_id,
                 razorpay_payment_id: resp.razorpay_payment_id,
                 razorpay_signature:  resp.razorpay_signature,
-                address: data.address,
+                address:    data.address,
                 guestEmail: data.guestEmail,
                 guestPhone: data.guestPhone
             });
@@ -4331,21 +4407,14 @@ async function acceptAndPayCommission() {
                 closeCommissionPayModal();
                 launchConfetti();
                 showNotif('🎉 Payment confirmed! Your commission is now Order #' + vr.data.order.id);
-                // Refresh whichever commission view is currently open so the
-                // card immediately reflects the new Converted + linked-order
-                // state, rather than the customer needing to manually re-search.
-                if (document.getElementById('comm-track-modal')?.classList.contains('active')) {
-                    if (document.getElementById('ct-panel-id')?.style.display !== 'none') trackByCommId();
-                    else trackCommission();
-                }
-                if (document.getElementById('account-modal')?.classList.contains('active')) _renderCommissionsTab();
+                _refreshAfterCommissionPay();
             } else {
                 showNotif('⚠ Payment could not be verified. Please contact support with your payment ID: ' + resp.razorpay_payment_id);
             }
         },
         prefill: {
-            name: data.address.name,
-            email: currentUser ? _currentUserEmail() : data.guestEmail,
+            name:    data.address.name,
+            email:   currentUser ? _currentUserEmail() : data.guestEmail,
             contact: data.address.phone
         },
         theme: { color: '#D4748C' },
@@ -4353,6 +4422,16 @@ async function acceptAndPayCommission() {
     });
     btn.disabled = false; label.textContent = 'Pay Now →';
     rzp.open();
+}
+
+// Helper: refreshes the currently visible commission view after a successful payment
+// (works for both Razorpay and COD paths so the code isn't duplicated above).
+function _refreshAfterCommissionPay() {
+    if (document.getElementById('comm-track-modal')?.classList.contains('active')) {
+        if (document.getElementById('ct-panel-id')?.style.display !== 'none') trackByCommId();
+        else trackCommission();
+    }
+    if (document.getElementById('account-modal')?.classList.contains('active')) _renderCommissionsTab();
 }
 
 
