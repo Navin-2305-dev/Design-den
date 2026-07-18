@@ -4620,11 +4620,11 @@ function initReveal(){
 function animateCounter(){
     const el=document.getElementById('design-count');
     if(!el) return;
-    let n=1; const target=23;
+    let n=1; const target=25;
     const step=Math.ceil((target-n)/70);
     const t=setInterval(()=>{
         n+=step; el.textContent=n.toLocaleString('en-IN');
-        if(n>=target){ el.textContent='23'; clearInterval(t); }
+        if(n>=target){ el.textContent='25'; clearInterval(t); }
     },30);
 }
 
