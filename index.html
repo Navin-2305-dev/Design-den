@@ -223,6 +223,56 @@
         }
 
         /* ═══════════════════════════════════════
+           WELCOME10 PROMO BANNER
+           NEW: announces the "first 5 orders get 10%
+           off" launch offer. Dismissible; the choice
+           is remembered in localStorage so it doesn't
+           nag returning visitors who already saw it.
+           Delete this whole block (CSS + HTML + the
+           two JS functions near the coupon code) once
+           the offer is retired.
+        ═══════════════════════════════════════ */
+        .promo-banner {
+            background: linear-gradient(120deg, var(--rose), var(--deep) 90%);
+            color: #fff;
+            padding: 12px 48px 12px 5vw;
+            display: flex; align-items: center; justify-content: center;
+            gap: 16px; flex-wrap: wrap; text-align: center;
+            position: relative;
+        }
+        .promo-banner.hidden { display: none; }
+        .promo-banner-text {
+            font-size: 0.82rem; font-weight: 700; line-height: 1.4;
+        }
+        .promo-code-chip {
+            background: rgba(255,255,255,0.16);
+            border: 1.5px dashed rgba(255,255,255,0.65);
+            border-radius: 999px;
+            padding: 4px 16px;
+            font-weight: 800; letter-spacing: 2px;
+            font-size: 0.75rem;
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: background 0.25s ease;
+        }
+        .promo-code-chip:hover { background: rgba(255,255,255,0.28); }
+        .promo-banner-close {
+            position: absolute; right: 14px; top: 50%;
+            transform: translateY(-50%);
+            background: none; border: none;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.95rem;
+            width: 30px; height: 30px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+        .promo-banner-close:hover { background: rgba(255,255,255,0.18); color: #fff; }
+        @media (max-width: 640px) {
+            .promo-banner { padding: 12px 42px 12px 16px; gap: 8px; }
+            .promo-banner-text { font-size: 0.74rem; }
+        }
+
+        /* ═══════════════════════════════════════
            HERO
         ═══════════════════════════════════════ */
         #hero {
@@ -2267,6 +2317,21 @@
 </head>
 <body class="weave-bg">
 
+<!-- WELCOME10 LAUNCH OFFER BANNER
+     Our first 5 orders get an instant 10% off via code WELCOME10.
+     Dismissible — hidden state is remembered in localStorage (see
+     initPromoBanner() near the coupon code JS). Delete this block once
+     the offer is retired, along with the matching CSS and JS. -->
+<div class="promo-banner" id="promo-banner">
+    <span class="promo-banner-text">🎉 <strong>Welcome Offer</strong> — our first 5 orders get an instant 10% off!</span>
+    <span class="promo-code-chip" onclick="copyPromoCode()" title="Tap to copy">
+        <i class="fa-regular fa-copy"></i> WELCOME10
+    </span>
+    <button class="promo-banner-close" onclick="dismissPromoBanner()" aria-label="Dismiss offer banner">
+        <i class="fa fa-times"></i>
+    </button>
+</div>
+
 <!-- CURSOR -->
 <div id="cursor"></div>
 <div id="cursor-ring"></div>
@@ -2339,17 +2404,25 @@
 <!-- ══════════════════════════════════════════════
      MARQUEE
 ══════════════════════════════════════════════ -->
+<!-- NOTE: this static list is only a fallback shown before /settings/public
+     loads (or if the admin hasn't saved anything in Settings → "📣 Marquee
+     Banner Text" yet) — see _applyPublicSettings() further down, which
+     replaces this markup with whatever the admin has entered there. Update
+     BOTH places (here, and Settings in admin.html) to keep them in sync. -->
 <div class="marquee-strip">
     <div class="marquee-inner">
         <span>Crafted with love 🧶</span><span class="dot">✦</span>
+        <span>🎉 First 5 orders get 10% OFF — code WELCOME10</span><span class="dot">✦</span>
         <span>Custom crochet gifts 🎁</span><span class="dot">✦</span>
         <span>bulk orders open 💜</span><span class="dot">✦</span>
         <span>shipping worldwide 🌍</span><span class="dot">✦</span>
         <span>Crafted with love 🧶</span><span class="dot">✦</span>
+        <span>🎉 First 5 orders get 10% OFF — code WELCOME10</span><span class="dot">✦</span>
         <span>Custom crochet gifts 🎁</span><span class="dot">✦</span>
         <span>bulk orders open 💜</span><span class="dot">✦</span>
         <span>shipping worldwide 🌍</span><span class="dot">✦</span>
         <span>Crafted with love 🧶</span><span class="dot">✦</span>
+        <span>🎉 First 5 orders get 10% OFF — code WELCOME10</span><span class="dot">✦</span>
         <span>Custom crochet gifts 🎁</span><span class="dot">✦</span>
         <span>bulk orders open 💜</span><span class="dot">✦</span>
         <span>shipping worldwide 🌍</span><span class="dot">✦</span>
@@ -2405,7 +2478,7 @@
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
-                <div class="stat-num" id="design-count">23</div>
+                <div class="stat-num" id="design-count">27</div>
                 <div class="stat-label">Crochet Products</div>
             </div>
         </div>
@@ -2970,6 +3043,207 @@
     <input id="global-search" placeholder="Search all products…" onkeyup="if(event.key==='Enter')globalSearch();if(event.key==='Escape')toggleSearch()">
     <div class="search-hint">Press Enter to search · Esc to close</div>
 </div>
+
+<!-- ══════════════════════════════════════════════
+     WELCOME10 ANNOUNCEMENT EMAIL — TEMPLATE
+     Kept in this same file (same "single self-contained
+     HTML" approach as the embedded logo/favicon above) so
+     there's nothing separate to lose track of. It sits inside
+     a non-rendering <script type="text/template"> block, so it
+     has zero effect on the live page — it's just storage.
+
+     To use it:
+       1. Open this site in a browser.
+       2. Open the browser console (F12) and run:
+            copyWelcome10EmailHtml("Priya")
+          This copies the personalized email HTML to your
+          clipboard — paste it straight into Gmail's "Insert
+          HTML" (via an extension), or your ESP's HTML/code
+          view (Mailchimp, Brevo, etc.).
+       3. Or run downloadWelcome10Email("Priya") to save it as
+          a standalone .html file instead.
+     "{{First Name}}" inside the template is replaced with
+     whatever name you pass in.
+══════════════════════════════════════════════ -->
+<script type="text/template" id="tpl-welcome10-email">
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Welcome to Design Den — 10% Off Your First Order</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F2B8C6;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+<!-- Preheader (hidden preview text) -->
+<div style="display:none;font-size:1px;color:#F7EDE6;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
+  {{First Name}}, our first 5 orders get an instant 10% off with code WELCOME10 — handcrafted crochet from Chennai.
+</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F2B8C6;background-image:linear-gradient(160deg,#F2B8C6 0%,#F7EDE6 38%,#F7EDE6 100%);">
+  <tr>
+    <td align="center" style="padding:40px 16px;">
+
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#FFF6EE;border-radius:24px;overflow:hidden;box-shadow:0 18px 40px rgba(139,50,82,0.18);">
+
+        <!-- Top accent strip -->
+        <tr>
+          <td style="height:6px;line-height:6px;font-size:0;background:linear-gradient(90deg,#D4A04A,#D4748C 35%,#8B3252 70%,#D4748C);">&nbsp;</td>
+        </tr>
+
+        <!-- Header / Logo -->
+        <tr>
+          <td align="center" style="padding:38px 24px 18px;">
+            <img src="data:image/jpeg;base64,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"
+                 width="88" height="88" alt="Design Den Studio"
+                 style="display:block;border-radius:50%;box-shadow:0 4px 14px rgba(139,50,82,0.22);">
+            <div style="font-family:Georgia,'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#3D1A0E;letter-spacing:-0.5px;margin-top:14px;">
+              Design Den
+            </div>
+            <div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#D4748C;margin-top:4px;">
+              ✦ Chennai · Crochet Studio ✦
+            </div>
+          </td>
+        </tr>
+
+        <!-- Hero band -->
+        <tr>
+          <td style="background:linear-gradient(125deg,#D4748C,#8B3252 85%);padding:38px 28px;" align="center">
+            <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#FAE8D0;margin-bottom:12px;">
+              🎉 Welcome Offer
+            </div>
+            <div style="font-family:Georgia,'Cormorant Garamond',serif;font-size:28px;line-height:1.32;font-weight:700;color:#ffffff;">
+              Our First 5 Orders<br>Get an Instant 10% Off
+            </div>
+            <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,0.85);margin-top:14px;letter-spacing:0.3px;">
+              🧶 Handcrafted with love, one stitch at a time
+            </div>
+          </td>
+        </tr>
+
+        <!-- Body copy -->
+        <tr>
+          <td style="padding:34px 32px 8px;font-family:Arial,Helvetica,sans-serif;">
+            <p style="margin:0 0 16px;font-size:16px;line-height:1.7;color:#3D1A0E;">
+              Hi <strong>{{First Name}}</strong>,
+            </p>
+            <p style="margin:0 0 16px;font-size:15px;line-height:1.75;color:#3D1A0E;">
+              Every piece at Design Den is handcrafted with love, right here in Chennai — from cozy amigurumi
+              kits to premium yarns and made-to-order crochet gifts. To celebrate, we're giving our very
+              first 5 customers an instant <strong style="color:#8B3252;">10% off</strong> their order.
+            </p>
+            <p style="margin:0 0 26px;font-size:15px;line-height:1.75;color:#3D1A0E;">
+              Only 5 codes will ever be redeemed — once they're claimed, this offer is gone for good.
+            </p>
+          </td>
+        </tr>
+
+        <!-- Code box -->
+        <tr>
+          <td align="center" style="padding:0 32px 30px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
+              <tr>
+                <td align="center" style="padding:22px;background-color:#FAE8D0;border:2px dashed #D4A04A;border-radius:16px;">
+                  <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#8B3252;margin-bottom:9px;">
+                    ✂️ Your Code
+                  </div>
+                  <div style="font-family:'Courier New',Courier,monospace;font-size:30px;font-weight:800;letter-spacing:6px;color:#3D1A0E;">
+                    WELCOME10
+                  </div>
+                  <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:rgba(61,26,14,0.6);margin-top:10px;">
+                    Applies instantly at checkout · First 5 orders only
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- CTA button -->
+        <tr>
+          <td align="center" style="padding:0 32px 20px;">
+            <table role="presentation" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="border-radius:999px;background:linear-gradient(120deg,#D4748C,#8B3252);box-shadow:0 8px 20px rgba(139,50,82,0.35);">
+                  <a href="https://design-den-studio.vercel.app/#shop-section"
+                     target="_blank"
+                     style="display:inline-block;padding:16px 44px;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#ffffff;text-decoration:none;border-radius:999px;">
+                    Shop Now →
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Trust strip -->
+        <tr>
+          <td style="padding:14px 32px 30px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" width="33%" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;color:rgba(61,26,14,0.55);padding:6px;">
+                  🧵<br><span style="font-weight:700;">100% Handmade</span>
+                </td>
+                <td align="center" width="33%" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;color:rgba(61,26,14,0.55);padding:6px;border-left:1px solid rgba(61,26,14,0.1);border-right:1px solid rgba(61,26,14,0.1);">
+                  📍<br><span style="font-weight:700;">Made in Chennai</span>
+                </td>
+                <td align="center" width="33%" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;color:rgba(61,26,14,0.55);padding:6px;">
+                  🌍<br><span style="font-weight:700;">Ships Worldwide</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Divider -->
+        <tr>
+          <td align="center" style="padding:0 32px;">
+            <div style="font-size:12px;color:#D4748C;letter-spacing:6px;">✦ ✦ ✦</div>
+          </td>
+        </tr>
+
+        <!-- Fine print -->
+        <tr>
+          <td style="padding:20px 32px 34px;font-family:Arial,Helvetica,sans-serif;">
+            <p style="margin:0 0 8px;font-size:11px;line-height:1.6;color:rgba(61,26,14,0.5);">
+              <strong>Terms:</strong> WELCOME10 gives 10% off the order value and is valid only for the
+              first 5 orders placed using this code. Once redeemed 5 times, the code will no longer apply.
+              Cannot be combined with other offers unless stated otherwise.
+            </p>
+            <p style="margin:0;font-size:11px;line-height:1.6;color:rgba(61,26,14,0.5);">
+              Questions? Just reply to this email or reach us on WhatsApp — we're happy to help.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+
+      <!-- Footer -->
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+        <tr>
+          <td align="center" style="padding:26px 16px;font-family:Arial,Helvetica,sans-serif;">
+            <div style="font-family:Georgia,'Cormorant Garamond',serif;font-size:15px;color:#8B3252;font-weight:700;margin-bottom:6px;">
+              Design Den
+            </div>
+            <p style="margin:0 0 6px;font-size:11px;color:rgba(61,26,14,0.5);">
+              12, Main Road, Chennai, Tamil Nadu
+            </p>
+            <p style="margin:0;font-size:11px;color:rgba(61,26,14,0.4);">
+              © 2026 Design Den · All stitches reserved
+            </p>
+          </td>
+        </tr>
+      </table>
+
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>
+
+</script>
+
 
 <!-- ══════════════════════════════════════════════
      JAVASCRIPT
@@ -5168,6 +5442,7 @@ function _calcShipping(sub, disc) {
 
 window.addEventListener('DOMContentLoaded', () => {
     initStore();
+    _initPromoBanner();
     // Initialize live form validation once DOM is ready
     setTimeout(() => {
         _initLiveValidation();
@@ -5251,6 +5526,76 @@ function _updateShippingBar() {
 }
 
 // Patch renderCartItems to include bar
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  WELCOME10 PROMO BANNER
+//  Companion to the .promo-banner markup at the top of <body>. The actual
+//  10%-off / first-5-uses enforcement lives entirely server-side on the
+//  WELCOME10 coupon (see /coupons/validate below) — this block is purely
+//  about announcing it and letting people copy the code with one tap.
+// ═══════════════════════════════════════════════════════════════════════════
+function copyPromoCode() {
+    const code = 'WELCOME10';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code)
+            .then(() => showNotif('📋 Code ' + code + ' copied!'))
+            .catch(() => showNotif('Code: ' + code));
+    } else {
+        showNotif('Code: ' + code);
+    }
+}
+
+function dismissPromoBanner() {
+    const el = document.getElementById('promo-banner');
+    if (el) el.classList.add('hidden');
+    try { localStorage.setItem('dd_promo_welcome10_dismissed', '1'); } catch (_) {}
+}
+
+function _initPromoBanner() {
+    const el = document.getElementById('promo-banner');
+    if (!el) return;
+    let dismissed = false;
+    try { dismissed = localStorage.getItem('dd_promo_welcome10_dismissed') === '1'; } catch (_) {}
+    if (dismissed) el.classList.add('hidden');
+}
+
+// ── WELCOME10 email template helpers ────────────────────────────────────────
+// Reads the <script type="text/template" id="tpl-welcome10-email"> block
+// (see just above the JAVASCRIPT section in <body>) and swaps in a name.
+// Not wired to any UI button on purpose — this is a marketing utility for
+// whoever is sending the campaign, run from the browser console, not
+// something a site visitor should stumble into.
+function getWelcome10EmailHtml(firstName) {
+    const tpl = document.getElementById('tpl-welcome10-email');
+    if (!tpl) { console.warn('[welcome10] email template not found in page'); return ''; }
+    const name = (firstName || 'there').toString().trim() || 'there';
+    return tpl.textContent.split('{{First Name}}').join(esc(name));
+}
+
+async function copyWelcome10EmailHtml(firstName) {
+    const html = getWelcome10EmailHtml(firstName);
+    if (!html) return;
+    try {
+        await navigator.clipboard.writeText(html);
+        console.log('%c✓ Welcome10 email HTML copied to clipboard for: ' + (firstName || 'there'), 'color:#7DAA8A;font-weight:bold;');
+        if (document.getElementById('notif-el')) showNotif('📋 Email HTML copied!');
+    } catch (e) {
+        console.warn('[welcome10] clipboard write failed, logging HTML instead:', e);
+        console.log(html);
+    }
+}
+
+function downloadWelcome10Email(firstName) {
+    const html = getWelcome10EmailHtml(firstName);
+    if (!html) return;
+    const blob = new Blob([html], { type: 'text/html' });
+    const url  = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'welcome10-email' + (firstName ? '-' + firstName.toString().toLowerCase().replace(/[^a-z0-9]+/g,'-') : '') + '.html';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  COUPON CODES — API-backed
@@ -5381,6 +5726,11 @@ function renderCartItems() {
         <div class="shipping-bar-track"><div class="shipping-bar-fill" id="shipping-bar-fill" style="width:0%"></div></div>
       </div>
       <div class="coupon-wrap">
+        <!-- WELCOME10 OFFER HINT — remove this line once the first 5 orders
+             have claimed it, so the site stops advertising an exhausted code. -->
+        <div style="font-size:0.68rem;color:var(--gold);font-weight:700;margin-bottom:6px;">
+          🎉 First 5 orders get 10% off — try <strong>WELCOME10</strong>
+        </div>
         <button class="coupon-toggle" onclick="toggleCoupon()">🏷 Have a coupon code?</button>
         <div class="coupon-row" id="coupon-row">
           <input class="coupon-input" id="coupon-code" placeholder="ENTER CODE"
